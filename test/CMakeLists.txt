@@ -1,0 +1,3 @@
+
+add_executable(classifier_unit_test classifier_unit_test.cpp)
+target_link_libraries(classifier_unit_test ${INFERSDK_LIB})

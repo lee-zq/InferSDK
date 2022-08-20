@@ -1,0 +1,28 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+    {
+        "name": "(gdb) Launch",
+        "type": "cppdbg",
+        "request": "launch",
+        "program": "/root/projects/onnxruntime/onnxruntime/test/my_test/mainv1",
+        "args": ["/root/projects/onnxruntime/environment/model/resnet_best.onnx",
+                "/root/projects/onnxruntime/environment/lst/img.lst"],
+        "stopAtEntry": false,
+        "cwd": "/root/projects/onnxruntime/onnxruntime/test/my_test",
+        "environment": [{"name": "LD_LIBRARY_PATH","value": "/usr/local/opencv34/lib:/root/projects/onnxruntime/build/Linux/Debug:$LD_LIBRARY_PATH"}],
+        "externalConsole": false,
+        "MIMode": "gdb",
+        "setupCommands": [
+            {
+                "description": "Enable pretty-printing for gdb",
+                "text": "-enable-pretty-printing",
+                "ignoreFailures": true
+            }
+        ]
+    }
+    ]
+}
