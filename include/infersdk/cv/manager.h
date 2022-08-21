@@ -1,3 +1,4 @@
+#pragma once
 #include "infer_face.h"
 
 #include <string>
@@ -7,9 +8,9 @@ class Manager
 {
 public:
     Manager(/* args */);
-    virtual int init() = 0;
-    virtual int run() = 0;
-    virtual int finish() = 0;
+    virtual int init();
+    virtual int run() ;
+    virtual int finish() ;
     virtual ~Manager();
 
 private:

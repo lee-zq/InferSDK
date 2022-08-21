@@ -3,27 +3,46 @@
 #include <time.h>
 #include <algorithm>
 #include <fstream>
+#include <vector>
 #include "opencv2/opencv.hpp"
-#include "infersdk/cv/infer_face.h"
+#include "cv/infer_face.h"
 #include "opencv2/opencv.hpp"
+
+using namespace std;
 
 class CVInst : public InferFace{
  public:
-  CVInst(const char* onnx_path, dev_t device_type);
-  virtual int forward();
- private:
-  virtual int feed_input(std::string& img_path) = 0;
-  virtual int get_output(int& result) = 0;
-  virtual int preproc() = 0;
-  virtual int compute() = 0;
-  virtual int postproc() = 0;
+  CVInst(){};
+  virtual int init(InitParam& param);
+  virtual int infer(vector<cv::Mat>& input_imgs, vector<IResult*>& results);
 
- private:
+  virtual int feed_io_data();
+  virtual int compute();
 
-  Ort::Value input_tensor_{nullptr};
-  Ort::Value output_tensor_{nullptr};
-  dev_t device_type;
-  Ort::MemoryInfo allocator_info_;
+  virtual int init_() = 0;
+
+  virtual int preproc(std::vector<cv::Mat>& input_imgs) = 0;
+  virtual int postproc(vector<IResult*>& results) = 0;
+
+  virtual vector<vector<float>>& GetInputData() = 0;
+  virtual vector<vector<int64_t>>& GetInputShape() = 0;
+  virtual vector<vector<float>>& GetOutputData() = 0;
+  virtual vector<vector<int64_t>>& GetOutputShape() = 0;
+
+  virtual int finish(){};
+
+ public:
+  Ort::MemoryInfo memory_info_{nullptr};
+  Ort::Allocator*  allocator_;
+
+  int input_num_;
+  int output_num_;
+  vector<Ort::Value> input_tensor_;
+  vector<Ort::Value> output_tensor_;
+  vector<const char*> input_names_;
+  vector<const char*> output_names_;
+  device_type device_type_;
+  
   Ort::SessionOptions session_option;
   Ort::Env env{ORT_LOGGING_LEVEL_WARNING, "cv_inst"};
   Ort::Session session{nullptr};

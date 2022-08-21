@@ -5,19 +5,14 @@
 #include <fstream>
 #include "opencv2/opencv.hpp"
 
+#include "cv/infer_face.h"
+
 using namespace cv;
 using namespace std;
 
-const int class_num = 10;
-const int input_height = 32;
-const int input_width = 32;
-const int input_channel = 3;
-
-const int batch_size = 1;
-
-class Classifier {
+class ClassifierAgent {
  public:
-  Classifier(const char* onnx_path) {
+  ClassifierAgent(const char* onnx_path, device_type cuda) {
     auto allocator_info = Ort::MemoryInfo::CreateCpu(OrtDeviceAllocator, OrtMemTypeCPU);
     input_tensor_ = Ort::Value::CreateTensor<float>(allocator_info, input_.data(), input_.size(), input_shape_.data(), input_shape_.size());
     output_tensor_ = Ort::Value::CreateTensor<float>(allocator_info, output_.data(), output_.size(), output_shape_.data(), output_shape_.size());

@@ -3,14 +3,7 @@
 #include <algorithm>
 #include <fstream>
 
-#include "cv_inst.h"
-
-const int class_num = 10;
-const int input_height = 32;
-const int input_width = 32;
-const int input_channel = 3;
-
-const int batch_size = 1;
+#include "../cv_inst.h"
 
 using namespace cv;
 using namespace std;
@@ -18,23 +11,39 @@ using namespace std;
 
 class Classifier : public CVInst{
  public:
-  Classifier(const char* onnx_path);
+  Classifier(){};
+  virtual int preproc(std::vector<cv::Mat>& input_img);
+  virtual int postproc(vector<IResult*>& results);
 
+  virtual int init_() {};
+
+  virtual vector<vector<float>>& GetInputData(){
+    return input_;
+  }
+  virtual vector<vector<int64_t>>& GetInputShape(){
+    return input_shape_;
+  }
+  virtual vector<vector<float>>& GetOutputData(){
+    return output_;
+  }
+  virtual vector<vector<int64_t>>& GetOutputShape(){
+    return output_shape_;
+  }
 
  private:
-  virtual int feed_input(string& img_path) = 0;
-  virtual int get_output(int& result) = 0;
-  virtual int preproc() = 0;
-  virtual int compute() = 0;
-  virtual int postproc() = 0;
+  vector<std::vector<float>> input_;
+  vector<std::vector<float>> output_;
+  vector<std::vector<int64_t>> input_shape_;
+  vector<std::vector<int64_t>> output_shape_;
 
- private:
+  const int class_num = 10;
+  const int input_height = 32;
+  const int input_width = 32;
+  const int input_channel = 3;
 
-  std::array<float, batch_size * input_height * input_width * input_channel> input_;
-  std::array<float, batch_size * class_num> output_;
-  std::array<int64_t, 4> input_shape_{batch_size, input_channel, input_width, input_height};
-  std::array<int64_t, 2> output_shape_{batch_size, class_num};
+  const int batch_size = 1;
+  std::vector<float> mean_{0.4914, 0.4822, 0.4465};
+  std::vector<float> std_{0.2023, 0.1994, 0.2010};
 
-  Ort::Value input_tensor_{nullptr};
-  Ort::Value output_tensor_{nullptr};
+  ClassifyResult result_;
 };
