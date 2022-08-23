@@ -7,7 +7,7 @@
 
 using namespace std;
 
-int CVInst::init(InitParam& param){
+int CVInst::init(const InitParam& param){
   memory_info_ = Ort::MemoryInfo::CreateCpu(OrtDeviceAllocator, OrtMemTypeCPU);
 
   session_option.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL);

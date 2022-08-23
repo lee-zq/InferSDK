@@ -13,7 +13,7 @@ using namespace std;
 class CVInst : public InferFace{
  public:
   CVInst(){};
-  virtual int init(InitParam& param);
+  virtual int init(const InitParam& param);
   virtual int infer(vector<cv::Mat>& input_imgs, vector<IResult*>& results);
 
   virtual int feed_io_data();

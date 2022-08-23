@@ -4,18 +4,17 @@
 #include <string>
 #include <vector>
 
-class Manager
+class InferManager
 {
 public:
-    Manager(/* args */);
-    virtual int init();
-    virtual int run() ;
+    InferManager(/* args */);
+    virtual int init(const InitParam& param);
+    virtual int run(std::vector<cv::Mat>& input_imgs, std::vector<IResult*>& results) ;
     virtual int finish() ;
-    virtual ~Manager();
+    virtual ~InferManager();
+
+    int create_inferinst(std::string task_type);
 
 private:
-    int create_inferinst(std::string task_type, InferFace** handle);
-
-private:
-    InferFace* inferInst_;
+    InferFace* infer_inst_;
 };

@@ -4,25 +4,32 @@
 #include <vector>
 #include "../cv/classification/classifier.h"
 
-Manager::Manager(/* args */){
+InferManager::InferManager(/* args */){
     
 }
-int Manager::init(){
-
-}
-int Manager::run(){
-
-}
-int Manager::finish(){
-
-}
-Manager::~Manager(){
-
+int InferManager::init(const InitParam& param){
+    infer_inst_->init(param);
+    return 0;
 }
 
-int Manager::create_inferinst(std::string task_type, InferFace** pHandle){
+int InferManager::run(std::vector<cv::Mat>& input_imgs, std::vector<IResult*>& results){
+    infer_inst_->infer(input_imgs, results);
+    return 0;
+}
+
+int InferManager::finish(){
+    if (infer_inst_)
+        delete infer_inst_;
+    return 0;
+}
+
+InferManager::~InferManager(){
+
+}
+
+int InferManager::create_inferinst(std::string task_type){
     if(task_type=="classification"){
-        *pHandle = new Classifier();
+        infer_inst_ = new Classifier();
     }else if(task_type=="detection"){
 
     }else {
