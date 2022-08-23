@@ -15,24 +15,33 @@ class Classifier : public CVInst{
   virtual int preproc(std::vector<cv::Mat>& input_img);
   virtual int postproc(vector<IResult*>& results);
 
-  virtual int init_() {};
+  virtual int init_() {
+    input_shape_.emplace_back(vector<int64_t>{batch_size, input_channel, input_height, input_width});
+    output_shape_.emplace_back(vector<int64_t>{batch_size, class_num});
+    input_data_.resize(batch_size);
+    input_data_[0].resize(batch_size*input_channel*input_height*input_width);
+    output_data_.resize(batch_size);
+    output_data_[0].resize(batch_size*class_num);
+
+    return 0;
+  };
 
   virtual vector<vector<float>>& GetInputData(){
-    return input_;
+    return input_data_;
   }
   virtual vector<vector<int64_t>>& GetInputShape(){
     return input_shape_;
   }
   virtual vector<vector<float>>& GetOutputData(){
-    return output_;
+    return output_data_;
   }
   virtual vector<vector<int64_t>>& GetOutputShape(){
     return output_shape_;
   }
 
  private:
-  vector<std::vector<float>> input_;
-  vector<std::vector<float>> output_;
+  vector<std::vector<float>> input_data_;
+  vector<std::vector<float>> output_data_;
   vector<std::vector<int64_t>> input_shape_;
   vector<std::vector<int64_t>> output_shape_;
 

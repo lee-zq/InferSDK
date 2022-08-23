@@ -36,11 +36,14 @@ class CVInst : public InferFace{
     if (allocator_){
       delete allocator_;
     }
+    // if (memory_info_){
+    //   delete memory_info_;
+    // }
   };
 
  public:
   Ort::MemoryInfo memory_info_{nullptr};
-  Ort::Allocator*  allocator_{nullptr};
+  Ort::AllocatorWithDefaultOptions*  allocator_{nullptr};
 
   int input_num_;
   int output_num_;
