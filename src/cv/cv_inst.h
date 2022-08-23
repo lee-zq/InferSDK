@@ -29,11 +29,18 @@ class CVInst : public InferFace{
   virtual vector<vector<float>>& GetOutputData() = 0;
   virtual vector<vector<int64_t>>& GetOutputShape() = 0;
 
-  virtual int finish(){};
+  virtual int finish(){
+    if (session){
+      delete session;      
+    }
+    if (allocator_){
+      delete allocator_;
+    }
+  };
 
  public:
   Ort::MemoryInfo memory_info_{nullptr};
-  Ort::Allocator*  allocator_;
+  Ort::Allocator*  allocator_{nullptr};
 
   int input_num_;
   int output_num_;
@@ -45,5 +52,5 @@ class CVInst : public InferFace{
   
   Ort::SessionOptions session_option;
   Ort::Env env{ORT_LOGGING_LEVEL_WARNING, "cv_inst"};
-  Ort::Session session{nullptr};
+  Ort::Session* session{nullptr};
 };

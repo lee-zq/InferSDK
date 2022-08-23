@@ -16,18 +16,18 @@ int CVInst::init(const InitParam& param){
   {
     OrtSessionOptionsAppendExecutionProvider_CUDA(session_option, param.dev_type);
   }
-  session = Ort::Session(env, param.onnx_path, session_option);
+  session = new Ort::Session(env, param.onnx_path, session_option);
 
   OrtAllocator* allocator_ = new OrtAllocator();
 
-  input_num_ = session.GetInputCount();
-  output_num_ = session.GetOutputCount();
+  input_num_ = session->GetInputCount();
+  output_num_ = session->GetOutputCount();
   for (int i=0;i<input_num_;i++){
-    input_names_.push_back(session.GetInputName(i, allocator_));
+    input_names_.push_back(session->GetInputName(i, allocator_));
   }
   
   for (int i=0;i<output_num_;i++){
-    output_names_.push_back(session.GetOutputName(i, allocator_));
+    output_names_.push_back(session->GetOutputName(i, allocator_));
   }
 
   int ret = init_();
@@ -42,7 +42,7 @@ int CVInst::infer(vector<cv::Mat>& input_imgs, vector<IResult*>& results) {
 
 int CVInst::compute(){
   int ret = feed_io_data();
-  session.Run(Ort::RunOptions{nullptr}, input_names_.data(), input_tensor_.data(), input_names_.size(), 
+  session->Run(Ort::RunOptions{nullptr}, input_names_.data(), input_tensor_.data(), input_names_.size(), 
               output_names_.data(), output_tensor_.data(), output_names_.size());
 }
 

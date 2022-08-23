@@ -8,7 +8,7 @@
         "name": "(gdb) Launch",
         "type": "cppdbg",
         "request": "launch",
-        "program": "/root/projects/onnxruntime/onnxruntime/test/my_test/mainv1",
+        "program": "/root/projects/InferSDK/build/test/classifier_unit_test",
         "args": ["/root/projects/onnxruntime/environment/model/resnet_best.onnx",
                 "/root/projects/onnxruntime/environment/lst/img.lst"],
         "stopAtEntry": false,
