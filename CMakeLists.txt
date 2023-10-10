@@ -5,7 +5,7 @@ option(USE_CUDA "<help_text>" OFF)
 set(ALL_LIBS "")
 
 # 添加opencv依赖
-set(OpenCV_DIR /usr/local/opencv34)
+set(OpenCV_DIR /opt/envs/opencvlib/share/OpenCV)
 find_package(OpenCV REQUIRED)
 message(STATUS "OpenCV include dir:${OpenCV_INCLUDE_DIRS}")
 message(STATUS "OpenCV libs: ${OpenCV_LIBS}")
@@ -13,12 +13,14 @@ INCLUDE_DIRECTORIES(${OpenCV_INCLUDE_DIRS})
 list(APPEND ALL_LIBS ${OpenCV_LIBS})
 
 # 添加CUDA依赖
-# set(CUDA_ROOT /usr/local/cuda)
-find_package(CUDA REQUIRED)
-message(STATUS "CUDA include dir: ${CUDA_INCLUDE_DIRS}")
-message(STATUS "CUDA libs: ${CUDA_LIBRARIES}")
-INCLUDE_DIRECTORIES(${CUDA_INCLUDE_DIRS})
-list(APPEND ALL_LIBS ${CUDA_LIBRARIES})
+if(USE_CUDA)
+    # set(CUDA_ROOT /usr/local/cuda)
+    find_package(CUDA REQUIRED)
+    message(STATUS "CUDA include dir: ${CUDA_INCLUDE_DIRS}")
+    message(STATUS "CUDA libs: ${CUDA_LIBRARIES}")
+    INCLUDE_DIRECTORIES(${CUDA_INCLUDE_DIRS})
+    list(APPEND ALL_LIBS ${CUDA_LIBRARIES})
+endif(USE_CUDA)
 
 # 添加推理库依赖
 #onnxruntime

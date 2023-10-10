@@ -7,6 +7,7 @@ public:
     ~Autosar()=default;
 
     virtual int process(message* msg);
+    
 };
 // 封装C接口
 extern "C"{

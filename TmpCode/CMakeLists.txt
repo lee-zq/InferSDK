@@ -6,7 +6,8 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 # 设置库文件输出目录
 set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
-set(CMAKE_CXX_FLAGS " -std=c++11 -g -Wall -O0")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -Wall -O0")
+set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -Wall -O0")
 # 设置头文件包含路径
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
