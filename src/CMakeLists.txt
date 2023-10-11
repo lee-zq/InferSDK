@@ -1,4 +1,9 @@
 
-file(GLOB_RECURSE SRC_LIST "*.cc")             # 递归搜索匹配
-add_library(infersdk SHARED ${SRC_LIST})
-target_link_libraries(infersdk ${OpenCV_LIBRARIES})
+set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
+
+include_directories(${SOURCE_DIR}/common)
+include_directories(${SOURCE_DIR}/module)
+
+add_subdirectory(solution/CVServer)
+add_subdirectory(solution/test)
+# add_subdirectory(solution/CVServer)

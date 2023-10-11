@@ -26,8 +26,8 @@ include(cmake/depends.cmake)
 #添加本项目头文件
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include)
 
-add_subdirectory(src) 
-add_subdirectory(test) 
+add_subdirectory(src/solutions) 
+add_subdirectory(src/) 
 
 
 

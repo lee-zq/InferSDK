@@ -2,21 +2,24 @@
 #include "spdlog/spdlog.h"
 #include <string>
 #include <vector>
-#include "../module/classification/classifier.h"
+#include "classification/classifier.h"
 
-int InstManager::init(const InitParam& param){
-    infer_inst_->init(param);
+int InstManager::init(const std::string& cfg){
     return 0;
 }
 
-int InstManager::run(std::vector<cv::Mat>& input_imgs, std::vector<IResult*>& results){
-    infer_inst_->infer(input_imgs, results);
+int InstManager::run(const std::string& type ,cv::Mat& input_img, Result* result){
+    auto module = module_map_.find(type);
+    module->infer(input_img, result);
     return 0;
 }
 
 int InstManager::fini(){
-    if (infer_inst_)
-        delete infer_inst_;
+    for (auto& module : module_map_){
+        module->second->fini();
+        delete module->second;
+    }
+    module_map_.clear();
     return 0;
 }
 
@@ -30,10 +33,12 @@ int InstManager::append_module(const std::string& task_type, CreateParam& param)
         module_inst_ = new Classifier();
         int ret = module_inst->init(param);
         if (ret!=0){
-            
+          std::cout << "error" <<endl; 
+          return ret;  
         }
     }else {
         std::cout << "No supported task type : " << task_type <<endl; 
     }
-
+    module_map_.insert(std::make_pair(task_type, module_inst_));
+    return 0;
 }

@@ -17,6 +17,15 @@ typedef struct _message{
     void* output;   // 输出数据
 }message;
 
+typedef struct InData{
+    cv::Mat img;
+    std::string img_info;
+}InData;
+
+typedef struct OutData{
+    std::string output_info;
+}OutData;
+
 // fid 类型枚举
 enum class FID{
     NONE,
