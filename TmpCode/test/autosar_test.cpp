@@ -1,60 +1,31 @@
 
-// #include "../src/Android/android.h"
-// #include "../src/Autosar/autosar.h"
+#include "../src/c_api.h"
+#include "stdio.h"
 
-// int test1(){
-//     IAndroid* agent = new Android;
-//     IAutosar* autosar = new Autosar;
+int clientTest(){
+    void* Client = NULL;
+    void* autosar = NULL;
+    int ret = 0;
+    ret = createClient(&Client);
+    ret = createAutosar(&autosar);
+    ret = initClient(Client, autosar);
+    message msg;
+    while (1)
+    {
+        //从标准输入读取数据指定fid
+        printf("please input fid: ");
+        //从标准输入读取数据指定fid33
+        scanf("%d", &msg.fid);
+        ret = processAutosar(Client, &msg);
+        //输出结果
+        printf("msg.output: %p\n", msg.output);
 
-//     agent->init(autosar);
-//     message msg;
-//     while (1)
-//     {
-//         //从标准输入读取数据指定fid
-//         std::cout << "please input fid:";
-//         std::cin >> msg.fid;
-//         agent->Send(&msg);
-//         std::cout << "msg::output:" << msg.output << std::endl;
-//     }
+   }
     
-//     return 0;
-// }
+    return 0;
+}
 
-// int main(){
-//     test1();
-//     return 0;
-// }
-
-// // #include "project/tmp.hpp"
-
-// // #include <gtest/gtest.h>
-
-// // TEST(TmpAddTest, CheckValues)
-// // {
-// //   ASSERT_EQ(tmp::add(1, 2), 3);
-// //   EXPECT_TRUE(true);
-// // }
-
-// // TEST(TmpSubTest, CheckValues)
-// // {
-// //   ASSERT_EQ(tmp::sub(1, 2), -1);
-// //   EXPECT_TRUE(true);
-// // }
-
-// // TEST(TmpMulTest, CheckValues)
-// // {
-// //   ASSERT_EQ(tmp::mul(1, 2), 2);
-// //   EXPECT_TRUE(true);
-// // }
-
-// // TEST(TmpDivTest, CheckValues)
-// // {
-// //   ASSERT_EQ(tmp::div(1, 2), 0);
-// //   EXPECT_TRUE(true);
-// // }
-
-// // int main(int argc, char **argv)
-// // {
-// //   ::testing::InitGoogleTest(&argc, argv);
-// //   return RUN_ALL_TESTS();
-// // }
+int main(){
+    test1();
+    return 0;
+}

@@ -1,15 +1,6 @@
-#include "message.h"
-#include "../../include/interface.h"
 
-class Autosar : public IAutosar{
-public:
-    Autosar()=default;
-    ~Autosar()=default;
+#include "autosar/autosar.h"
 
-    virtual int process(message* msg);
-    
-};
-// 封装C接口
 extern "C"{
     int createAutosar(void** inst){
         auto q = new Autosar;
