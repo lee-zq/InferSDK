@@ -14,11 +14,11 @@ public:
         return 0;
     }
 
-    virtual int init(ICVServer* cv_server_ptr){
+    virtual int init(void* cv_server_ptr){
         cv_server_ = cv_server_ptr;
         return 0;
     }
 public:
-    ICVServer* cv_server_ = nullptr;
+    void* cv_server_ = nullptr;
     message msg;
 };

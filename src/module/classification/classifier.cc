@@ -39,3 +39,5 @@ int Classifier::postproc(vector<IResult*>& results) {
   }
   return 0;
 }
+
+REGISTER_MODULE_CLASS("Classifier") 

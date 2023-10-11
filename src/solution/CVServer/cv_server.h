@@ -2,7 +2,7 @@
 #include "icv_server.h"
 #include "../common/define.hpp"
 
-class CVServer : public ICVServer{
+class CVServer{
 public:
     virtual int init(const std::string& cfg_path) override;
     virtual int uninit() override;

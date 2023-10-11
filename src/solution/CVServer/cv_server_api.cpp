@@ -8,12 +8,12 @@ extern "C"{
         return 0;
     }
     int destroyCVServer(void* CVServer){
-        ICVServer *q = (ICVServer*)CVServer;
+        void *q = (void*)CVServer;
         delete q;
         return 0;
     }
     int processCVServer(void* CVServer, message* msg){
-        ICVServer *q = (ICVServer*)CVServer;
+        void *q = (void*)CVServer;
         return q->process(msg);
     }
 }

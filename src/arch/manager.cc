@@ -1,8 +1,8 @@
-#include "cv/manager.h"
+#include "module/manager.h"
 
 #include <string>
 #include <vector>
-#include "../cv/classification/classifier.h"
+#include "../module/classification/classifier.h"
 
 InstManager::InstManager(/* args */){
     
