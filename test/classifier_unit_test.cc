@@ -12,7 +12,7 @@ class ClassifierAgent {
  public:
   ClassifierAgent(const char* onnx_path, device_type cuda) {
     InitParam param{onnx_path, cuda};
-    manager_ = new InferManager();
+    manager_ = new InstManager();
     manager_->create_inferinst(std::string("classification"));
     manager_->init(param);
   }
@@ -33,12 +33,12 @@ class ClassifierAgent {
 
   ~ClassifierAgent(){
     if (manager_){
-      manager_->finish();      
+      manager_->fini();      
     }
   }
 
  private:
-  InferManager* manager_=nullptr;
+  InstManager* manager_=nullptr;
   vector<ClassifyResult> results_;
 };
 

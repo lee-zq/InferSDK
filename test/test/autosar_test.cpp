@@ -4,11 +4,11 @@
 
 int clientTest(){
     void* Client = NULL;
-    void* autosar = NULL;
+    void* cv_server = NULL;
     int ret = 0;
     ret = createClient(&Client);
-    ret = createAutosar(&autosar);
-    ret = initClient(Client, autosar);
+    ret = createCVServer(&cv_server);
+    ret = initClient(Client, cv_server);
     message msg;
     while (1)
     {
@@ -16,7 +16,7 @@ int clientTest(){
         printf("please input fid: ");
         //从标准输入读取数据指定fid33
         scanf("%d", &msg.fid);
-        ret = processAutosar(Client, &msg);
+        ret = processCVServer(Client, &msg);
         //输出结果
         printf("msg.output: %p\n", msg.output);
 

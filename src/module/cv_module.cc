@@ -3,11 +3,11 @@
 #include <algorithm>
 #include <fstream>
 #include <vector>
-#include "cv_inst.h"
+#include "cv_module.h"
 
 using namespace std;
 
-int CVInst::init(const InitParam& param){
+int CVModule::init(const InitParam& param){
   memory_info_ = Ort::MemoryInfo::CreateCpu(OrtDeviceAllocator, OrtMemTypeCPU);
 
   session_option.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL);
@@ -36,20 +36,20 @@ int CVInst::init(const InitParam& param){
   int ret = init_();
 }
 
-int CVInst::infer(vector<cv::Mat>& input_imgs, vector<IResult*>& results) {
+int CVModule::infer(vector<cv::Mat>& input_imgs, vector<IResult*>& results) {
   int ret = preproc(input_imgs);
   ret = compute();
   ret = postproc(results);
   return 0;
 }
 
-int CVInst::compute(){
+int CVModule::compute(){
   int ret = feed_io_data();
   session->Run(Ort::RunOptions{nullptr}, input_names_.data(), input_tensor_.data(), input_names_.size(), 
               output_names_.data(), output_tensor_.data(), output_names_.size());
 }
 
-int CVInst::feed_io_data(){
+int CVModule::feed_io_data(){
     vector<vector<float>>& input_data = GetInputData();
     vector<vector<int64_t>>& input_shape = GetInputShape();
     input_tensor_.clear();

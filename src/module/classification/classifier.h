@@ -3,13 +3,13 @@
 #include <algorithm>
 #include <fstream>
 
-#include "../cv_inst.h"
+#include "../cv_module.h"
 
 using namespace cv;
 using namespace std;
 
 
-class Classifier : public CVInst{
+class Classifier : public CVModule{
  public:
   Classifier(){};
   virtual int preproc(std::vector<cv::Mat>& input_img);

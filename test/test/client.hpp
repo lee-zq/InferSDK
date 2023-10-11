@@ -4,7 +4,7 @@
 class Client{
 public:
     int Send(message* msg){
-        autosar_->process(msg);
+        cv_server_->process(msg);
         return 0;
     }
     // 初始化msg
@@ -14,11 +14,11 @@ public:
         return 0;
     }
 
-    virtual int init(IAutosar* autosar_ptr){
-        autosar_ = autosar_ptr;
+    virtual int init(ICVServer* cv_server_ptr){
+        cv_server_ = cv_server_ptr;
         return 0;
     }
 public:
-    IAutosar* autosar_ = nullptr;
+    ICVServer* cv_server_ = nullptr;
     message msg;
 };

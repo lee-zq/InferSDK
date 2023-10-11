@@ -10,9 +10,9 @@
 
 using namespace std;
 
-class CVInst : public InferFace{
+class CVModule : public IModule{
  public:
-  CVInst(){};
+  CVModule(){};
   virtual int init(const InitParam& param);
   virtual int infer(vector<cv::Mat>& input_imgs, vector<IResult*>& results);
 
@@ -29,7 +29,7 @@ class CVInst : public InferFace{
   virtual vector<vector<float>>& GetOutputData() = 0;
   virtual vector<vector<int64_t>>& GetOutputShape() = 0;
 
-  virtual int finish(){
+  virtual int fini(){
     if (session){
       delete session;      
     }
@@ -54,6 +54,6 @@ class CVInst : public InferFace{
   device_type device_type_;
   
   Ort::SessionOptions session_option;
-  Ort::Env env{ORT_LOGGING_LEVEL_WARNING, "cv_inst"};
+  Ort::Env env{ORT_LOGGING_LEVEL_WARNING, "cv_module"};
   Ort::Session* session{nullptr};
 };

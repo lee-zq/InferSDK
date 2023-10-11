@@ -37,7 +37,7 @@ extern "C" {
 #endif
 
 //! @}
-// SAL2 Definitions
+// SAL2 Definiions
 #ifndef _WIN32
 #define _In_
 #define _In_z_
