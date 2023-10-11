@@ -1,8 +1,10 @@
-#include "message.h"
-#include "icv_server.h"
-#include "../common/define.hpp"
+#include "CVServer/message.h"
+#include "common/define.hpp"
 #include <thread>
 #include "manager.h"
+#include <queue>
+#include <mutex>
+#include <condition_variable>
 
 class CVServer{
 public:
@@ -12,10 +14,7 @@ public:
     virtual int fini();
     virtual int start();
     virtual int stop();
-    virtual int process(message* msg){
-        NOT_IMPLEMENTED();
-        return 0;
-    }
+    virtual int process(message* msg);
 private:
     // 任务队列
     std::queue<message*> task_queue_;

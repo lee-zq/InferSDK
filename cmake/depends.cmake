@@ -2,6 +2,7 @@
 # 添加opencv依赖
 if(USE_OPENCV)
     set(OpenCV_DIR $ENV{OpenCV_DIR})
+    message(STATUS "OpenCV_DIR: ${OpenCV_DIR}")
     find_package(OpenCV REQUIRED)
     message(STATUS "OpenCV include dir:${OpenCV_INCLUDE_DIRS}")
     message(STATUS "OpenCV libs: ${OpenCV_LIBS}")

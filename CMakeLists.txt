@@ -13,6 +13,7 @@ if(CMAKE_BUILD_TYPE MATCHES "Debug")
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -Wno-unused-function -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-result")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -Wall -Wno-unused-function -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-result")
+endif()
 
 # 设置输出路径
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -26,8 +27,7 @@ include(cmake/depends.cmake)
 #添加本项目头文件
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include)
 
-add_subdirectory(src/solutions) 
-add_subdirectory(src/) 
+add_subdirectory(src) 
 
 
 

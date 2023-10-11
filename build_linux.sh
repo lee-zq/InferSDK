@@ -5,11 +5,12 @@ if [ -d "${build_dir}" ]; then
 fi
 
 # 检查依赖组件
-OpenCV_DIR="/usr/local/opencv-4.5.1/lib/cmake/opencv4"
+OpenCV_DIR=/opt/envs/opencvlib/share/OpenCV
 if [ ! -d "${OpenCV_DIR}" ]; then
     echo "OpenCV_DIR not found: ${OpenCV_DIR}"
     exit 1
 fi
+export OpenCV_DIR=${OpenCV_DIR}
 # CUDA_ROOT="/usr/local/cuda-11.2"
 # if [ ! -d "${CUDA_ROOT}" ]; then
 #     echo "CUDA_ROOT not found: ${CUDA_ROOT}"

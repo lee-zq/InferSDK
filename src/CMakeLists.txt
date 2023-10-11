@@ -1,6 +1,7 @@
 
 set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
+include_directories(${SOURCE_DIR})
 include_directories(${SOURCE_DIR}/common)
 include_directories(${SOURCE_DIR}/module)
 

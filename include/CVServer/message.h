@@ -9,6 +9,7 @@
 #include <mutex>
 #include <memory>
 #include <algorithm>
+#include <opencv2/opencv.hpp>
 
 typedef struct _message{
     int pid;        // 进程号
