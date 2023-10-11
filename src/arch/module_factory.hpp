@@ -66,7 +66,6 @@ class ModuleRegistry {
   }
 };
 
-
 class ModuleRegisterer {
  public:
   ModuleRegisterer(const string& type,
@@ -76,14 +75,11 @@ class ModuleRegisterer {
   }
 };
 
-#define REGISTER_MODULE_CREATOR(type, creator)                                  \
-  static IModuleRegisterer<float> g_creator_f_##type(#type, creator<float>);
-
-#define REGISTER_MODULE_CLASS(type)                                             \                                               \
-  shared_ptr<IModule> Creator_##type##IModule(const InitParam& param) \
+#define REGISTER_MODULE_CLASS(name)                                          \
+  shared_ptr<IModule> Creator_##name##Module(const CreateParam& param)       \
   {                                                                            \
-    return shared_ptr<IModule>(new type##IModule(param));           \
-  }                                                                            \
-  REGISTER_MODULE_CREATOR(type, Creator_##type##IModule);
+    return shared_ptr<IModule>(new name(param));                       \
+  }                                                                              \
+  static IModuleRegisterer g_creator_f_##name(#name, Creator_##name##Module);    
 
 #endif  // INFERSDK_MODULE_FACTORY_H_
