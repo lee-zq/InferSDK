@@ -1,12 +1,9 @@
 #include "module/manager.h"
-
+#include "spdlog/spdlog.h"
 #include <string>
 #include <vector>
 #include "../module/classification/classifier.h"
 
-InstManager::InstManager(/* args */){
-    
-}
 int InstManager::init(const InitParam& param){
     infer_inst_->init(param);
     return 0;
@@ -27,12 +24,16 @@ InstManager::~InstManager(){
 
 }
 
-int InstManager::create_inferinst(std::string task_type){
-    if(task_type=="classification"){
-        infer_inst_ = new Classifier();
-    }else if(task_type=="detection"){
-
+int InstManager::append_module(const std::string& task_type, CreateParam& param){
+    IModule* module_inst_ = nullptr;
+    if(task_type=="Classifier"){
+        module_inst_ = new Classifier();
+        int ret = module_inst->init(param);
+        if (ret!=0){
+            
+        }
     }else {
         std::cout << "No supported task type : " << task_type <<endl; 
     }
+
 }

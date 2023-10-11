@@ -74,7 +74,11 @@
         "typeinfo": "cpp",
         "valarray": "cpp",
         "variant": "cpp",
-        "compare": "cpp"
+        "compare": "cpp",
+        "concepts": "cpp",
+        "numbers": "cpp",
+        "semaphore": "cpp",
+        "stop_token": "cpp"
     },
     "editor.minimap.enabled": true,
     "C_Cpp.autocomplete": "Default",

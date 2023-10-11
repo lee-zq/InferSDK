@@ -1,8 +1,9 @@
 #pragma once
-#include "infer_face.h"
+#include "module/imodule.hpp"
 
 #include <string>
 #include <vector>
+#include <mutex>
 
 class InstManager
 {
@@ -13,8 +14,21 @@ public:
     virtual int fini() ;
     virtual ~InstManager();
 
-    int create_inferinst(std::string task_type);
+    int append_module(const std::string& module_type);
+    InstManager* int getInstance(){
+        std::lock_guard<std::mutex> lock(inst_mgr_mutex_);
+        if (!infer_inst_){
+            inst_mgr_ = new InstManager();
+        }
+        return inst_mgr_;
+    }
+private:
+    InstManager::InstManager(/* args */){}
 
 private:
-    IModule* infer_inst_;
+    static std::mutex inst_mgr_mutex_;
+    static Singleton* inst_mgr_;
+    std::map<std::string, IModule*> module_map_;
 };
+
+#define InstMgr InstManager::getInstance()

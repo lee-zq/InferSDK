@@ -47,6 +47,7 @@ int CVModule::compute(){
   int ret = feed_io_data();
   session->Run(Ort::RunOptions{nullptr}, input_names_.data(), input_tensor_.data(), input_names_.size(), 
               output_names_.data(), output_tensor_.data(), output_names_.size());
+  return 0;
 }
 
 int CVModule::feed_io_data(){

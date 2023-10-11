@@ -29,7 +29,6 @@ int Classifier::preproc(std::vector<cv::Mat>& input_img) {
   return 0;
 }
 
-
 int Classifier::postproc(vector<IResult*>& results) {
   for (int n=0; n<output_data_.size();n++){
     int class_result = std::distance(output_data_[n].begin(), std::max_element(output_data_[n].begin(), output_data_[n].end()));
