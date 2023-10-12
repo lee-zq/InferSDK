@@ -5,9 +5,10 @@
 
 #include "../cv_module.h"
 
+SPACE_BEGIN
+
 using namespace cv;
 using namespace std;
-
 
 class Classifier : public CVModule{
  public:
@@ -56,3 +57,5 @@ class Classifier : public CVModule{
 
   ClassifyResult result_;
 };
+
+SPACE_END
