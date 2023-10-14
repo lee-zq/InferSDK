@@ -4,12 +4,15 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <memory>
+#include <iostream>
 
-#include "module/imodule.hpp"
+#include "module/imodule.h"
+#include "all_type.h"
 
 class ModuleRegistry {
  public:
-  typedef shared_ptr<IModule> (*Creator)(const CreateParam&);
+  typedef shared_ptr<IModule> (*Creator)(const ModuleParam&);
   typedef std::map<string, Creator> CreatorRegistry;
 
   static CreatorRegistry& Registry() {
@@ -18,7 +21,7 @@ class ModuleRegistry {
   }
 
   // Adds a creator.
-  static void AddCreator(const string& type, Creator creator) {
+  static void AddCreator(const std::string& type, Creator creator) {
     CreatorRegistry& registry = Registry();
     // CHECK_EQ(registry.count(type), 0)
     //     << "Module type " << type << " already registered.";
@@ -26,11 +29,11 @@ class ModuleRegistry {
   }
 
   // Get a module using a InitParam.
-  static shared_ptr<IModule> CreateIModule(const CreateParam& param) {
+  static shared_ptr<IModule> CreateIModule(const ModuleParam& param) {
     // if (Caffe::root_solver()) {
     //   LOG(INFO) << "Creating module " << param.name();
     // }
-    const string& type = param.type();
+    const string& type = param.type;
     CreatorRegistry& registry = Registry();
     // CHECK_EQ(registry.count(type), 1) << "Unknown module type: " << type
     //     << " (known types: " << IModuleTypeListString() << ")";
@@ -69,17 +72,17 @@ class ModuleRegistry {
 class ModuleRegisterer {
  public:
   ModuleRegisterer(const string& type,
-                  shared_ptr<IModule> (*creator)(const CreateParam&)) {
+                  shared_ptr<IModule> (*creator)(const ModuleParam&)) {
     // LOG(INFO) << "Registering module type: " << type;
     ModuleRegistry::AddCreator(type, creator);
   }
 };
 
 #define REGISTER_MODULE_CLASS(name)                                          \
-  shared_ptr<IModule> Creator_##name##Module(const CreateParam& param)       \
+  shared_ptr<IModule> Creator_##name##Module(const ModuleParam& param)       \
   {                                                                            \
     return shared_ptr<IModule>(new name(param));                       \
   }                                                                              \
-  static IModuleRegisterer g_creator_f_##name(#name, Creator_##name##Module);    
+  static ModuleRegisterer g_creator_##name(#name, Creator_##name##Module);    
 
 #endif  // INFERSDK_MODULE_FACTORY_H_

@@ -4,8 +4,7 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/root/projects/InferSDK/include/onnxruntime",
-                "/usr/local/opencv34/include"
+                "/opt/envs/opencvlib/include/"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

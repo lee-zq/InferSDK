@@ -23,3 +23,8 @@ typedef struct InferEngineParam
    int thread_num;
 } InferEngineParam;
 
+typedef struct ModuleParam{
+    std::string type;
+    // 此处添加Module构造函数传入的结构体参数
+}ModuleParam;
+

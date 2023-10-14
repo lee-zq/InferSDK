@@ -3,59 +3,56 @@
 #include <algorithm>
 #include <fstream>
 
-#include "../cv_module.h"
+#include "opencv2/opencv.hpp"
 
-// SPACE_BEGIN
+#include "module/imodule.h"
+#include "common/tensor.h"
+#include "engine/infer_engine.h"
+#include "engine/onnxruntime/ort_engine.h"
 
-using namespace cv;
-using namespace std;
+class Classifier : public IModule{
+public:
+    Classifier(){};
+    Classifier(const ModuleParam& module_param){
+        // 此处添加Module构造函数传入的结构体参数, 解析并保存到成员变量中，在后续其他函数调用时使用
+    };
+    virtual int init(const InferEngineParam& param) override;
+    virtual int inference(std::vector<cv::Mat>& input_imgs, void* results) override;
+    virtual int uninit() override;
 
-class Classifier : public CVModule{
- public:
-  Classifier(){};
-  virtual int preproc(std::vector<cv::Mat>& input_img);
-  virtual int postproc(vector<IResult*>& results);
-
-  virtual int init_() {
-    input_shape_.emplace_back(vector<int64_t>{batch_size, input_channel, input_height, input_width});
-    output_shape_.emplace_back(vector<int64_t>{batch_size, class_num});
-    input_data_.resize(batch_size);
-    input_data_[0].resize(batch_size*input_channel*input_height*input_width);
-    output_data_.resize(batch_size);
-    output_data_[0].resize(batch_size*class_num);
-
+  virtual int init(const InferEngineParam& param) {
+    infer_inst_ = new ORTEngine();
+    infer_inst_->init(param);
+    
+    input_shapes_ = infer_inst_->get_input_shapes();
+    input_datas_.resize(infer_inst_->get_input_num());
+    for (int i=0; i<input_datas_.size(); i++){
+      input_datas_[i].Reshape(input_shapes_[i]);
+    }
+    output_shapes_ = infer_inst_->get_output_shapes();
+    output_datas_.resize(infer_inst_->get_output_num());
+    for (int i=0; i<output_datas_.size(); i++){
+      output_datas_[i].Reshape(output_shapes_[i]);
+    }
+    is_init_ = true;
     return 0;
   };
 
-  virtual vector<vector<float>>& GetInputData(){
-    return input_data_;
-  }
-  virtual vector<vector<int64_t>>& GetInputShape(){
-    return input_shape_;
-  }
-  virtual vector<vector<float>>& GetOutputData(){
-    return output_data_;
-  }
-  virtual vector<vector<int64_t>>& GetOutputShape(){
-    return output_shape_;
-  }
+private:
+    int preproc(std::vector<cv::Mat>& input_img);
+    int postproc(void* results);
 
- private:
-  vector<std::vector<float>> input_data_;
-  vector<std::vector<float>> output_data_;
-  vector<std::vector<int64_t>> input_shape_;
-  vector<std::vector<int64_t>> output_shape_;
+private:
 
-  const int class_num = 10;
-  const int input_height = 32;
-  const int input_width = 32;
-  const int input_channel = 3;
+    const int class_num = 10;
+    const int input_height = 32;
+    const int input_width = 32;
+    const int input_channel = 3;
 
-  const int batch_size = 1;
-  std::vector<float> mean_{0.4914, 0.4822, 0.4465};
-  std::vector<float> std_{0.2023, 0.1994, 0.2010};
+    std::vector<float> mean_{0.4914, 0.4822, 0.4465};
+    std::vector<float> std_{0.2023, 0.1994, 0.2010};
 
-  ClassifyResult result_;
+    InferEngine* infer_inst_ = nullptr;
 };
 
 // SPACE_END
