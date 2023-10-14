@@ -32,6 +32,7 @@ typedef struct _OutData{
 // fid 类型枚举
 enum FID{
     NONE,
+    CLASSIFY,
     LANE_DETECT,
     PERSON_DETECT,
     PERSON_POSE,
