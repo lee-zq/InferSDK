@@ -3,7 +3,8 @@
 #include <algorithm>
 #include <fstream>
 #include <vector>
-#include "cv_module.h"
+#include "onnxruntime_cxx_api.h"
+#include "ort_engine.h"
 
 using namespace std;
 
@@ -13,12 +14,12 @@ int ORTEngine::init(const InferEngineParam& param){
 
   session_option.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL);
   session_option.SetExecutionMode(ExecutionMode::ORT_PARALLEL);
-  session_options.SetIntraOpNumThreads(param_.thread_num);
-  if (param_.dev_type==cuda)
+  session_option.SetIntraOpNumThreads(param_.thread_num);
+  if (param_.dev_type==CUDA)
   {
     OrtSessionOptionsAppendExecutionProvider_CUDA(session_option, param_.thread_num);
   }
-  session_ = new Ort::Session(env, param_.onnx_path, session_option);
+  session_ = new Ort::Session(env, param_.onnx_path.c_str(), session_option);
   if (session_ == nullptr){
     spdlog::error("Ort::AllocatorWithDefaultOptions allocator is nullptr");
     return -1;
