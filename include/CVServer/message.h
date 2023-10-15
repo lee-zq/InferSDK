@@ -33,6 +33,8 @@ typedef struct _OutData{
 enum FID{
     NONE,
     CLASSIFY,
+    DETECTION,
+    SEG,
     LANE_DETECT,
     PERSON_DETECT,
     PERSON_POSE,

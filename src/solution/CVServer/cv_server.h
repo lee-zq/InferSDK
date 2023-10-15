@@ -1,7 +1,7 @@
 #include "CVServer/message.h"
 #include "common/define.hpp"
 #include <thread>
-#include "manager.h"
+#include "arch/manager.h"
 #include <queue>
 #include <mutex>
 #include <condition_variable>
