@@ -8,12 +8,12 @@
 
 class CVServer{
 public:
-    virtual int init(const std::string& cfg_path){
+    virtual int init(std::string cfg_path){
         InstMgr->init(cfg_path);
     }
-    virtual int fini();
-    virtual int start();
-    virtual int stop();
+    // virtual int fini();
+    // virtual int start();
+    // virtual int stop();
     virtual int process(message* msg);
 private:
     // 任务队列

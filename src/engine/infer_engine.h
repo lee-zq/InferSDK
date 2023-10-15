@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "tensor.h"
+#include "common/tensor.h"
 // 推理引擎接口类
 
 using namespace std;

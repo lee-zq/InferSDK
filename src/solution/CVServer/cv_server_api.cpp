@@ -2,18 +2,22 @@
 #include "cv_server.h"
 
 extern "C"{
-    // int createCVServer(void** inst){
-    //     auto q = new CVServer;
-    //     *inst = q;
-    //     return 0;
-    // }
-    // int destroyCVServer(void* CVServer){
-    //     void *q = (void*)CVServer;
-    //     delete q;
-    //     return 0;
-    // }
-    // int processCVServer(void* CVServer, message* msg){
-    //     void *q = (void*)CVServer;
-    //     return q->process(msg);
-    // }
+    int CreateCVServer(void** inst){
+        auto server_ptr = new CVServer();
+        *inst = server_ptr;
+        return 0;
+    }
+    int DestroyCVServer(void* cv_server){
+        CVServer *server_ptr = (CVServer*)cv_server;
+        delete server_ptr;
+        return 0;
+    }
+    int ProcessCVServer(void* cv_server, message* msg){
+        CVServer *server_ptr = (CVServer*)cv_server;
+        return server_ptr->process(msg);
+    }
+    int InitCVServer(void* cv_server, const char* cfg){
+        CVServer *server_ptr = (CVServer*)cv_server;
+        return server_ptr->init(cfg);
+    }
 }

@@ -1,3 +1,3 @@
 
-add_executable(test test.cc)
-target_link_libraries(test cvserver ${ALL_LIBS})
+add_executable(test test.cpp)
+target_link_libraries(test PUBLIC ${CVServerLibName} ${ALL_LIBS})

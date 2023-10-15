@@ -8,7 +8,7 @@ int DestroyCVServer(void* CVServer);
 int ProcessCVServer(void* CVServer, message* msg);
 int StartCVServer(void* CVServer);
 int StopCVServer(void* CVServer);
-int InitCVServer(void* CVServer);
+int InitCVServer(void* CVServer, const char* cfg);
 int UninitCVServer(void* CVServer);
 
 

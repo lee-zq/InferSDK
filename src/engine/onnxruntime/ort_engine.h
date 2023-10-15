@@ -7,7 +7,7 @@
 
 #include "onnxruntime_cxx_api.h"
 #include "opencv2/opencv.hpp"
-#include "tensor.h"
+#include "common/tensor.h"
 
 #include "engine/infer_engine.h"
 

@@ -1,5 +1,5 @@
-#include "tensor.h"
-#include "../all_type.h"
+#include "common/tensor.h"
+#include "all_type.h"
 
 int DataTypeSize(DataType type){
     switch (type)

@@ -1,8 +1,9 @@
 build_dir="build"
 
 if [ -d "${build_dir}" ]; then
-    rm -rf ${build_dir}
+    rm -rf ${build_dir}/*
 fi
+
 
 # 检查依赖组件
 OpenCV_DIR=/opt/envs/opencvlib/share/OpenCV
@@ -17,6 +18,6 @@ export OpenCV_DIR=${OpenCV_DIR}
 #     exit 1
 # fi
 
-mkdir ${build_dir} && cd ${build_dir}
+cd ${build_dir}
 cmake .. -DCMAKE_BUILD_TYPE=Debug 
-make -j8
+make -j3
