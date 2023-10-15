@@ -28,7 +28,7 @@ int main(int argc, char** argv){
     client.init(cv_server);
 
     // 3. 发送图片
-    string img_path = "/root/lzq/code/InferSDK/output/data/8.png";
+    string img_path = "/root/lzq/code/InferSDK/output/data/9.png";
     int fid = 0;
     int pid = 0;
     ret = client.Send(img_path, fid, pid);

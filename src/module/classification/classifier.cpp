@@ -16,27 +16,32 @@ int Classifier::preproc(std::vector<cv::Mat>& input_imgs) {
     std::cout << "img is empty! | " << endl;
     return -1;
   }
+  if (input_imgs[0].type() == CV_8UC3){
+    input_imgs[0].convertTo(input_imgs[0], CV_32FC1);
+  }
+
   auto model_input_shape = input_shapes_[0].GetData();
-  int input_batchsize = model_input_shape[1];
   int input_channel = model_input_shape[1];
   int input_height = model_input_shape[2];
   int input_width = model_input_shape[3];
   cv::Mat resized_img;
   cv::resize(input_imgs[0], resized_img, cv::Size(input_width, input_height));
-  if (resized_img.cols != input_width || resized_img.rows != input_height || resized_img.channels() != input_channel){
-    std::cout << "input_img size not match! | " << resized_img.cols << "x" << resized_img.rows << "x" << resized_img.channels() << " != " << input_width << "x" << input_height << "x" << input_channel << endl;
-    return -1;
-  }
+  cv::Scalar mean(0);
+  cv::Scalar std(255);
+  resized_img.convertTo(resized_img, CV_32FC1);
+  resized_img = resized_img.mul(1/255.f);
 
   float* input_datas_data_ptr = (float*)input_datas_[0].GetDataPtr();
-  for (int c = 0; c < 1; c++) {
-    for (int i = 0; i < input_height; i++) {
-      for (int j = 0; j < input_width; j++) {
-        float tmp = resized_img.ptr<uchar>(i)[j * 3 + c];
-        input_datas_data_ptr[c * input_height * input_width + i * input_width + j] = tmp;//((tmp) / 255.0 - mean_[c]) / std_[c];
-      }
-    }
-  }
+  // for (int c = 0; c < input_channel; c++) {
+  //   for (int i = 0; i < input_height; i++) {
+  //     for (int j = 0; j < input_width; j++) {
+  //       float tmp = resized_img.ptr<float>(i)[j * 3 + c];
+  //       input_datas_data_ptr[c * input_height * input_width + i * input_width + j] = tmp;//((tmp) / 255.0 - mean_[c]) / std_[c];
+  //       printf("%f \n", tmp);
+  //     }
+  //   }
+  // }
+  memcpy(input_datas_data_ptr, resized_img.data, input_channel*input_height*input_width*sizeof(float));
   return 0;
 }
 
