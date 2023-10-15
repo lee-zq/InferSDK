@@ -23,8 +23,36 @@ public:
     Shape(const std::vector<int>& shape){
         shape_ = shape;
     }
-    std::vector<int> GetShape(){
+    Shape(const std::vector<int64_t>& shape){
+        shape_ = std::vector<int>();
+        for (int i = 0; i < shape.size(); i++)
+        {
+            shape_.push_back(static_cast<int>(shape[i]));
+        }
+    }
+
+    Shape(const Shape& shape){
+        shape_ = shape.shape_;
+    }
+    Shape& operator=(const Shape& shape){
+        shape_ = shape.shape_;
+        return *this;
+    }
+    int Reshape(const std::vector<int>& shape){
+        shape_ = shape;
+        return 0;
+    }
+    std::vector<int> GetData(){
         return shape_;
+    }
+    std::vector<int64_t> GetDataInt64() const {
+        std::vector<int64_t> shape(shape_.size());
+        for (int i = 0; i < shape_.size(); i++)
+        {
+            int64_t tmp = static_cast<int64_t>(shape_[i]);
+            shape[i] = tmp;
+        }
+        return shape;
     }
     int Dim(){
         return shape_.size();
@@ -65,10 +93,8 @@ private:
     DataType data_type_;
     DeviceType device_type_;
 public:
-    ~Tensor();
+    ~Tensor(){};
     Tensor(){
-        data_ = std::vector<char>();
-        shape_ = Shape(std::vector<int>());
         data_type_ = Float32;
         device_type_ = CPU;
     }
@@ -111,6 +137,7 @@ public:
     int Size(){
         return shape_.Size();
     }
+
     int Dim(){
         return shape_.Dim();
     }
@@ -123,8 +150,8 @@ public:
     void* GetDataPtr(){
         return data_.data();
     }
-    std::vector<int> GetShape(){
-        return shape_.GetShape();
+    const Shape& GetShape(){
+        return shape_;
     }
     std::string info_to_string(){
         std::string str = "Tensor(";

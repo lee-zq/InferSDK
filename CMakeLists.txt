@@ -4,8 +4,10 @@ project(infersdk)
 option(USE_CUDA "use cuda" OFF) 
 option(USE_OPENCV "use opencv" ON)
 
+set(CMAKE_OUTPUT_DIR ${CMAKE_SOURCE_DIR}/output)
+
 # 设置编译选项
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++11 -Wall -Wno-unused-function -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-result")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++11 -fPIC -Wall -Wno-unused-function -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-result")
 set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS}")
 if(CMAKE_BUILD_TYPE MATCHES "Debug")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
@@ -16,8 +18,8 @@ else()
 endif()
 
 # 设置输出路径
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_OUTPUT_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_OUTPUT_DIR}/bin)
 
 set(ALL_LIBS "")
 # 依赖库设置

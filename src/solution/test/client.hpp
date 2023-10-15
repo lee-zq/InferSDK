@@ -1,5 +1,5 @@
 #include "CVServer/message.h"
-#include "../CVServer/cv_server.h"
+#include "CVServer/cv_server.h"
 
 class Client{
 public:
@@ -12,7 +12,7 @@ public:
     int Send(std::string img_path, int fid, int pid){
         msg_.pid = pid;
         msg_.fid = fid;
-        in_data_.img = cv::imread(img_path);
+        in_data_.img = cv::imread(img_path, cv::IMREAD_GRAYSCALE);
         in_data_.img_info = img_path;
         in_data_.input_context = nullptr;
 

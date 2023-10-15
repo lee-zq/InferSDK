@@ -1,3 +1,4 @@
+#pragma once
 #include "CVServer/message.h"
 #include "common/define.hpp"
 #include <thread>
@@ -8,14 +9,14 @@
 
 class CVServer{
 public:
-    virtual int init(std::string cfg_path){
-        InstMgr->init(cfg_path);
-    }
+    virtual int init(std::string cfg_path);
     // virtual int fini();
     // virtual int start();
     // virtual int stop();
     virtual int process(message* msg);
 private:
+    // 模式map
+    std::map<int, Instance*> Inst_map_;
     // 任务队列
     std::queue<message*> task_queue_;
     // 任务队列锁

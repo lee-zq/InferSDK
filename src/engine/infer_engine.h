@@ -9,6 +9,7 @@ using namespace std;
 
 class InferEngine{
 public:
+    InferEngine(){};
     virtual int init(const InferEngineParam& param) = 0;
     virtual int forward(const vector<Tensor>& input_data, vector<Tensor>& output_data) = 0;
     virtual int async_forward(const vector<Tensor>& input_data, vector<Tensor>& output_data) = 0;

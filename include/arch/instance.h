@@ -9,11 +9,11 @@
 
 class Instance{
 public:
-    virtual int init(const std::string& init_param, const InferEngineParam& param);
+    virtual int init(const std::vector<std::pair<std::string,InferEngineParam>>& param);
     virtual int compute(std::vector<cv::Mat>& input_imgs, void* results);
     virtual int append_module(const std::string& task_type, const InferEngineParam& param);
     virtual int fini();
-    virtual ~Instance();
+    virtual ~Instance(){};
 
 private:
     std::map<std::string, IModule*> module_map_;

@@ -4,15 +4,16 @@
 #include "classification/classifier.h"
 #include "CVServer/message.h"
 
+InstManager* InstManager::inst_mgr_ = nullptr;
+
 int InstManager::init(const std::string& manager_param){
     std::cout << "InstManager init" << std::endl;
     return 0;
 }
 
-int InstManager::create_inst(const int& type, const std::string& param, Instance** inst_ptr){
+int InstManager::create_inst(FID type, const std::vector<std::pair<std::string,InferEngineParam>>& param, Instance** inst_ptr){
     Instance* inst = new Instance();
-    InferEngineParam infer_param;
-    inst->init(param, infer_param);
+    inst->init(param);
     *inst_ptr = inst;
     return 0;
 }
