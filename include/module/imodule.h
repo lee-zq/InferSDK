@@ -4,6 +4,7 @@
 #include "all_type.h"
 #include "opencv2/opencv.hpp"
 #include "common/tensor.h"
+#include "utils/logger.h"
 
 class IModule
 {
