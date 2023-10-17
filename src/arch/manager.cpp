@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include "classification/classifier.h"
-#include "CVServer/message.h"
+#include "cv_server/message.h"
 
 InstManager* InstManager::inst_mgr_ = nullptr;
 

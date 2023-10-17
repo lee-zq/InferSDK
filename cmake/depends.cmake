@@ -24,10 +24,10 @@ endif(USE_CUDA)
 # onnxruntime
 set(ORT_ROOT ${CMAKE_SOURCE_DIR}/thirdparty/infer_engine/onnxruntime)
 set(ORT_INCLUDE_DIRS ${ORT_ROOT}/include)
-set(ORT_LIBS_DIR ${ORT_ROOT}/lib64)
-set(ORT_LIBS ${ORT_LIBS_DIR}/libonnxruntime.so)
+file(GLOB_RECURSE ORT_LIBS ${ORT_ROOT}/lib64/*)
 INCLUDE_DIRECTORIES(${ORT_INCLUDE_DIRS})
 list(APPEND ALL_LIBS ${ORT_LIBS})
+message(STATUS "ORT_LIBS: ${ORT_LIBS}")
 
 # 添加spdlog库依赖
 set(SPDLOG_ROOT ${CMAKE_SOURCE_DIR}/thirdparty/spdlog)

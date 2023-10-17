@@ -4,24 +4,21 @@
 #include <vector>
 
 
-static int load_img_path(std::string& file_path, std::vector<std::string>& img_lst, std::vector<int>& label_lst) {
+std::vector<std::string> load_file(const std::string& file_path) {
   std::ifstream f(file_path.c_str());
   if (!f.is_open()) {
     std::cout << "open file failed" << std::endl;
-    return -1;
+    return {};
   }
-  std::string img_path;
-  int label;
-  while (std::getline(f, img_path)) {
-    if (img_path.size() > 0) {
-      img_lst.push_back(img_path);
-      auto iter = img_path.find(".");
-      label = std::atoi(img_path.substr(--iter, iter).c_str());
-      label_lst.push_back(label);
+  std::vector<std::string> data_lst;
+  std::string item;
+  while (std::getline(f, item)) {
+    if (item.size() > 0) {
+      data_lst.push_back(item);
     }
   }
   f.close();
-  return 0;
+  return data_lst;
 }
 
 static int save_result(std::string& file_path, std::vector<int>& results) {

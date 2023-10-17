@@ -1,4 +1,4 @@
-#include "CVServer/cv_server.h"
+#include "cv_server/cv_server.h"
 #include <thread>
 
 int CVServer::init(std::string cfg_path){
@@ -17,6 +17,10 @@ int CVServer::init(std::string cfg_path){
     }
 
     Inst_map_.insert(std::make_pair(FID::CLASSIFY, inst_ptr));
+    LInfo("CVServer Initialize 1.")
+    LDebug("CVServer Initialize 2.")
+    LWarn("CVServer Initialize 3.")
+    LError("CVServer Initialize 4.")
     return 0;
 }
 

@@ -1,5 +1,6 @@
-#include "CVServer/message.h"
-#include "CVServer/cv_server.h"
+#include "cv_server/message.h"
+#include "cv_server/cv_server.h"
+#include "utils/base_func.hpp"
 
 class Client{
 public:
@@ -9,7 +10,7 @@ public:
         msg_.output = &out_data_;
         return 0;
     }
-    int Send(std::string img_path, int fid, int pid){
+    int commit(std::string img_path, int fid, int pid){
         msg_.pid = pid;
         msg_.fid = fid;
         in_data_.img = cv::imread(img_path, cv::IMREAD_GRAYSCALE);
@@ -30,6 +31,29 @@ public:
         return 0;
     }
 
+    int process(std::string input_data_path){
+        std::vector<std::string> img_paths = load_file(input_data_path);
+        std::vector<std::string> item;
+        std::string img_path;
+        int fid;
+        int pid;
+        for(int i = 0; i < img_paths.size(); i++){
+            int ret = split(img_paths[i], item, " ");
+            if(ret != 0){
+                LWarn("parser data_list split error. process: %s, ret=%d", img_paths[i], ret);
+                continue;
+            }
+            img_path = item[0];
+            fid = std::atoi(item[1].c_str());
+            pid = std::atoi(item[2].c_str());
+            ret = commit(img_path, fid, pid);
+            if(ret != 0){
+                LError("Client commit error. ret=%d", ret);
+                return -1;
+            }
+        }
+        return 0;
+    }
 public:
     CVServer* cv_server_ = nullptr;
     message msg_;

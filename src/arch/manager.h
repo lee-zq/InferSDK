@@ -1,7 +1,7 @@
 #pragma once
 #include "module/imodule.h"
 #include "arch/instance.h"
-#include "CVServer/message.h"
+#include "cv_server/message.h"
 #include <string>
 #include <vector>
 #include <mutex>
@@ -20,7 +20,6 @@ public:
         delete inst_mgr_;
     }
 
-    int append_module(const int& module_type);
     static InstManager* getInstance(){
         std::lock_guard<std::mutex> lock(inst_mgr_mutex);
         if (!inst_mgr_){

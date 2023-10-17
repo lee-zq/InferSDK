@@ -1,5 +1,5 @@
 
-#include "CVServer/cv_server.h"
+#include "cv_server/cv_server.h"
 
 extern "C"{
     int CreateCVServer(void** inst){

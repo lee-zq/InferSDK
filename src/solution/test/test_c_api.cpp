@@ -3,8 +3,8 @@
 #include <algorithm>
 #include <fstream>
 #include "opencv2/opencv.hpp"
-#include "CVServer/cv_server_api.h"
-// #include "CVServer/cv_server.h"
+#include "cv_server/cv_server_api.h"
+// #include "cv_server/cv_server.h"
 #include "client.hpp"
 
 using namespace cv;

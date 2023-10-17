@@ -3,8 +3,8 @@
 #include <algorithm>
 #include <fstream>
 #include "opencv2/opencv.hpp"
-#include "CVServer/cv_server.h"
-// #include "CVServer/cv_server.h"
+#include "cv_server/cv_server.h"
+// #include "cv_server/cv_server.h"
 #include "client.hpp"
 
 using namespace cv;
@@ -31,12 +31,14 @@ int main(int argc, char** argv){
     string img_path = "/root/lzq/code/InferSDK/output/data/9.png";
     int fid = 0;
     int pid = 0;
-    ret = client.Send(img_path, fid, pid);
+    ret = client.commit(img_path, fid, pid);
     if(ret != 0){
         cout << "client send error" << endl;
         return -1;
     } 
-
+    // 4. 批量处理
+    string input_data_path = "../data/img.lst"; // 存储格式 /path/to/image fid pid
+    ret = client.process(input_data_path);
     // 4. 销毁CVServer
     delete cv_server;
 

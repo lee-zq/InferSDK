@@ -5,7 +5,7 @@
 #include "opencv2/opencv.hpp"
 #include "classifier.h"
 #include "arch/module_factory.hpp"
-#include "CVServer/message.h"
+#include "cv_server/message.h"
 
 int Classifier::preproc(std::vector<cv::Mat>& input_imgs) {
   if (input_imgs.size() != 1) {

@@ -6,7 +6,7 @@ fi
 
 
 # 检查依赖组件
-OpenCV_DIR=/opt/envs/opencvlib/share/OpenCV
+OpenCV_DIR=/opt/envs/opencv/opencv-3.4.16/share/OpenCV
 if [ ! -d "${OpenCV_DIR}" ]; then
     echo "OpenCV_DIR not found: ${OpenCV_DIR}"
     exit 1
@@ -19,5 +19,5 @@ export OpenCV_DIR=${OpenCV_DIR}
 # fi
 
 cd ${build_dir}
-cmake .. -DCMAKE_BUILD_TYPE=Debug 
+cmake .. -DCMAKE_BUILD_TYPE=Debug
 make -j3
