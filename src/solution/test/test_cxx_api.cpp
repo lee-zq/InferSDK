@@ -29,9 +29,9 @@ int main(int argc, char** argv){
 
     // 3. 发送图片
     string img_path = "/root/lzq/code/InferSDK/output/data/9.png";
-    int fid = 0;
-    int pid = 0;
-    ret = client.commit(img_path, fid, pid);
+    int fid = 1;
+    int pid = 10000;
+    ret = client.process(img_path, fid, pid);
     if(ret != 0){
         cout << "client send error" << endl;
         return -1;

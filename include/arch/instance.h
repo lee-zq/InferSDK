@@ -7,6 +7,8 @@
 #include <mutex>
 #include <map>
 
+typedef std::vector<std::pair<std::string,InferEngineParam>>  InstParamType;
+
 class Instance{
 public:
     virtual int init(const std::vector<std::pair<std::string,InferEngineParam>>& param);

@@ -19,8 +19,13 @@ int Instance::init(const std::vector<std::pair<std::string,InferEngineParam>>& p
 
 int Instance::compute(std::vector<cv::Mat>& input_imgs, void* results){
     for (auto& module : module_map_){
-        module.second->inference(input_imgs, results);
+        int ret = module.second->inference(input_imgs, results);
+        if (ret != 0){
+            LError("Instance::compute error, module inference failed. ret=%d", ret);
+            return -1;
+        }
     }
+    return 0;
 }
 
 int Instance::fini(){

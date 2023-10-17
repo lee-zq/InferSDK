@@ -194,7 +194,7 @@ public:
 			(*task_ptr)();
 		};
 		// 队列通用安全封包函数，并压入安全队列
-		m_queue.enqueue(warpper_func);
+		m_queue.push(warpper_func);
 		// 唤醒一个等待中的线程
 		m_conditional_lock.notify_one();
 		// 返回先前注册的任务指针

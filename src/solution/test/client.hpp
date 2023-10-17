@@ -10,7 +10,11 @@ public:
         msg_.output = &out_data_;
         return 0;
     }
-    int commit(std::string img_path, int fid, int pid){
+    int send_msg(message* msg){
+        int ret = cv_server_->process(msg);
+        return ret;
+    }
+    int process(std::string img_path, int fid, int pid){
         msg_.pid = pid;
         msg_.fid = fid;
         in_data_.img = cv::imread(img_path, cv::IMREAD_GRAYSCALE);
@@ -20,7 +24,7 @@ public:
         out_data_.output_info = "";
         out_data_.output_context = nullptr;
 
-        int ret = cv_server_->process(&msg_);
+        int ret = send_msg(&msg_);
         if(ret != 0){
             std::cout << "cv_server process error" << std::endl;
             return -1;
@@ -46,7 +50,7 @@ public:
             img_path = item[0];
             fid = std::atoi(item[1].c_str());
             pid = std::atoi(item[2].c_str());
-            ret = commit(img_path, fid, pid);
+            ret = process(img_path, fid, pid);
             if(ret != 0){
                 LError("Client commit error. ret=%d", ret);
                 return -1;

@@ -7,16 +7,18 @@
 #include <mutex>
 #include <condition_variable>
 
+#include "common/threadpool/threadpool.hpp"
+
 class CVServer{
 public:
     virtual int init(std::string cfg_path);
-    // virtual int fini();
+    virtual int fini();
     // virtual int start();
     // virtual int stop();
     virtual int process(message* msg);
 private:
     // 模式map
-    std::map<int, Instance*> Inst_map_;
+    std::map<FID, Instance*> Inst_map_;
     // 任务队列
     std::queue<message*> task_queue_;
     // 任务队列锁
@@ -24,5 +26,5 @@ private:
     // 任务队列条件变量
     std::condition_variable task_queue_cond_;
     // 线程池
-    std::vector<std::thread> thread_pool_;
+    std::shared_ptr<ThreadPool> thread_pool_;
 };

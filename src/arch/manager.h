@@ -12,7 +12,7 @@ class InstManager
 {
 public:
     int init(const std::string& manager_param);
-    int create_inst(FID, const std::vector<std::pair<std::string,InferEngineParam>>& param, Instance** inst_ptr);
+    int create_inst(FID, Instance** inst_ptr);
     int destroy_inst(Instance* inst_ptr);
     int run(Instance* inst_ptr, std::vector<cv::Mat>& input_imgs, void* results) ;
     int fini();
@@ -33,6 +33,7 @@ private:
 
 private:
     static InstManager* inst_mgr_;
+    std::map<FID, InstParamType> inst_param_map_;
 };
 
 #define InstMgr InstManager::getInstance()
