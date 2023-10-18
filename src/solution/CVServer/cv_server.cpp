@@ -7,7 +7,7 @@ int CVServer::init(std::string cfg_path){
     thread_pool_->init();
     // 2. 初始化实例管理器
     InstMgr->init(cfg_path);
-    LInfo("CVServer Initialize success")
+    LInfo("CVServer Initialize success.")
     return 0;
 }
 
@@ -34,11 +34,14 @@ int CVServer::process(message* msg){
     // 1. 使用线程池
     // std::future<int> ret = thread_pool_->submit(task);
     // 2. 直接创建线程
+    std::stringstream ss;
+    ss << std::this_thread::get_id();
+    std::cout << "thread id: " << ss.str() << std::endl;
     std::thread t(task);
     t.join();
 
     // 3. 启动异步线程并获取返回值
-    // std::future<int> result = std::async(task);
+    // std::future<int> ret = std::async(task);
     // if (ret.get() != 0){ // 这里要阻塞等待
     //     LError("CVServer::process error");
     //     return -1;
