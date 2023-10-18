@@ -3,7 +3,7 @@
 
 int CVServer::init(std::string cfg_path){
     // 1. 初始化线程池
-    thread_pool_ = std::make_shared<ThreadPool>(4);
+    thread_pool_ = std::make_shared<ThreadPool>(0);
     thread_pool_->init();
     // 2. 初始化实例管理器
     InstMgr->init(cfg_path);
@@ -27,13 +27,22 @@ int CVServer::process(message* msg){
         Inst_map_.insert(std::make_pair(fid, inst_ptr));
     }
     Instance* inst = Inst_map_[fid];
-    std::future<int> ret = thread_pool_->submit(
-        std::bind(&Instance::compute, inst, input_imgs, (void*)&out_data->output_info)
-    );
-    if (ret.get() != 0){ // 这里要阻塞等待
-        LError("CVServer::process error");
-        return -1;
-    }
+    auto task = [&](){
+        return inst->compute(input_imgs, (void*)&out_data->output_info);
+    };
+    // 异步执行任务可分为三种方式：
+    // 1. 使用线程池
+    // std::future<int> ret = thread_pool_->submit(task);
+    // 2. 直接创建线程
+    std::thread t(task);
+    t.join();
+
+    // 3. 启动异步线程并获取返回值
+    // std::future<int> result = std::async(task);
+    // if (ret.get() != 0){ // 这里要阻塞等待
+    //     LError("CVServer::process error");
+    //     return -1;
+    // }
     return 0;
 }
 

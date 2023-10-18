@@ -1,3 +1,5 @@
+#pragma once
+#include <string>
 #include "cv_server/message.h"
 #include "cv_server/cv_server.h"
 #include "utils/base_func.hpp"
@@ -14,15 +16,16 @@ public:
         int ret = cv_server_->process(msg);
         return ret;
     }
-    int process(std::string img_path, int fid, int pid){
+    int process(const cv::Mat& img, int fid, int pid, 
+                std::string img_info="", void* input_context=nullptr, void* output_context=nullptr){
         msg_.pid = pid;
         msg_.fid = fid;
-        in_data_.img = cv::imread(img_path, cv::IMREAD_GRAYSCALE);
-        in_data_.img_info = img_path;
-        in_data_.input_context = nullptr;
+        in_data_.img = img;
+        in_data_.img_info = img_info;
+        in_data_.input_context = input_context;
 
         out_data_.output_info = "";
-        out_data_.output_context = nullptr;
+        out_data_.output_context = output_context;
 
         int ret = send_msg(&msg_);
         if(ret != 0){
@@ -50,9 +53,10 @@ public:
             img_path = item[0];
             fid = std::atoi(item[1].c_str());
             pid = std::atoi(item[2].c_str());
-            ret = process(img_path, fid, pid);
+            cv::Mat input_img = cv::imread(img_path, cv::IMREAD_GRAYSCALE);
+            ret = process(input_img, fid, pid);
             if(ret != 0){
-                LError("Client commit error. ret=%d", ret);
+                LError("Client process error. ret=%d", ret);
                 return -1;
             }
         }
