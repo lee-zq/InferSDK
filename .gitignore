@@ -1,3 +1,4 @@
 workspace
 build
 output
+**/__pycache__

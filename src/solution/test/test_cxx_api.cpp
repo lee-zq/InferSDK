@@ -28,17 +28,17 @@ int main(int argc, char** argv){
     client.init(cv_server);
 
     // 3. 发送图片
-    string img_path = "../data/mnist_img/0.png";
-    int fid = 1;
-    int pid = 10000;
-    cv::Mat input_img = cv::imread(img_path, cv::IMREAD_GRAYSCALE);
-    ret = client.process(input_img, fid, pid);
-    if(ret != 0){
-        cout << "client send error" << endl;
-        return -1;
-    } 
+    // string img_path = "../data/mnist_img/0.png";
+    // int fid = 1;
+    // int pid = 10000;
+    // cv::Mat input_img = cv::imread(img_path, cv::IMREAD_GRAYSCALE);
+    // ret = client.process(input_img, fid, pid);
+    // if(ret != 0){
+    //     cout << "client send error" << endl;
+    //     return -1;
+    // } 
     // 4. 批量处理
-    string input_data_path = "../data/mnist.lst"; // 存储格式 /path/to/image fid pid
+    string input_data_path = "../data/voc.lst"; // 存储格式 /path/to/image fid pid
     ret = client.process(input_data_path);
     // 4. 销毁CVServer
     ret = cv_server->fini();

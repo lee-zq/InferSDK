@@ -50,7 +50,7 @@ public:
             img_path = item[0];
             fid = std::atoi(item[1].c_str());
             pid = std::atoi(item[2].c_str());
-            cv::Mat input_img = cv::imread(img_path, cv::IMREAD_GRAYSCALE);
+            cv::Mat input_img = cv::imread(img_path);
             ret = process(input_img, fid, pid);
             if(ret != 0){
                 LError("Client process error. ret=%d", ret);

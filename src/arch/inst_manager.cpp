@@ -11,7 +11,7 @@ int InstManager::init(const std::string& manager_param){
     LInfo("InstManager initialize start...");
     // 分类任务参数
     InferEngineParam infer_param;
-    infer_param.onnx_path = "../res/mnist.onnx";
+    infer_param.onnx_path = "../res/mobilenetv2-12/mobilenetv2-12-int8.onnx";
     infer_param.thread_num = 1;
     infer_param.dev_type = CPU;
     infer_param.dev_id = 0;

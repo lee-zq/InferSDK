@@ -34,7 +34,7 @@ public:
     Shape(const Shape& shape){
         shape_ = shape.shape_;
     }
-    int operator[](int index){
+    int& operator[](int index){
         return shape_[index];
     }
     Shape& operator=(const Shape& shape){

@@ -12,11 +12,24 @@ int Classifier::init(const InferEngineParam& param) {
   infer_inst_->init(param);
   
   input_shapes_ = infer_inst_->get_input_shapes();
+  for (auto& shape : input_shapes_){
+      if (shape[0]==-1){
+        shape[0] = 1;
+        LWarn("model' input shape batch size is -1 (dynamic), set to 1");
+      }
+  }
   input_datas_.resize(infer_inst_->get_input_num());
+
   for (int i=0; i<input_datas_.size(); i++){
     input_datas_[i].Reshape(input_shapes_[i]);
   }
   output_shapes_ = infer_inst_->get_output_shapes();
+  for (auto& shape : output_shapes_){
+      if (shape[0]==-1){
+        shape[0] = 1;
+        LWarn("model' output shape batch size is -1 (dynamic), set to 1");
+      }
+  }
   output_datas_.resize(infer_inst_->get_output_num());
   for (int i=0; i<output_datas_.size(); i++){
     output_datas_[i].Reshape(output_shapes_[i]);
@@ -37,7 +50,7 @@ int Classifier::uninit() {
 int Classifier::preproc(std::vector<cv::Mat>& input_imgs) {
   if (input_imgs[0].empty()){
     LError("input image is empty!");
-    return ERR_INVALID_PARAM;
+    return ERR_INVALID_VALUE;
   }
 
   int input_channel = input_shapes_[0][1];
@@ -45,19 +58,20 @@ int Classifier::preproc(std::vector<cv::Mat>& input_imgs) {
   int input_width = input_shapes_[0][3];
   cv::Mat resized_img;
   cv::resize(input_imgs[0], resized_img, cv::Size(input_width, input_height));
-
-  resized_img.convertTo(resized_img, CV_32FC1);
-
+  if(resized_img.channels() != input_channel){
+    return ERR_INVALID_VALUE;
+  }
+  resized_img.convertTo(resized_img, CV_32FC3);
+  resized_img = (resized_img - cv::Scalar(mean_[0], mean_[1], mean_[2])) / cv::Scalar(std_[0], std_[1], std_[2]);
+  std::vector<cv::Mat> channels;
+  cv::split(resized_img, channels);
   float* input_datas_data_ptr = (float*)input_datas_[0].GetDataPtr();
 
-    for (int i = 0; i < input_height; i++) {
-      for (int j = 0; j < input_width; j++) {
-        input_datas_data_ptr[i * input_width + j] = resized_img.ptr<float>(i)[j] / 255.0;
-        printf("%f \n", input_datas_data_ptr[i * input_width + j]);
-      }
-    }
-
-  memcpy(input_datas_data_ptr, resized_img.data, input_channel*input_height*input_width*sizeof(float));
+  for (int c=0;c < input_channel; c++){
+    float* src_ptr = (float*)channels[c].ptr<float>(0);
+    float* dst_ptr = input_datas_data_ptr + c*input_height*input_width;
+    memcpy(dst_ptr, src_ptr, input_height*input_width*sizeof(float));
+  }
   return 0;
 }
 

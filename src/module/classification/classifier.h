@@ -26,15 +26,8 @@ private:
     int postproc(void* results);
 
 private:
-
-    const int class_num = 10;
-    const int input_height = 28;
-    const int input_width = 28;
-    const int input_channel = 1;
-
-    // std::vector<float> mean_{0.4914, 0.4822, 0.4465};
-    // std::vector<float> std_{0.2023, 0.1994, 0.2010};
-
+    std::vector<float> mean_{0.485, 0.456, 0.406};
+    std::vector<float> std_{0.229, 0.224, 0.225};
     InferEngine* infer_inst_ = nullptr;
 };
 
