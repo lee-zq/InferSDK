@@ -20,4 +20,4 @@ export OpenCV_DIR=${OpenCV_DIR}
 
 cd ${build_dir}
 cmake .. -DCMAKE_BUILD_TYPE=Debug
-make -j3
+make -j2

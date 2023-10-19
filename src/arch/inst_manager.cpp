@@ -1,4 +1,5 @@
-#include "arch/manager.h"
+#include "arch/inst_manager.h"
+#include "cv_server/error_code.h"
 #include <string>
 #include <vector>
 #include "classification/classifier.h"
@@ -7,7 +8,7 @@
 InstManager* InstManager::inst_mgr_ = nullptr;
 
 int InstManager::init(const std::string& manager_param){
-    std::cout << "InstManager init" << std::endl;
+    LInfo("InstManager initialize start...");
     // 分类任务参数
     InferEngineParam infer_param;
     infer_param.onnx_path = "../res/mnist.onnx";
@@ -26,20 +27,21 @@ int InstManager::init(const std::string& manager_param){
     inst_param_map_.insert(std::make_pair(FID::DETECTION, infer_param_map2));
     // 分割任务参数 TODO
 
+    LInfo("InstManager initialize success...");
     return 0;
 }
 
 int InstManager::create_inst(FID type, Instance** inst_ptr){
     if (inst_param_map_.find(type) == inst_param_map_.end()){
         LError("InstManager::create_inst error, no such type. tyep=%d", type);
-        return -1;
+        return ERR_INVALID_PARAM;
     }
     InstParamType param = inst_param_map_[type];
     Instance* created_inst = new Instance();
     int ret = created_inst->init(param);
     if (ret != 0){
         LError("InstManager::create_inst error, inst init failed.")
-        return -1;
+        return ERR_CREATE_INSTANCE_FAILED;
     }
     *inst_ptr = created_inst;
     return 0;

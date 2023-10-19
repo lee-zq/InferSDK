@@ -41,7 +41,11 @@ int main(int argc, char** argv){
     string input_data_path = "../data/mnist.lst"; // 存储格式 /path/to/image fid pid
     ret = client.process(input_data_path);
     // 4. 销毁CVServer
+    ret = cv_server->fini();
     delete cv_server;
-
+    if(ret != 0){
+        cout << "fini cv_server error" << endl;
+        return -1;
+    }
     return 0;
 }

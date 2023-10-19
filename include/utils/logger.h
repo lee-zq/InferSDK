@@ -92,3 +92,10 @@ private:
         }                                      \
     } while (0);
  
+#define log_error_return(b, msg)                        \
+	do {                                       \
+		if ((b)) {                             \
+		   LoggerPtr->error(msg); \
+		   return b; \
+		}                                      \
+	} while (0);

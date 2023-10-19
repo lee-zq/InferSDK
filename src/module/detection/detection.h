@@ -16,7 +16,7 @@ public:
     Detection(const ModuleParam& module_param){
         // 此处添加Module构造函数传入的结构体参数, 解析并保存到成员变量中，在后续其他函数调用时使用
     };
-    virtual int inference(std::vector<cv::Mat>& input_imgs, void* results) override noexcept;
+    virtual int inference(std::vector<cv::Mat>& input_imgs, void* results) override;
     virtual int uninit() override{
         if (infer_inst_ != nullptr){
             infer_inst_->uninit();

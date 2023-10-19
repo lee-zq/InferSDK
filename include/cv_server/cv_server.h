@@ -1,8 +1,9 @@
 #pragma once
+#include "error_code.h"
 #include "cv_server/message.h"
 #include "common/define.hpp"
 #include <thread>
-#include "arch/manager.h"
+#include "arch/inst_manager.h"
 #include <queue>
 #include <mutex>
 #include <condition_variable>
@@ -15,16 +16,11 @@ public:
     virtual int fini();
     // virtual int start();
     // virtual int stop();
+    int get_inst(FID fid, Instance** inst_ptr);
     virtual int process(message* msg);
 private:
-    // 模式map
-    std::map<FID, Instance*> Inst_map_;
-    // 任务队列
-    std::queue<message*> task_queue_;
-    // 任务队列锁
-    std::mutex task_queue_mutex_;
-    // 任务队列条件变量
-    std::condition_variable task_queue_cond_;
-    // 线程池
+    std::map<FID, Instance*> inst_map_;
+    std::mutex inst_map_mutex_;
+    // 执行线程池
     std::shared_ptr<ThreadPool> thread_pool_;
 };

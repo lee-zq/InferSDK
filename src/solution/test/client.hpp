@@ -32,9 +32,6 @@ public:
             std::cout << "cv_server process error" << std::endl;
             return -1;
         }
-        // 打印输出信息
-        std::cout << "output_info: " << out_data_.output_info << std::endl;
-        std::cout << "process success" << std::endl;
         return 0;
     }
 
@@ -59,6 +56,8 @@ public:
                 LError("Client process error. ret=%d", ret);
                 return -1;
             }
+            // 打印输出信息
+            std::cout << img_path << " output_info: " << out_data_.output_info << std::endl;
         }
         return 0;
     }

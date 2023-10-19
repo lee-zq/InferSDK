@@ -50,6 +50,7 @@ static int split(const std::string& str, std::vector<std::string>& ret_, std::st
   if (str.empty()) {
     return 0;
   }
+  ret_.clear();
   std::string tmp;
   std::string::size_type pos_begin = str.find_first_not_of(sep);
   std::string::size_type comma_pos = 0;

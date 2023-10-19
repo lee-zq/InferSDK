@@ -7,46 +7,61 @@
 #include "arch/module_factory.hpp"
 #include "cv_server/message.h"
 
+int Classifier::init(const InferEngineParam& param) {
+  infer_inst_ = new ORTEngine();
+  infer_inst_->init(param);
+  
+  input_shapes_ = infer_inst_->get_input_shapes();
+  input_datas_.resize(infer_inst_->get_input_num());
+  for (int i=0; i<input_datas_.size(); i++){
+    input_datas_[i].Reshape(input_shapes_[i]);
+  }
+  output_shapes_ = infer_inst_->get_output_shapes();
+  output_datas_.resize(infer_inst_->get_output_num());
+  for (int i=0; i<output_datas_.size(); i++){
+    output_datas_[i].Reshape(output_shapes_[i]);
+  }
+  is_init_ = true;
+  return 0;
+}
+
+int Classifier::uninit() {
+    if (infer_inst_ != nullptr){
+        infer_inst_->uninit();
+        delete infer_inst_;
+        infer_inst_ = nullptr;
+    }
+    return 0;
+}
+
 int Classifier::preproc(std::vector<cv::Mat>& input_imgs) {
-  if (input_imgs.size() != 1) {
-    std::cout << "input_img.size() != 1 no supported | " << input_imgs.size() << " != 1"  << endl;
-    return -1;
-  }
   if (input_imgs[0].empty()){
-    std::cout << "img is empty! | " << endl;
-    return -1;
-  }
-  if (input_imgs[0].type() == CV_8UC3){
-    input_imgs[0].convertTo(input_imgs[0], CV_32FC1);
+    LError("input image is empty!");
+    return ERR_INVALID_PARAM;
   }
 
-  auto model_input_shape = input_shapes_[0].GetData();
-  int input_channel = model_input_shape[1];
-  int input_height = model_input_shape[2];
-  int input_width = model_input_shape[3];
+  int input_channel = input_shapes_[0][1];
+  int input_height = input_shapes_[0][2];
+  int input_width = input_shapes_[0][3];
   cv::Mat resized_img;
   cv::resize(input_imgs[0], resized_img, cv::Size(input_width, input_height));
-  cv::Scalar mean(0);
-  cv::Scalar std(255);
+
   resized_img.convertTo(resized_img, CV_32FC1);
-  resized_img = resized_img.mul(1/255.f);
 
   float* input_datas_data_ptr = (float*)input_datas_[0].GetDataPtr();
-  // for (int c = 0; c < input_channel; c++) {
-  //   for (int i = 0; i < input_height; i++) {
-  //     for (int j = 0; j < input_width; j++) {
-  //       float tmp = resized_img.ptr<float>(i)[j * 3 + c];
-  //       input_datas_data_ptr[c * input_height * input_width + i * input_width + j] = tmp;//((tmp) / 255.0 - mean_[c]) / std_[c];
-  //       printf("%f \n", tmp);
-  //     }
-  //   }
-  // }
+
+    for (int i = 0; i < input_height; i++) {
+      for (int j = 0; j < input_width; j++) {
+        input_datas_data_ptr[i * input_width + j] = resized_img.ptr<float>(i)[j] / 255.0;
+        printf("%f \n", input_datas_data_ptr[i * input_width + j]);
+      }
+    }
+
   memcpy(input_datas_data_ptr, resized_img.data, input_channel*input_height*input_width*sizeof(float));
   return 0;
 }
 
 int Classifier::postproc(void* results) {
-  // static_cast<int*>(results)[0] = 0;
   for (int n=0; n<output_datas_.size();n++){
     Tensor& item = output_datas_[n];
     vector<float> output_data;
@@ -60,25 +75,16 @@ int Classifier::postproc(void* results) {
 
 int Classifier::inference(std::vector<cv::Mat>& input_imgs, void* results){
   if (!is_init_){
-    std::cout << "Classifier is not init!" << endl;
-    return -1;
+    LError("Module Classifier is not initialized!");
+    return ERR_UNINITIALIZED;
   }
   int ret = preproc(input_imgs);
-  if (ret != 0){
-    std::cout << "Classifier preproc failed!" << endl;
-    return -1;
-  }
+  log_error_return(ret, "Module Classifier preproc failed!");
   ret = infer_inst_->forward(input_datas_, output_datas_);
-  if (ret != 0){
-    std::cout << "Classifier forward failed!" << endl;
-    return -1;
-  }
+  log_error_return(ret, "Module Classifier forward failed!");
   ret = postproc(results);
-  if (ret != 0){
-    std::cout << "Classifier postproc failed!" << endl;
-    return -1;
-  }
-  return 0;
+  log_error_return(ret, "Module Classifier postproc failed!");
+  return ERR_SUCCESS;
 }
 
 REGISTER_MODULE_CLASS(Classifier) 
