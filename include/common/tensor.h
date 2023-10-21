@@ -1,8 +1,8 @@
 #pragma once
-#include <vector>
+#include <cstring>
 #include <iostream>
 #include <string>
-#include <cstring>
+#include <vector>
 
 #include "../all_type.h"
 
@@ -16,14 +16,18 @@ class Shape
 {
 private:
     std::vector<int> shape_;
+
 public:
-    Shape(){
+    Shape()
+    {
         shape_ = std::vector<int>();
     }
-    Shape(const std::vector<int>& shape){
+    Shape(const std::vector<int> &shape)
+    {
         shape_ = shape;
     }
-    Shape(const std::vector<int64_t>& shape){
+    Shape(const std::vector<int64_t> &shape)
+    {
         shape_ = std::vector<int>();
         for (int i = 0; i < shape.size(); i++)
         {
@@ -31,24 +35,30 @@ public:
         }
     }
 
-    Shape(const Shape& shape){
+    Shape(const Shape &shape)
+    {
         shape_ = shape.shape_;
     }
-    int& operator[](int index){
+    int &operator[](int index)
+    {
         return shape_[index];
     }
-    Shape& operator=(const Shape& shape){
+    Shape &operator=(const Shape &shape)
+    {
         shape_ = shape.shape_;
         return *this;
     }
-    int Reshape(const std::vector<int>& shape){
+    int Reshape(const std::vector<int> &shape)
+    {
         shape_ = shape;
         return 0;
     }
-    std::vector<int> GetData(){
+    std::vector<int> GetData()
+    {
         return shape_;
     }
-    std::vector<int64_t> GetDataInt64() const {
+    std::vector<int64_t> GetDataInt64() const
+    {
         std::vector<int64_t> shape(shape_.size());
         for (int i = 0; i < shape_.size(); i++)
         {
@@ -57,10 +67,12 @@ public:
         }
         return shape;
     }
-    int Dim(){
+    int Dim()
+    {
         return shape_.size();
     }
-    int Size(){
+    int Size()
+    {
         if (shape_.size() == 0)
         {
             return 0;
@@ -72,7 +84,8 @@ public:
         }
         return size;
     }
-    std::string to_string(){
+    std::string to_string()
+    {
         std::string str = "(";
         for (int i = 0; i < shape_.size(); i++)
         {
@@ -95,68 +108,91 @@ private:
     Shape shape_;
     DataType data_type_;
     DeviceType device_type_;
+
 public:
     ~Tensor(){};
-    Tensor(){
+    Tensor()
+    {
         data_type_ = Float32;
         device_type_ = CPU;
     }
-    Tensor(const Tensor& tensor){
+    Tensor(const Tensor &tensor)
+    {
         data_ = tensor.data_;
         shape_ = tensor.shape_;
         data_type_ = tensor.data_type_;
         device_type_ = tensor.device_type_;
     }
-    Tensor& operator=(const Tensor& tensor){
+    Tensor &operator=(const Tensor &tensor)
+    {
         data_ = tensor.data_;
         shape_ = tensor.shape_;
         data_type_ = tensor.data_type_;
         device_type_ = tensor.device_type_;
         return *this;
     }
-   
-    Tensor(const std::vector<char>& data, const Shape& shape, DataType data_type=Float32, DeviceType device_type=CPU){
+
+    Tensor(const std::vector<char> &data,
+           const Shape &shape,
+           DataType data_type = Float32,
+           DeviceType device_type = CPU)
+    {
         data_ = data;
         shape_ = shape;
         data_type_ = data_type;
         device_type_ = device_type;
     }
-    Tensor(void* data_ptr, const Shape& shape, DataType data_type, DeviceType device_type=CPU){
+    Tensor(void *data_ptr,
+           const Shape &shape,
+           DataType data_type,
+           DeviceType device_type = CPU)
+    {
         shape_ = shape;
         data_type_ = data_type;
         device_type_ = device_type;
         data_.resize(shape_.Size() * DataTypeSize(data_type));
         if (data_ptr)
-            memcpy(data_.data(), data_ptr, shape_.Size() * DataTypeSize(data_type));
+            memcpy(data_.data(),
+                   data_ptr,
+                   shape_.Size() * DataTypeSize(data_type));
     }
-    int Reshape(const Shape& shape){
+    int Reshape(const Shape &shape)
+    {
         shape_ = shape;
         data_.resize(shape_.Size() * DataTypeSize(data_type_));
         return 0;
     }
-    int MemSize(){
+    int MemSize()
+    {
         return Size() * DataTypeSize(data_type_);
     }
-    int Size(){
+    int Size()
+    {
         return shape_.Size();
     }
 
-    int Dim(){
+    int Dim()
+    {
         return shape_.Dim();
     }
-    DataType GetDataType(){
+    DataType GetDataType()
+    {
         return data_type_;
     }
-    DeviceType GetDeviceType(){
+    DeviceType GetDeviceType()
+    {
         return device_type_;
     }
-    void* GetDataPtr(){
+    void *GetDataPtr()
+    {
         return data_.data();
     }
-    const Shape& GetShape(){
+    const Shape &GetShape()
+    {
         return shape_;
     }
-    std::string info_to_string(){
+    std::string info_to_string()
+    {
         std::string str = "Tensor(";
         str += shape_.to_string();
         str += ", ";
@@ -166,7 +202,8 @@ public:
         str += ")";
         return str;
     }
-    std::string data_to_string(){
+    std::string data_to_string()
+    {
         std::string str = "[";
         for (int i = 0; i < Size(); i++)
         {
@@ -179,5 +216,4 @@ public:
         str += "]";
         return str;
     }
-
 };

@@ -4,7 +4,6 @@ if [ -d "${build_dir}" ]; then
     rm -rf ${build_dir}/*
 fi
 
-
 # 检查依赖组件
 OpenCV_DIR=/opt/envs/opencv/opencv-3.4.16/share/OpenCV
 if [ ! -d "${OpenCV_DIR}" ]; then
@@ -19,5 +18,5 @@ export OpenCV_DIR=${OpenCV_DIR}
 # fi
 
 cd ${build_dir}
-cmake .. -DCMAKE_BUILD_TYPE=Debug
+cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=1
 make -j2

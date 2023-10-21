@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 3.10.1) 
-project(infersdk)
 
-SET(CMAKE_C_COMPILER "/opt/envs/gcc-9.4.0/bin/gcc")
-SET(CMAKE_CXX_COMPILER "/opt/envs/gcc-9.4.0/bin/g++")
+# SET(CMAKE_C_COMPILER "/opt/envs/gcc-9.4.0/bin/gcc")
+# SET(CMAKE_CXX_COMPILER "/opt/envs/gcc-9.4.0/bin/g++")
+set(CMAKE_C_COMPILER "/usr/bin/clang")
+set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
+
+project(infersdk)
 
 option(USE_CUDA "use cuda" OFF) 
 option(USE_OPENCV "use opencv" ON)

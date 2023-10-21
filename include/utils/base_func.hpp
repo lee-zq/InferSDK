@@ -4,7 +4,7 @@
 #include <vector>
 
 
-std::vector<std::string> load_file(const std::string& file_path) {
+inline std::vector<std::string> load_file(const std::string& file_path) {
   std::ifstream f(file_path.c_str());
   if (!f.is_open()) {
     std::cout << "open file failed" << std::endl;

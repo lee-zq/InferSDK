@@ -1,7 +1,9 @@
 #include "common/tensor.h"
 #include "all_type.h"
+#include <opencv2/features2d.hpp>
 
-int DataTypeSize(DataType type){
+int DataTypeSize(DataType type)
+{
     switch (type)
     {
     case Int8:
@@ -17,7 +19,8 @@ int DataTypeSize(DataType type){
     }
 }
 
-std::string DataTypeName(DataType type){
+std::string DataTypeName(DataType type)
+{
     switch (type)
     {
     case Int8:
@@ -33,7 +36,8 @@ std::string DataTypeName(DataType type){
     }
 }
 
-std::string DeviceTypeName(DeviceType type){
+std::string DeviceTypeName(DeviceType type)
+{
     switch (type)
     {
     case CPU:
@@ -48,3 +52,4 @@ std::string DeviceTypeName(DeviceType type){
         return "Undefined";
     }
 }
+

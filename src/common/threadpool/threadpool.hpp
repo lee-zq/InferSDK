@@ -1,96 +1,107 @@
 #pragma once
-#include <vector>
-#include <thread>
-#include <functional>
-#include <condition_variable>
-#include <future>
 #include <atomic>
-#include <memory>
+#include <condition_variable>
+#include <functional>
+#include <future>
 #include <iostream>
+#include <memory>
+#include <thread>
+#include <vector>
 
 #include "taskqueue.hpp"
 class ThreadPool
 {
 private:
-	class ThreadWorker 
-       {
-	private:
-		int m_id;
-		ThreadPool* m_pool;
-	public:
-		ThreadWorker(ThreadPool* pool, const int id) :
-			m_id(id), m_pool(pool) {}
+    class ThreadWorker
+    {
+    private:
+        int m_id;
+        ThreadPool *m_pool;
 
-		void operator()() {
-			std::function<void()> func;
-			bool dequeued;
+    public:
+        ThreadWorker(ThreadPool *pool, const int id) : m_id(id), m_pool(pool)
+        {
+        }
 
-			while (!m_pool->m_shutdown)
-			{
-				{
-					std::unique_lock<std::mutex> lock(m_pool->m_conditional_mutex);
-					if (m_pool->m_queue.is_empty())
-					{
-						m_pool->m_conditional_lock.wait(lock);
-					}
-					dequeued = m_pool->m_queue.pop(func);
-				}
-				if (dequeued)
-				{
-					func();
-				}
-			}
-		}
-	};
+        void operator()()
+        {
+            std::function<void()> func;
+            bool dequeued;
+
+            while (!m_pool->shutdown_)
+            {
+                {
+                    std::unique_lock<std::mutex> lock(
+                        m_pool->conditional_mutex_);
+                    if (m_pool->queue_.is_empty())
+                    {
+                        m_pool->conditional_lock_.wait(lock);
+                    }
+                    dequeued = m_pool->queue_.pop(func);
+                }
+                if (dequeued)
+                {
+                    func();
+                }
+            }
+        }
+    };
 
 public:
-	ThreadPool(const int n_threads = 4) :m_threads(std::vector<std::thread>(n_threads)), m_shutdown(false) {}
-	ThreadPool(const ThreadPool&) = default;
-	ThreadPool(ThreadPool&&) = default;
-	ThreadPool& operator=(const ThreadPool&) = default;
-	ThreadPool& operator=(ThreadPool&&) = default;
+    ThreadPool(const int n_threads = 4)
+        : shutdown_(false), threads_(std::vector<std::thread>(n_threads)){};
 
-	void init() {
-		for (int i = 0; i < m_threads.size(); ++i) {
-			m_threads.at(i) = std::thread(ThreadWorker(this, i));
-		}
-	}
+    ThreadPool(const ThreadPool &) = default;
+    ThreadPool(ThreadPool &&) = default;
+    ThreadPool &operator=(const ThreadPool &) = default;
+    ThreadPool &operator=(ThreadPool &&) = default;
 
-	void shutdown()
-	{
-		m_shutdown = true;
-		m_conditional_lock.notify_all();
-		for (int i = 0; i < m_threads.size(); i++)
-		{
-			if (m_threads.at(i).joinable()) {
-				m_threads.at(i).join();
-			}
-		}
-	}
+    void init()
+    {
+        for (int i = 0; i < threads_.size(); ++i)
+        {
+            threads_.at(i) = std::thread(ThreadWorker(this, i));
+        }
+    }
 
-	template <typename F, typename... Args>
-	auto submit(F&& f, Args &&...args) -> std::future<decltype(f(args...))>
-	{
-		// Create a function with bounded parameter ready to execute
-		std::function<decltype(f(args...))()> func = std::bind(std::forward<F>(f), std::forward<Args>(args)...);// 连接函数和参数定义，特殊函数类型，避免左右值错误
-			// Encapsulate it into a shared pointer in order to be able to copy construct
-		auto task_ptr = std::make_shared<std::packaged_task<decltype(f(args...))()>>(func);
-		// Warp packaged task into void function
-		std::function<void()> warpper_func = [task_ptr]()
-		{
-			(*task_ptr)();
-		};
-		// 队列通用安全封包函数，并压入安全队列
-		m_queue.push(warpper_func);
-		// 唤醒一个等待中的线程
-		m_conditional_lock.notify_one();
-		// 返回先前注册的任务指针
-		return task_ptr->get_future();
-	}
+    void shutdown()
+    {
+        conditional_lock_.notify_all();
+        for (auto &thread : threads_)
+        {
+            if (thread.joinable())
+            {
+                thread.join();
+            }
+        }
+        shutdown_ = true;
+    }
+
+    template <typename F, typename... Args>
+    auto submit(F &&f, Args &&...args) -> std::future<decltype(f(args...))>
+    {
+        // Create a function with bounded parameter ready to execute
+        std::function<decltype(f(args...))()> func = std::bind(
+            std::forward<F>(f),
+            std::forward<Args>(
+                args)...); // 连接函数和参数定义，特殊函数类型，避免左右值错误
+        // Encapsulate it into a shared pointer in order to be able to copy construct
+        auto task_ptr =
+            std::make_shared<std::packaged_task<decltype(f(args...))()>>(func);
+        // Warp packaged task into void function
+        std::function<void()> warpper_func = [task_ptr]() { (*task_ptr)(); };
+        // 队列通用安全封包函数，并压入安全队列
+        queue_.push(warpper_func);
+        // 唤醒一个等待中的线程
+        conditional_lock_.notify_one();
+        // 返回先前注册的任务指针
+        return task_ptr->get_future();
+    }
+
 private:
-	bool m_shutdown;
-	SafeQueue<std::function<void()>> m_queue;
-	std::vector<std::thread> m_threads;
-	std::mutex m_conditional_mutex;
-	std::condition_variable m_conditional_lock;
+    bool shutdown_ = false;
+    SafeQueue<std::function<void()>> queue_;
+    std::vector<std::thread> threads_;
+    std::mutex conditional_mutex_;
+    std::condition_variable conditional_lock_;
 };
