@@ -6,23 +6,23 @@
     "configurations": [
     { // C/C++ Debug
         "name": "(gdb) Launch",
-        "type": "cppdbg",
+        "type": "lldb",
         "request": "launch",
         "program": "${workspaceFolder}/output/bin/test_cvserver",
         "args": ["/root/projects/onnxruntime/environment/model/resnet_best.onnx",
                 "/root/projects/onnxruntime/environment/lst/img.lst"],
-        "stopAtEntry": false,
-        "cwd": "${workspaceFolder}/output/bin",
-        "environment": [{"name": "LD_LIBRARY_PATH","value": "./:/opt/envs/opencvlib/lib:$LD_LIBRARY_PATH"}],
-        "externalConsole": false,
-        "MIMode": "gdb",
-        "setupCommands": [
-            {
-                "description": "Enable pretty-printing for gdb",
-                "text": "-enable-pretty-printing",
-                "ignoreFailures": true
-            }
-        ]
+        // "stopAtEntry": false,
+        // "cwd": "${workspaceFolder}/output/bin",
+        // "environment": [{"name": "LD_LIBRARY_PATH","value": "./:/opt/envs/opencvlib/lib:$LD_LIBRARY_PATH"}],
+        // "externalConsole": false,
+        // "MIMode": "gdb",
+        // "setupCommands": [
+        //     {
+        //         "description": "Enable pretty-printing for gdb",
+        //         "text": "-enable-pretty-printing",
+        //         "ignoreFailures": true
+        //     }
+        // ]
     },
     {// python debug
         "name": "Python: Current File",
