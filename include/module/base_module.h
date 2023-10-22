@@ -1,20 +1,20 @@
 #pragma once
 #include "all_type.h"
-#include "common/tensor.h"
+#include "com/logger.h"
+#include "com/tensor.h"
 #include "opencv2/opencv.hpp"
-#include "utils/logger.h"
 #include <string>
 #include <vector>
 
-class IModule
+class BaseModule
 {
 public:
-    IModule(){}; // Module默认构造函数
+    BaseModule(){}; // Module默认构造函数
 
     virtual int init(const InferEngineParam& param) = 0;
     virtual int inference(std::vector<cv::Mat>& input_imgs, void* results) = 0;
     virtual int uninit() = 0;
-    virtual ~IModule(){};
+    virtual ~BaseModule(){};
 
     virtual std::vector<Tensor>& GetInputData()
     {

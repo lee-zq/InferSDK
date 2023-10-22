@@ -3,14 +3,14 @@
 #include <fstream>
 #include <time.h>
 
-#include "common/tensor.h"
+#include "com/tensor.h"
 #include "cv_server/error_code.h"
 #include "engine/infer_engine.h"
 #include "engine/onnxruntime/ort_engine.h"
-#include "module/imodule.h"
+#include "module/base_module.h"
 #include "opencv2/opencv.hpp"
 
-class Classifier : public IModule
+class Classifier : public BaseModule
 {
 public:
     Classifier(){};

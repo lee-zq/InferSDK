@@ -3,12 +3,14 @@
 #include <algorithm>
 #include <cstdio>
 #include <iostream>
-#include <map>
-#include <memory>
-#include <mutex>
-#include <set>
-#include <string>
-#include <vector>
+
+#define NAMESPACE_BEGIN(name)                                                  \
+    namespace name                                                             \
+    {
+#define NAMESPACE_END(name) }
+
+#define SPACE_BEGIN NAMESPACE_BEGIN(gyq)
+#define SPACE_END NAMESPACE_END(gyq)
 
 // 宏，用于打印未实现的日志
 #define NOT_IMPLEMENTED()                                                      \

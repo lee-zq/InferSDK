@@ -34,8 +34,8 @@ int CVServer::process(message* msg)
     TaskType task_type = static_cast<TaskType>(msg->task_type);
     Instance* inst = nullptr;
     int ret = get_inst(task_type, &inst);
-    log_error_return(ret,
-                     "CVServer::process get_inst() failed") auto task = [&]() {
+    log_error_return(ret, "CVServer::process get_inst() failed");
+    auto task = [&]() {
         return inst->compute(input_imgs, (void*)&out_data->output_info);
     };
 

@@ -1,9 +1,9 @@
 #include "arch/instance.h"
 
+#include "com/utils/base_func.h"
 #include "module/classification/classifier.h"
 #include "module/detection/detection.h"
 #include "module/segmentation/seg.h"
-#include "utils/base_func.hpp"
 
 int Instance::init(
     const std::vector<std::pair<std::string, InferEngineParam>>& param)
@@ -50,7 +50,7 @@ int Instance::fini()
 int Instance::append_module(const std::string& task_type,
                             const InferEngineParam& param)
 {
-    IModule* module = nullptr;
+    BaseModule* module = nullptr;
     if (task_type == "Classify")
     {
         module = new Classifier();

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "module/imodule.h"
+#include "module/base_module.h"
 
 #include <map>
 #include <mutex>
@@ -21,5 +21,5 @@ public:
     virtual ~Instance(){};
 
 private:
-    std::map<std::string, IModule*> module_map_;
+    std::map<std::string, BaseModule*> module_map_;
 };

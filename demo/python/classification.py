@@ -27,7 +27,8 @@ class InferAgent:
     def preprocess(self, img):
         mean_vec = np.array([0.485, 0.456, 0.406])
         stddev_vec = np.array([0.229, 0.224, 0.225])
-        in_data = common.center_crop(img, 224, 224)
+        # in_data = common.center_crop(img, 224, 224)
+        in_data = common.img_resize(img, 224, 224)
         in_data = (in_data/255. - mean_vec)/stddev_vec
         in_data = np.expand_dims(in_data.transpose(2, 0, 1), axis=0).astype(np.float32)
         return in_data
@@ -44,19 +45,19 @@ class InferAgent:
         pred = self.inference(in_data)
         result = self.postprocess(pred)
         T2 = time.time()
-        print(f"inference time: {(T2-T1)*1000:.2f}ms")
+        # print(f"inference time: {(T2-T1)*1000:.2f}ms")
         return result
     
     def run_multi(self, img_dir):
-        img_lst = os.listdir(img_dir)
+        img_lst = sorted(os.listdir(img_dir))
         img_paths = [os.path.join(img_dir, filename) for filename in img_lst]
         results = []
         for img_path in img_paths:
             result = self.run(img_path)
             results.append(result)
             print(f"img_path: {img_path} pred: id:{result[0]} score:{result[1]}")
-            if self.classes_map:
-                print(f"pred class: {self.classes_map[result[0]]}\n")
+            # if self.classes_map:
+            #     print(f"pred class: {self.classes_map[result[0]]}\n")
         return results
     
 def mobilenet_v2_model_1000class_test():

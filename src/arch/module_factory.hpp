@@ -8,12 +8,12 @@
 #include <vector>
 
 #include "all_type.h"
-#include "module/imodule.h"
+#include "module/base_module.h"
 
 class ModuleRegistry
 {
 public:
-    typedef std::shared_ptr<IModule> (*Creator)(const ModuleParam&);
+    typedef std::shared_ptr<BaseModule> (*Creator)(const ModuleParam&);
     typedef std::map<std::string, Creator> CreatorRegistry;
 
     static CreatorRegistry& Registry()
@@ -32,7 +32,8 @@ public:
     }
 
     // Get a module using a InitParam.
-    static std::shared_ptr<IModule> CreateIModule(const ModuleParam& param)
+    static std::shared_ptr<BaseModule> CreateBaseModule(
+        const ModuleParam& param)
     {
         // if (Caffe::root_solver()) {
         //   LOG(INFO) << "Creating module " << param.name();
@@ -40,7 +41,7 @@ public:
         const std::string& type = param.type;
         CreatorRegistry& registry = Registry();
         // CHECK_EQ(registry.count(type), 1) << "Unknown module type: " << type
-        //     << " (known types: " << IModuleTypeListString() << ")";
+        //     << " (known types: " << BaseModuleTypeListString() << ")";
         return registry[type](param);
     }
 
@@ -86,7 +87,7 @@ class ModuleRegisterer
 {
 public:
     ModuleRegisterer(const std::string& type,
-                     std::shared_ptr<IModule> (*creator)(const ModuleParam&))
+                     std::shared_ptr<BaseModule> (*creator)(const ModuleParam&))
     {
         // LOG(INFO) << "Registering module type: " << type;
         ModuleRegistry::AddCreator(type, creator);
@@ -94,9 +95,9 @@ public:
 };
 
 #define REGISTER_MODULE_CLASS(name)                                            \
-    shared_ptr<IModule> Creator_##name##Module(const ModuleParam& param)       \
+    shared_ptr<BaseModule> Creator_##name##Module(const ModuleParam& param)    \
     {                                                                          \
-        return shared_ptr<IModule>(new name(param));                           \
+        return shared_ptr<BaseModule>(new name(param));                        \
     }                                                                          \
     static ModuleRegisterer g_creator_##name(#name, Creator_##name##Module);
 

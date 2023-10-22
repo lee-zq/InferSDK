@@ -1,10 +1,12 @@
 #include "classifier.h"
 #include "arch/module_factory.hpp"
+#include "com/utils//base_func.h"
 #include "cv_server/message.h"
 #include "opencv2/opencv.hpp"
 #include <algorithm>
 #include <cmath>
 #include <fstream>
+#include <opencv2/core/types.hpp>
 #include <time.h>
 
 int Classifier::init(const InferEngineParam& param)
@@ -74,6 +76,7 @@ int Classifier::preproc(std::vector<cv::Mat>& input_imgs)
         return ERR_INVALID_VALUE;
     }
     resized_img.convertTo(resized_img, CV_32FC3);
+    resized_img = resized_img / cv::Scalar(255, 255, 255);
     resized_img = (resized_img - cv::Scalar(mean_[0], mean_[1], mean_[2])) /
                   cv::Scalar(std_[0], std_[1], std_[2]);
     std::vector<cv::Mat> channels;
@@ -86,6 +89,7 @@ int Classifier::preproc(std::vector<cv::Mat>& input_imgs)
         float* dst_ptr = input_datas_data_ptr + c * input_height * input_width;
         memcpy(dst_ptr, src_ptr, input_height * input_width * sizeof(float));
     }
+    input_datas_[0].dump_to_file("input.bin");
     return 0;
 }
 
@@ -97,11 +101,14 @@ int Classifier::postproc(void* results)
         vector<float> output_data;
         output_data.assign((float*)item.GetDataPtr(),
                            (float*)item.GetDataPtr() + item.Size());
+        softmax(output_data);
         int class_result = std::distance(
             output_data.begin(),
             std::max_element(output_data.begin(), output_data.end()));
         OutData* out_data = static_cast<OutData*>(results);
-        out_data->output_info = std::to_string(class_result);
+        out_data->output_info =
+            "id:" + std::to_string(class_result) +
+            " score:" + std::to_string(output_data[class_result]);
     }
     return 0;
 }

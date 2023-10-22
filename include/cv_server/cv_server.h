@@ -1,6 +1,6 @@
 #pragma once
 #include "arch/inst_manager.h"
-#include "common/define.hpp"
+#include "com/utils/define.hpp"
 #include "cv_server/message.h"
 #include "error_code.h"
 #include <condition_variable>
@@ -8,7 +8,7 @@
 #include <queue>
 #include <thread>
 
-#include "common/threadpool/threadpool.hpp"
+#include "com/threadpool/threadpool.hpp"
 
 class CVServer
 {

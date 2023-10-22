@@ -1,7 +1,7 @@
 #pragma once
+#include "com/utils//base_func.h"
 #include "cv_server/cv_server.h"
 #include "cv_server/message.h"
-#include "utils/base_func.hpp"
 #include <string>
 
 class Client

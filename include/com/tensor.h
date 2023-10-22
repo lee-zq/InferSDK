@@ -202,18 +202,38 @@ public:
         str += ")";
         return str;
     }
-    std::string data_to_string()
+    int dump_to_file(const std::string& file_path)
     {
-        std::string str = "[";
-        for (int i = 0; i < Size(); i++)
+        FILE* fp = fopen(file_path.c_str(), "wb");
+        if (fp == nullptr)
         {
-            str += std::to_string(data_[i]);
-            if (i != Size() - 1)
-            {
-                str += ", ";
-            }
+            std::cout << "open file error" << std::endl;
+            return -1;
         }
-        str += "]";
-        return str;
+        float* data_ptr = reinterpret_cast<float*>(data_.data());
+        for (int i = 0; i < shape_.Size(); i++)
+        {
+            fprintf(fp, "%f\n", data_ptr[i]);
+        }
+        fclose(fp);
+        return 0;
+    }
+
+    int load_from_file(const std::string& file_path, const Shape& shape)
+    {
+        Reshape(shape);
+        FILE* fp = fopen(file_path.c_str(), "rb");
+        if (fp == nullptr)
+        {
+            std::cout << "open file error" << std::endl;
+            return -1;
+        }
+        float* data_ptr = reinterpret_cast<float*>(data_.data());
+        for (int i = 0; i < shape_.Size(); i++)
+        {
+            fscanf(fp, "%f\n", &data_ptr[i]);
+        }
+        fclose(fp);
+        return 0;
     }
 };

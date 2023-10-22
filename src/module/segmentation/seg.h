@@ -5,12 +5,12 @@
 
 #include "opencv2/opencv.hpp"
 
-#include "common/tensor.h"
+#include "com/tensor.h"
 #include "engine/infer_engine.h"
 #include "engine/onnxruntime/ort_engine.h"
-#include "module/imodule.h"
+#include "module/base_module.h"
 
-class Seg : public IModule
+class Seg : public BaseModule
 {
 public:
     Seg(){};

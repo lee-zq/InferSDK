@@ -1,7 +1,7 @@
 #pragma once
 #include "arch/instance.h"
 #include "cv_server/message.h"
-#include "module/imodule.h"
+#include "module/base_module.h"
 #include <mutex>
 #include <string>
 #include <vector>

@@ -1,5 +1,5 @@
 #pragma once
-#include "common/tensor.h"
+#include "com/tensor.h"
 #include <map>
 #include <string>
 #include <vector>

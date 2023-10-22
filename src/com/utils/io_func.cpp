@@ -1,10 +1,13 @@
+#include <algorithm>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
 
+#include "com/utils/base_func.h"
 
-inline std::vector<std::string> load_file(const std::string& file_path)
+std::vector<std::string> load_file(const std::string& file_path)
 {
     std::ifstream f(file_path.c_str());
     if (!f.is_open())
@@ -25,7 +28,7 @@ inline std::vector<std::string> load_file(const std::string& file_path)
     return data_lst;
 }
 
-static int save_result(std::string& file_path, std::vector<int>& results)
+int save_result(std::string& file_path, std::vector<int>& results)
 {
     std::ofstream f(file_path.c_str());
     if (!f.is_open())
@@ -41,24 +44,11 @@ static int save_result(std::string& file_path, std::vector<int>& results)
     return 0;
 }
 
-static float cal_acc(std::vector<int>& labels, std::vector<int>& results)
-{
-    float TP = 0.;
-    for (int i = 0; i < labels.size(); i++)
-    {
-        if (labels[i] == results[i])
-        {
-            TP++;
-        }
-    }
-    return TP / labels.size();
-}
-
 
 // split string by delim
-static int split(const std::string& str,
+int split(const std::string& str,
                  std::vector<std::string>& ret_,
-                 std::string sep = ",")
+                 std::string sep)
 {
     if (str.empty())
     {
