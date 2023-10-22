@@ -5,11 +5,29 @@
 #include <cmath>
 #include <fstream>
 #include <time.h>
+#include <typeindex>
 #include <vector>
 
 using namespace std;
 
-int ORTEngine::init(const InferEngineParam &param)
+static ONNXTensorElementDataType GetONNXType(const DataType& type)
+{
+    switch (type)
+    {
+    case Float32:
+        return ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT;
+    case Float16:
+        return ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16;
+    case Int8:
+        return ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8;
+    case Double64:
+        return ONNX_TENSOR_ELEMENT_DATA_TYPE_COMPLEX64;
+    default:
+        return ONNX_TENSOR_ELEMENT_DATA_TYPE_UNDEFINED;
+    }
+}
+
+int ORTEngine::init(const InferEngineParam& param)
 {
     param_ = param;
     memory_info_ =
@@ -21,7 +39,8 @@ int ORTEngine::init(const InferEngineParam &param)
     session_option.SetIntraOpNumThreads(param_.thread_num);
     if (param_.dev_type == CUDA)
     {
-        // OrtSessionOptionsAppendExecutionProvider_CUDA(session_option, param_.thread_num);
+        OrtCUDAProviderOptions cuda_options;
+        session_option.AppendExecutionProvider_CUDA(cuda_options);
     }
     session_ = new Ort::Session(env, param_.onnx_path.c_str(), session_option);
     if (session_ == nullptr)
@@ -43,13 +62,13 @@ int ORTEngine::init(const InferEngineParam &param)
     for (int i = 0; i < input_num_; i++)
     {
         input_names_.push_back(session_->GetInputName(i, *allocator_));
-        ort_input_names_.push_back(session_->GetInputName(i, *allocator_));
+        input_names_.push_back(session_->GetInputName(i, *allocator_));
     }
 
     for (int i = 0; i < output_num_; i++)
     {
         output_names_.push_back(session_->GetOutputName(i, *allocator_));
-        ort_output_names_.push_back(session_->GetOutputName(i, *allocator_));
+        output_names_.push_back(session_->GetOutputName(i, *allocator_));
     }
     for (int i = 0; i < input_num_; i++)
     {
@@ -79,7 +98,7 @@ int ORTEngine::forward(const vector<Tensor> &input_data,
         vector<int64_t> shape_data = item.GetShape().GetDataInt64();
         input_tensor_.emplace_back(
             Ort::Value::CreateTensor<float>(memory_info_,
-                                            (float *)item.GetDataPtr(),
+                                            (float*)item.GetDataPtr(),
                                             item.Size(),
                                             shape_data.data(),
                                             shape_data.size()));
@@ -92,7 +111,7 @@ int ORTEngine::forward(const vector<Tensor> &input_data,
         vector<int64> shape_data = item.GetShape().GetDataInt64();
         output_tensor_.emplace_back(
             Ort::Value::CreateTensor<float>(memory_info_,
-                                            (float *)item.GetDataPtr(),
+                                            (float*)item.GetDataPtr(),
                                             item.Size(),
                                             shape_data.data(),
                                             shape_data.size()));
@@ -100,12 +119,12 @@ int ORTEngine::forward(const vector<Tensor> &input_data,
     try
     {
         session_->Run(Ort::RunOptions{nullptr},
-                      ort_input_names_.data(),
-                      input_tensor_.data(),
-                      ort_input_names_.size(),
-                      ort_output_names_.data(),
-                      output_tensor_.data(),
-                      ort_output_names_.size());
+                      input_names_.data(),
+                      *input_tensor_.data(),
+                      input_names_.size(),
+                      output_names_.data(),
+                      *output_tensor_.data(),
+                      output_names_.size());
     }
     catch (const std::exception &ex)
     {

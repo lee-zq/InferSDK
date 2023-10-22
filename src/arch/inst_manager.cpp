@@ -20,7 +20,7 @@ int InstManager::init(const std::string& manager_param)
     inst_param_map_.insert(std::make_pair(TaskType::CLASSIFY, infer_param_map));
     // 检测任务参数
     InferEngineParam infer_param2;
-    infer_param2.onnx_path = "../res/mnist.onnx";
+    infer_param2.onnx_path = "../res/tiny-yolov3-11.onnx";
     infer_param2.thread_num = 1;
     infer_param2.dev_type = CPU;
     infer_param2.dev_id = 0;

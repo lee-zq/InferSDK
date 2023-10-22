@@ -2,6 +2,7 @@
 #include <cmath>
 #include <fstream>
 #include <time.h>
+#include <vector>
 
 #include "opencv2/opencv.hpp"
 
@@ -34,7 +35,9 @@ public:
         infer_inst_ = new ORTEngine();
         infer_inst_->init(param);
 
-        input_shapes_ = infer_inst_->get_input_shapes();
+        input_shapes_.resize(infer_inst_->get_input_num());
+        input_shapes_[0] = vector<int>{1, 3, 416, 416};
+        input_shapes_[1] = vector<int>{1, 2};
         input_datas_.resize(infer_inst_->get_input_num());
         for (int i = 0; i < input_datas_.size(); i++)
         {
@@ -55,10 +58,6 @@ private:
     int postproc(void* results);
 
 private:
-    const int class_num = 10;
-    const int input_height = 32;
-    const int input_width = 32;
-    const int input_channel = 3;
 
     std::vector<float> mean_{0.4914, 0.4822, 0.4465};
     std::vector<float> std_{0.2023, 0.1994, 0.2010};

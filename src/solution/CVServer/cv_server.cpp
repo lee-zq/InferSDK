@@ -11,6 +11,7 @@ int CVServer::init(std::string cfg_path)
     // 2. 初始化实例管理器
     int ret = InstMgr->init(cfg_path);
     log_error_return(ret, "CVServer Initialize failed.");
+    initialized_ = true;
     LInfo("CVServer Initialize success.");
     return 0;
 }

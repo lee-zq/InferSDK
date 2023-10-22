@@ -26,7 +26,7 @@ public:
     {
         return 0;
     }
-    virtual int uninit()
+    virtual int uninit() override
     {
         if (session_)
         {
@@ -43,12 +43,12 @@ public:
     InferEngineParam param_;
     Ort::MemoryInfo memory_info_{nullptr};
     Ort::AllocatorWithDefaultOptions* allocator_{nullptr};
-    vector<Ort::Value> input_tensor_;
-    vector<Ort::Value> output_tensor_;
+    vector<Ort::Value*> input_tensor_;
+    vector<Ort::Value*> output_tensor_;
 
 private:
-    vector<const char*> ort_input_names_;
-    vector<const char*> ort_output_names_;
+    vector<const char*> input_names_;
+    vector<const char*> output_names_;
     Ort::SessionOptions session_option;
     Ort::Env env{ORT_LOGGING_LEVEL_WARNING, "onnxruntime"};
     Ort::Session* session_{nullptr};

@@ -13,14 +13,15 @@
 class CVServer
 {
 public:
-    virtual int init(std::string cfg_path);
-    virtual int fini();
-    // virtual int start();
-    // virtual int stop();
+    int init(std::string cfg_path);
+    int fini();
+    // int start();
+    // int stop();
     int get_inst(TaskType task_type, Instance** inst_ptr);
-    virtual int process(message* msg);
+    int process(message* msg);
 
 private:
+    bool initialized_ = false;
     std::map<TaskType, Instance*> inst_map_;
     std::mutex inst_map_mutex_;
     // 执行线程池
