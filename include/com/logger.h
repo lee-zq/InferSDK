@@ -1,6 +1,7 @@
 #pragma once
 
 //定义一个在日志后添加 文件名 函数名 行号 的宏定义
+#include "spdlog/common.h"
 #ifndef suffix
 #define suffix(msg)                                                            \
     std::string(msg)                                                           \
@@ -73,13 +74,17 @@ private:
 #ifdef _DEBUG
         global_logger->set_level(spdlog::level::trace);
 #else
-        global_logger->set_level(spdlog::level::err);
+        global_logger->set_level(spdlog::level::info);
 #endif
         //设置 logger 格式[%^%L%$]
-        spdlog::set_pattern(*global_logger.get(),
-                            "[%Y-%m-%d %H:%M:%S.%e] [%^%5l%$]  %v");
+        spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%5l%$]  %v");
         //设置当出发 err 或更严重的错误时立刻刷新日志
         global_logger->flush_on(spdlog::level::err);
+
+        // 写入日志头部信息
+        global_logger->info("\n\n");
+        global_logger->info("=============== InferSDK =================");
+        global_logger->info("InferSDK Logger start.");
     }
 
     ~Logger()

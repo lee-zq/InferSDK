@@ -30,7 +30,7 @@ list(APPEND ALL_LIBS ${ORT_LIBS})
 message(STATUS "ORT_LIBS: ${ORT_LIBS}")
 
 # 添加spdlog库依赖
-set(SPDLOG_ROOT ${CMAKE_SOURCE_DIR}/thirdparty/spdlog)
+set(SPDLOG_ROOT ${CMAKE_SOURCE_DIR}/thirdparty/external/spdlog)
 set(SPDLOG_INCLUDE_DIRS ${SPDLOG_ROOT}/include)
 INCLUDE_DIRECTORIES(${SPDLOG_INCLUDE_DIRS})
 

@@ -1,14 +1,18 @@
 #include "cv_server/cv_server.h"
+#include "com/logger.h"
 #include <thread>
 
 int CVServer::init(std::string cfg_path)
 {
+    LInfo("CVServer Initialize start.");
     // 1. 初始化线程池
     thread_pool_ = std::make_shared<ThreadPool>(1);
     thread_pool_->init();
     // 2. 初始化实例管理器
     int ret = InstMgr->init(cfg_path);
-    log_error_return(ret, "CVServer Initialize success.") return 0;
+    log_error_return(ret, "CVServer Initialize failed.");
+    LInfo("CVServer Initialize success.");
+    return 0;
 }
 
 int CVServer::get_inst(TaskType task_type, Instance** inst_ptr)
@@ -19,8 +23,8 @@ int CVServer::get_inst(TaskType task_type, Instance** inst_ptr)
         // 创建实例
         Instance* inst_ptr = nullptr;
         int ret = InstMgr->create_inst(task_type, &inst_ptr);
-        log_error_return(ret, "CVServer::process error")
-            inst_map_.insert(std::make_pair(task_type, inst_ptr));
+        log_error_return(ret, "CVServer::process error");
+        inst_map_.insert(std::make_pair(task_type, inst_ptr));
     }
     *inst_ptr = inst_map_[task_type];
     return 0;
