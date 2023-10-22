@@ -15,10 +15,10 @@ private:
     {
     private:
         int m_id;
-        ThreadPool *m_pool;
+        ThreadPool* m_pool;
 
     public:
-        ThreadWorker(ThreadPool *pool, const int id) : m_id(id), m_pool(pool)
+        ThreadWorker(ThreadPool* pool, const int id) : m_id(id), m_pool(pool)
         {
         }
 
@@ -50,10 +50,10 @@ public:
     ThreadPool(const int n_threads = 4)
         : shutdown_(false), threads_(std::vector<std::thread>(n_threads)){};
 
-    ThreadPool(const ThreadPool &) = default;
-    ThreadPool(ThreadPool &&) = default;
-    ThreadPool &operator=(const ThreadPool &) = default;
-    ThreadPool &operator=(ThreadPool &&) = default;
+    ThreadPool(const ThreadPool&) = default;
+    ThreadPool(ThreadPool&&) = default;
+    ThreadPool& operator=(const ThreadPool&) = default;
+    ThreadPool& operator=(ThreadPool&&) = default;
 
     void init()
     {
@@ -67,7 +67,7 @@ public:
     {
         shutdown_ = true;
         conditional_lock_.notify_all();
-        for (auto &thread : threads_)
+        for (auto& thread : threads_)
         {
             if (thread.joinable())
             {
@@ -77,7 +77,7 @@ public:
     }
 
     template <typename F, typename... Args>
-    auto submit(F &&f, Args &&...args) -> std::future<decltype(f(args...))>
+    auto submit(F&& f, Args&&... args) -> std::future<decltype(f(args...))>
     {
         // Create a function with bounded parameter ready to execute
         std::function<decltype(f(args...))()> func = std::bind(

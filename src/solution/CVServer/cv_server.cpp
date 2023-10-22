@@ -11,32 +11,32 @@ int CVServer::init(std::string cfg_path)
     log_error_return(ret, "CVServer Initialize success.") return 0;
 }
 
-int CVServer::get_inst(FID fid, Instance **inst_ptr)
+int CVServer::get_inst(TaskType task_type, Instance** inst_ptr)
 {
     std::lock_guard<std::mutex> lock(inst_map_mutex_);
-    if (inst_map_.find(fid) == inst_map_.end())
+    if (inst_map_.find(task_type) == inst_map_.end())
     {
         // 创建实例
-        Instance *inst_ptr = nullptr;
-        int ret = InstMgr->create_inst(fid, &inst_ptr);
+        Instance* inst_ptr = nullptr;
+        int ret = InstMgr->create_inst(task_type, &inst_ptr);
         log_error_return(ret, "CVServer::process error")
-            inst_map_.insert(std::make_pair(fid, inst_ptr));
+            inst_map_.insert(std::make_pair(task_type, inst_ptr));
     }
-    *inst_ptr = inst_map_[fid];
+    *inst_ptr = inst_map_[task_type];
     return 0;
 }
 
-int CVServer::process(message *msg)
+int CVServer::process(message* msg)
 {
-    InData *in_data = (InData *)msg->input;
-    OutData *out_data = (OutData *)msg->output;
+    InData* in_data = (InData*)msg->input;
+    OutData* out_data = (OutData*)msg->output;
     std::vector<cv::Mat> input_imgs = {in_data->img};
-    FID fid = static_cast<FID>(msg->fid);
-    Instance *inst = nullptr;
-    int ret = get_inst(fid, &inst);
+    TaskType task_type = static_cast<TaskType>(msg->task_type);
+    Instance* inst = nullptr;
+    int ret = get_inst(task_type, &inst);
     log_error_return(ret,
                      "CVServer::process get_inst() failed") auto task = [&]() {
-        return inst->compute(input_imgs, (void *)&out_data->output_info);
+        return inst->compute(input_imgs, (void*)&out_data->output_info);
     };
 
     std::future<int> result = thread_pool_->submit(task);

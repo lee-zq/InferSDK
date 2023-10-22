@@ -12,7 +12,7 @@ public:
     ~SafeQueue()
     {
     }
-    SafeQueue(SafeQueue &&other)
+    SafeQueue(SafeQueue&& other)
     {
     }
 
@@ -24,13 +24,13 @@ public:
     }
 
     // 入队和出队
-    int push(T &task)
+    int push(T& task)
     {
         std::lock_guard<std::mutex> m_guard(m);
         task_queue_.push(task);
         return 0;
     }
-    bool pop(T &task)
+    bool pop(T& task)
     {
         std::lock_guard<std::mutex> m_guard(m);
         if (task_queue_.empty())

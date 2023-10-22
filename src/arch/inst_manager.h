@@ -11,19 +11,19 @@ static std::mutex inst_mgr_mutex;
 class InstManager
 {
 public:
-    int init(const std::string &manager_param);
-    int create_inst(FID, Instance **inst_ptr);
-    int destroy_inst(Instance *inst_ptr);
-    int run(Instance *inst_ptr,
-            std::vector<cv::Mat> &input_imgs,
-            void *results);
+    int init(const std::string& manager_param);
+    int create_inst(TaskType, Instance** inst_ptr);
+    int destroy_inst(Instance* inst_ptr);
+    int run(Instance* inst_ptr,
+            std::vector<cv::Mat>& input_imgs,
+            void* results);
     int fini();
     ~InstManager()
     {
         delete inst_mgr_;
     }
 
-    static InstManager *getInstance()
+    static InstManager* getInstance()
     {
         std::lock_guard<std::mutex> lock(inst_mgr_mutex);
         if (!inst_mgr_)
@@ -40,8 +40,8 @@ private:
     }
 
 private:
-    static InstManager *inst_mgr_;
-    std::map<FID, InstParamType> inst_param_map_;
+    static InstManager* inst_mgr_;
+    std::map<TaskType, InstParamType> inst_param_map_;
 };
 
 #define InstMgr InstManager::getInstance()

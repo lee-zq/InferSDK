@@ -1,14 +1,15 @@
 #pragma once
 // 全局错误码列表
-#include<map>
-#include <string>
+#include <map>
 #include <sstream>
+#include <string>
 
 /**
  * Error.h
  * @brief define error code.
  */
-typedef enum ErrorCodeType {
+typedef enum ErrorCodeType
+{
     // 通用错误码
     ERR_SUCCESS = 0,
     ERR_GENERAL,
@@ -42,9 +43,11 @@ typedef enum ErrorCodeType {
 
 } ErrorCode;
 
-class Error {
+class Error
+{
 public:
     static std::string getErrorMsg(ErrorCode errorCode, std::string fmt, ...);
+
 private:
-    static std::map<ErrorCode, const char *>    ERROR_MSG;
+    static std::map<ErrorCode, const char*> ERROR_MSG;
 };

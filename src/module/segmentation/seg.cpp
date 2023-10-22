@@ -6,7 +6,7 @@
 #include "arch/module_factory.hpp"
 #include "seg.h"
 
-int Seg::preproc(std::vector<cv::Mat> &input_imgs)
+int Seg::preproc(std::vector<cv::Mat>& input_imgs)
 {
     if (input_imgs.size() != 1)
     {
@@ -25,7 +25,7 @@ int Seg::preproc(std::vector<cv::Mat> &input_imgs)
         return -1;
     }
 
-    float *input_datas_data_ptr = (float *)input_datas_[0].GetDataPtr();
+    float* input_datas_data_ptr = (float*)input_datas_[0].GetDataPtr();
     for (int c = 0; c < 3; c++)
     {
         for (int i = 0; i < input_height; i++)
@@ -42,19 +42,19 @@ int Seg::preproc(std::vector<cv::Mat> &input_imgs)
     return 0;
 }
 
-int Seg::postproc(void *results)
+int Seg::postproc(void* results)
 {
     // static_cast<int*>(results)[0] = 0;
     for (int n = 0; n < output_datas_.size(); n++)
     {
-        Tensor &item = output_datas_[n];
+        Tensor& item = output_datas_[n];
         // int class_result = std::distance(output_datas_[n].begin(), std::max_element(output_data_[n].begin(), output_data_[n].end()));
         // res = class_result;
     }
     return 0;
 }
 
-int Seg::inference(std::vector<cv::Mat> &input_imgs, void *results)
+int Seg::inference(std::vector<cv::Mat>& input_imgs, void* results)
 {
     if (!is_init_)
     {

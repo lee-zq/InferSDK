@@ -6,7 +6,7 @@
 #include "utils/base_func.hpp"
 
 int Instance::init(
-    const std::vector<std::pair<std::string, InferEngineParam>> &param)
+    const std::vector<std::pair<std::string, InferEngineParam>>& param)
 {
     if (param.size() != 1)
     {
@@ -21,9 +21,9 @@ int Instance::init(
     return 0;
 }
 
-int Instance::compute(std::vector<cv::Mat> &input_imgs, void *results)
+int Instance::compute(std::vector<cv::Mat>& input_imgs, void* results)
 {
-    for (auto &module : module_map_)
+    for (auto& module : module_map_)
     {
         int ret = module.second->inference(input_imgs, results);
         if (ret != 0)
@@ -38,7 +38,7 @@ int Instance::compute(std::vector<cv::Mat> &input_imgs, void *results)
 
 int Instance::fini()
 {
-    for (auto &module : module_map_)
+    for (auto& module : module_map_)
     {
         module.second->uninit();
         delete module.second;
@@ -47,10 +47,10 @@ int Instance::fini()
     return 0;
 }
 
-int Instance::append_module(const std::string &task_type,
-                            const InferEngineParam &param)
+int Instance::append_module(const std::string& task_type,
+                            const InferEngineParam& param)
 {
-    IModule *module = nullptr;
+    IModule* module = nullptr;
     if (task_type == "Classify")
     {
         module = new Classifier();

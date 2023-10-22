@@ -1,6 +1,6 @@
 #include "cv_server/error_code.h"
 
-std::map<ErrorCode, const char *> Error::ERROR_MSG = {
+std::map<ErrorCode, const char*> Error::ERROR_MSG = {
     {ERR_SUCCESS, "success"},
     {ERR_GENERAL, "general error"},
     {ERR_UNKNOWN, "unknown error"},

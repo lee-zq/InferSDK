@@ -10,10 +10,10 @@
 using namespace cv;
 using namespace std;
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     // 1. 初始化CVServer
-    void *cv_server = nullptr;
+    void* cv_server = nullptr;
     int ret = CreateCVServer(&cv_server);
     if (ret != 0)
     {
@@ -32,10 +32,10 @@ int main(int argc, char **argv)
     client.init(cv_server);
 
     // 3. 发送图片
-    string img_path = "../data/test.jpg";
-    int fid = 0;
-    int pid = 0;
-    ret = client.Send(img_path, fid, pid);
+    string img_path = "../data/test.lst";
+    int task_type = 0;
+    int id = 0;
+    ret = client.process(img_path);
     if (ret != 0)
     {
         cout << "client send error" << endl;

@@ -1,40 +1,50 @@
 #pragma once
+#include "common/tensor.h"
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
-#include "common/tensor.h"
 // 推理引擎接口类
 
 using namespace std;
 
-class InferEngine{
+class InferEngine
+{
 public:
     InferEngine(){};
     virtual int init(const InferEngineParam& param) = 0;
-    virtual int forward(const vector<Tensor>& input_data, vector<Tensor>& output_data) = 0;
-    virtual int async_forward(const vector<Tensor>& input_data, vector<Tensor>& output_data) = 0;
+    virtual int forward(const vector<Tensor>& input_data,
+                        vector<Tensor>& output_data) = 0;
+    virtual int async_forward(const vector<Tensor>& input_data,
+                              vector<Tensor>& output_data) = 0;
     virtual int uninit() = 0;
 
-    virtual const vector<string>& get_input_names(){
+    virtual const vector<string>& get_input_names()
+    {
         return input_names_;
     }
-    virtual const vector<Shape>& get_input_shapes(){
+    virtual const vector<Shape>& get_input_shapes()
+    {
         return input_shapes_;
     }
-    virtual int get_input_num(){
+    virtual int get_input_num()
+    {
         return input_num_;
     }
-    virtual const vector<string>& get_output_names(){
+    virtual const vector<string>& get_output_names()
+    {
         return output_names_;
     }
-    virtual const vector<Shape>& get_output_shapes(){
+    virtual const vector<Shape>& get_output_shapes()
+    {
         return output_shapes_;
     }
-    virtual int get_output_num(){
+    virtual int get_output_num()
+    {
         return output_num_;
     }
 
     virtual ~InferEngine(){};
+
 protected:
     InferEngineParam param_;
     int input_num_;

@@ -14,11 +14,11 @@ class Detection : public IModule
 {
 public:
     Detection(){};
-    Detection(const ModuleParam &module_param){
+    Detection(const ModuleParam& module_param){
         // 此处添加Module构造函数传入的结构体参数, 解析并保存到成员变量中，在后续其他函数调用时使用
     };
-    virtual int inference(std::vector<cv::Mat> &input_imgs,
-                          void *results) override;
+    virtual int inference(std::vector<cv::Mat>& input_imgs,
+                          void* results) override;
     virtual int uninit() override
     {
         if (infer_inst_ != nullptr)
@@ -29,7 +29,7 @@ public:
         }
         return 0;
     }
-    virtual int init(const InferEngineParam &param) override
+    virtual int init(const InferEngineParam& param) override
     {
         infer_inst_ = new ORTEngine();
         infer_inst_->init(param);
@@ -51,8 +51,8 @@ public:
     };
 
 private:
-    int preproc(std::vector<cv::Mat> &input_img);
-    int postproc(void *results);
+    int preproc(std::vector<cv::Mat>& input_img);
+    int postproc(void* results);
 
 private:
     const int class_num = 10;
@@ -63,7 +63,7 @@ private:
     std::vector<float> mean_{0.4914, 0.4822, 0.4465};
     std::vector<float> std_{0.2023, 0.1994, 0.2010};
 
-    InferEngine *infer_inst_ = nullptr;
+    InferEngine* infer_inst_ = nullptr;
 };
 
 // SPACE_END

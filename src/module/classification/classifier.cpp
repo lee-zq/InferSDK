@@ -7,13 +7,13 @@
 #include <fstream>
 #include <time.h>
 
-int Classifier::init(const InferEngineParam &param)
+int Classifier::init(const InferEngineParam& param)
 {
     infer_inst_ = new ORTEngine();
     infer_inst_->init(param);
 
     input_shapes_ = infer_inst_->get_input_shapes();
-    for (auto &shape : input_shapes_)
+    for (auto& shape : input_shapes_)
     {
         if (shape[0] == -1)
         {
@@ -28,7 +28,7 @@ int Classifier::init(const InferEngineParam &param)
         input_datas_[i].Reshape(input_shapes_[i]);
     }
     output_shapes_ = infer_inst_->get_output_shapes();
-    for (auto &shape : output_shapes_)
+    for (auto& shape : output_shapes_)
     {
         if (shape[0] == -1)
         {
@@ -56,7 +56,7 @@ int Classifier::uninit()
     return 0;
 }
 
-int Classifier::preproc(std::vector<cv::Mat> &input_imgs)
+int Classifier::preproc(std::vector<cv::Mat>& input_imgs)
 {
     if (input_imgs[0].empty())
     {
@@ -78,35 +78,35 @@ int Classifier::preproc(std::vector<cv::Mat> &input_imgs)
                   cv::Scalar(std_[0], std_[1], std_[2]);
     std::vector<cv::Mat> channels;
     cv::split(resized_img, channels);
-    float *input_datas_data_ptr = (float *)input_datas_[0].GetDataPtr();
+    float* input_datas_data_ptr = (float*)input_datas_[0].GetDataPtr();
 
     for (int c = 0; c < input_channel; c++)
     {
-        float *src_ptr = (float *)channels[c].ptr<float>(0);
-        float *dst_ptr = input_datas_data_ptr + c * input_height * input_width;
+        float* src_ptr = (float*)channels[c].ptr<float>(0);
+        float* dst_ptr = input_datas_data_ptr + c * input_height * input_width;
         memcpy(dst_ptr, src_ptr, input_height * input_width * sizeof(float));
     }
     return 0;
 }
 
-int Classifier::postproc(void *results)
+int Classifier::postproc(void* results)
 {
     for (int n = 0; n < output_datas_.size(); n++)
     {
-        Tensor &item = output_datas_[n];
+        Tensor& item = output_datas_[n];
         vector<float> output_data;
-        output_data.assign((float *)item.GetDataPtr(),
-                           (float *)item.GetDataPtr() + item.Size());
+        output_data.assign((float*)item.GetDataPtr(),
+                           (float*)item.GetDataPtr() + item.Size());
         int class_result = std::distance(
             output_data.begin(),
             std::max_element(output_data.begin(), output_data.end()));
-        OutData *out_data = static_cast<OutData *>(results);
+        OutData* out_data = static_cast<OutData*>(results);
         out_data->output_info = std::to_string(class_result);
     }
     return 0;
 }
 
-int Classifier::inference(std::vector<cv::Mat> &input_imgs, void *results)
+int Classifier::inference(std::vector<cv::Mat>& input_imgs, void* results)
 {
     if (!is_init_)
     {

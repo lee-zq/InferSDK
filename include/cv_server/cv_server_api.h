@@ -10,7 +10,3 @@ int StartCVServer(void* CVServer);
 int StopCVServer(void* CVServer);
 int InitCVServer(void* CVServer, const char* cfg);
 int UninitCVServer(void* CVServer);
-
-
-
-

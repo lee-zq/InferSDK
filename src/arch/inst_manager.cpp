@@ -5,9 +5,9 @@
 #include <string>
 #include <vector>
 
-InstManager *InstManager::inst_mgr_ = nullptr;
+InstManager* InstManager::inst_mgr_ = nullptr;
 
-int InstManager::init(const std::string &manager_param)
+int InstManager::init(const std::string& manager_param)
 {
     LInfo("InstManager initialize start...");
     // 分类任务参数
@@ -17,7 +17,7 @@ int InstManager::init(const std::string &manager_param)
     infer_param.dev_type = CPU;
     infer_param.dev_id = 0;
     InstParamType infer_param_map = {std::make_pair("Classify", infer_param)};
-    inst_param_map_.insert(std::make_pair(FID::CLASSIFY, infer_param_map));
+    inst_param_map_.insert(std::make_pair(TaskType::CLASSIFY, infer_param_map));
     // 检测任务参数
     InferEngineParam infer_param2;
     infer_param2.onnx_path = "../res/mnist.onnx";
@@ -26,14 +26,15 @@ int InstManager::init(const std::string &manager_param)
     infer_param2.dev_id = 0;
     InstParamType infer_param_map2 = {
         std::make_pair("Detection", infer_param2)};
-    inst_param_map_.insert(std::make_pair(FID::DETECTION, infer_param_map2));
+    inst_param_map_.insert(
+        std::make_pair(TaskType::DETECTION, infer_param_map2));
     // 分割任务参数 TODO
 
     LInfo("InstManager initialize success...");
     return 0;
 }
 
-int InstManager::create_inst(FID type, Instance **inst_ptr)
+int InstManager::create_inst(TaskType type, Instance** inst_ptr)
 {
     if (inst_param_map_.find(type) == inst_param_map_.end())
     {
@@ -41,7 +42,7 @@ int InstManager::create_inst(FID type, Instance **inst_ptr)
         return ERR_INVALID_PARAM;
     }
     InstParamType param = inst_param_map_[type];
-    Instance *created_inst = new Instance();
+    Instance* created_inst = new Instance();
     int ret = created_inst->init(param);
     if (ret != 0)
     {
@@ -52,15 +53,15 @@ int InstManager::create_inst(FID type, Instance **inst_ptr)
     return 0;
 }
 
-int InstManager::destroy_inst(Instance *inst_ptr)
+int InstManager::destroy_inst(Instance* inst_ptr)
 {
     delete inst_ptr;
     return 0;
 }
 
-int InstManager::run(Instance *inst_ptr,
-                     std::vector<cv::Mat> &input_imgs,
-                     void *result)
+int InstManager::run(Instance* inst_ptr,
+                     std::vector<cv::Mat>& input_imgs,
+                     void* result)
 {
     inst_ptr->compute(input_imgs, result);
     return 0;

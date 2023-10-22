@@ -7,27 +7,27 @@
 class Client
 {
 public:
-    int init(void *cv_server)
+    int init(void* cv_server)
     {
-        cv_server_ = static_cast<CVServer *>(cv_server);
+        cv_server_ = static_cast<CVServer*>(cv_server);
         msg_.input = &in_data_;
         msg_.output = &out_data_;
         return 0;
     }
-    int send_msg(message *msg)
+    int send_msg(message* msg)
     {
         int ret = cv_server_->process(msg);
         return ret;
     }
-    int process(const cv::Mat &img,
-                int fid,
-                int pid,
+    int process(const cv::Mat& img,
+                int task_type,
+                int id,
                 std::string img_info = "",
-                void *input_context = nullptr,
-                void *output_context = nullptr)
+                void* input_context = nullptr,
+                void* output_context = nullptr)
     {
-        msg_.pid = pid;
-        msg_.fid = fid;
+        msg_.id = id;
+        msg_.task_type = task_type;
         in_data_.img = img;
         in_data_.img_info = img_info;
         in_data_.input_context = input_context;
@@ -49,8 +49,8 @@ public:
         std::vector<std::string> img_paths = load_file(input_data_path);
         std::vector<std::string> item;
         std::string img_path;
-        int fid;
-        int pid;
+        int task_type;
+        int id;
         for (int i = 0; i < img_paths.size(); i++)
         {
             int ret = split(img_paths[i], item, " ");
@@ -62,10 +62,10 @@ public:
                 continue;
             }
             img_path = item[0];
-            fid = std::atoi(item[1].c_str());
-            pid = std::atoi(item[2].c_str());
+            task_type = std::atoi(item[1].c_str());
+            id = std::atoi(item[2].c_str());
             cv::Mat input_img = cv::imread(img_path);
-            ret = process(input_img, fid, pid);
+            ret = process(input_img, task_type, id);
             if (ret != 0)
             {
                 LError("Client process error. ret=%d", ret);
@@ -79,7 +79,7 @@ public:
     }
 
 public:
-    CVServer *cv_server_ = nullptr;
+    CVServer* cv_server_ = nullptr;
     message msg_;
     InData in_data_;
     OutData out_data_;
