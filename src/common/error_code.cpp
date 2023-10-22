@@ -31,7 +31,8 @@ std::map<ErrorCode, const char *> Error::ERROR_MSG = {
     {ERR_INVALID_ADDRESS, "invalid address"},
 };
 
-std::string Error::getErrorMsg(ErrorCode errorCode, std::string fmt, ...) {
+std::string Error::getErrorMsg(ErrorCode errorCode, std::string fmt, ...)
+{
     std::stringstream ss;
     ss << "Code: ", static_cast<long>(errorCode);
     ss << " Msg: " << ERROR_MSG[errorCode];

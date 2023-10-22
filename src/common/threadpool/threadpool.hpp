@@ -1,4 +1,5 @@
 #pragma once
+#include "taskqueue.hpp"
 #include <atomic>
 #include <condition_variable>
 #include <functional>
@@ -7,8 +8,6 @@
 #include <memory>
 #include <thread>
 #include <vector>
-
-#include "taskqueue.hpp"
 class ThreadPool
 {
 private:
@@ -66,6 +65,7 @@ public:
 
     void shutdown()
     {
+        shutdown_ = true;
         conditional_lock_.notify_all();
         for (auto &thread : threads_)
         {
@@ -74,7 +74,6 @@ public:
                 thread.join();
             }
         }
-        shutdown_ = true;
     }
 
     template <typename F, typename... Args>

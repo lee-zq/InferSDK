@@ -52,4 +52,3 @@ std::string DeviceTypeName(DeviceType type)
         return "Undefined";
     }
 }
-
