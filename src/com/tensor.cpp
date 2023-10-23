@@ -8,14 +8,12 @@ int DataTypeSize(DataType type)
     {
     case Int8:
         return 1;
+    case Int64:
+        return 8;
     case Float32:
         return 4;
-    case Double64:
-        return 8;
-    case Float16:
-        return 2;
     default:
-        return 0;
+        return -1;
     }
 }
 
@@ -25,14 +23,12 @@ std::string DataTypeName(DataType type)
     {
     case Int8:
         return "Int8";
+    case Int64:
+        return "Int64";
     case Float32:
         return "Float32";
-    case Double64:
-        return "Double64";
-    case Float16:
-        return "Float16";
     default:
-        return "Undefined";
+        return "Unknown";
     }
 }
 

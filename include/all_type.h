@@ -11,10 +11,10 @@ typedef enum DeviceType
 
 typedef enum DataType
 {
+    Unknown,
     Int8,
+    Int64,
     Float32,
-    Double64,
-    Float16
 } DataType;
 
 typedef struct InferEngineParam

@@ -26,6 +26,9 @@ public:
     {
         return 0;
     }
+    Ort::Value CreateOrtValueFromTensor(Tensor& tensor);
+    int CopyOrtValue2Tensor(Ort::Value& value, Tensor& tensor);
+
     virtual int uninit() override
     {
         if (session_)
@@ -43,8 +46,8 @@ public:
     InferEngineParam param_;
     Ort::MemoryInfo memory_info_{nullptr};
     Ort::AllocatorWithDefaultOptions* allocator_{nullptr};
-    vector<Ort::Value*> input_tensor_;
-    vector<Ort::Value*> output_tensor_;
+    vector<Ort::Value> input_tensor_;
+    vector<Ort::Value> output_tensor_;
 
 private:
     vector<const char*> input_names_;

@@ -156,9 +156,10 @@ public:
                    data_ptr,
                    shape_.Size() * DataTypeSize(data_type));
     }
-    int Reshape(const Shape& shape)
+    int Reshape(const Shape& shape, DataType data_type = Float32)
     {
         shape_ = shape;
+        data_type_ = data_type;
         data_.resize(shape_.Size() * DataTypeSize(data_type_));
         return 0;
     }

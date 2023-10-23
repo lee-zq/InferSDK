@@ -90,7 +90,7 @@
   "clang-format.executable": "/usr/bin/clang-format",
   "files.autoSave": "afterDelay",
   // 开启粘贴保存自动格式化
-  "editor.formatOnPaste": true,
+  // "editor.formatOnPaste": true,
   "editor.formatOnType": true,
   "C_Cpp.errorSquiggles": "Disabled",
   "C_Cpp.intelliSenseEngineFallback": "Disabled",
