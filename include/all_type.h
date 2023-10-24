@@ -34,10 +34,10 @@ typedef struct ModuleParam
 
 typedef struct Bbox
 {
-    float x1;
-    float y1;
-    float x2;
-    float y2;
+    int x1;
+    int y1;
+    int x2;
+    int y2;
     float score;
     int class_id;
 } Bbox;

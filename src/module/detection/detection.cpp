@@ -30,7 +30,7 @@ static void letterbox_image(cv::Mat& img,
                cv::Size(new_w, new_h),
                0,
                0,
-               cv::INTER_LINEAR);
+               cv::INTER_CUBIC);
     out = cv::Mat(h, w, CV_8UC3, out_bg_color);
     int dx = (w - new_w) / 2;
     int dy = (h - new_h) / 2;
@@ -76,8 +76,8 @@ int Detection::preproc(std::vector<cv::Mat>& input_imgs)
 
     input_datas_[1].Reshape(vector<int>{1, 2}, Float32);
     float* input_datas_data_ptr1 = (float*)input_datas_[1].GetDataPtr();
-    input_datas_data_ptr1[0] = input_imgs[0].cols;
-    input_datas_data_ptr1[1] = input_imgs[0].rows;
+    input_datas_data_ptr1[0] = input_imgs[0].rows;
+    input_datas_data_ptr1[1] = input_imgs[0].cols;
 
     return 0;
 }
@@ -95,14 +95,15 @@ int Detection::postproc(void* results)
         int& b_idx = idx_info[n];
         int& c_idx = idx_info[n + 1];
         int& s_idx = idx_info[n + 2];
-        Bbox bbox;
-        bbox.class_id = idx_info[c_idx];
-        bbox.score = out_scores[b_idx][c_idx][s_idx].item<float>();
+
         vector<float> ori_bbox = out_boxes[b_idx][s_idx].dump_to_vector<float>();
-        bbox.x1 = ori_bbox[0];
-        bbox.y1 = ori_bbox[1];
-        bbox.x2 = ori_bbox[2];
-        bbox.y2 = ori_bbox[3];
+        Bbox bbox;
+        bbox.class_id = c_idx;
+        bbox.score = out_scores[b_idx][c_idx][s_idx].item<float>();
+        bbox.y1 = ori_bbox[0];
+        bbox.x1 = ori_bbox[1];
+        bbox.y2 = ori_bbox[2];
+        bbox.x2 = ori_bbox[3];
         detect_result.push_back(bbox);
     }
     std::string* out_str = static_cast<std::string*>(results);

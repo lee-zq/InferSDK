@@ -3,15 +3,22 @@
 #include "cv_server/cv_server.h"
 #include "cv_server/message.h"
 #include <string>
+#include "parser_json.hpp"
 
 class Client
 {
 public:
-    int init(void* cv_server)
+    int init(bool save, std::string save_dir = "./")
     {
-        cv_server_ = static_cast<CVServer*>(cv_server);
+        save_ = save;
+        save_dir_ = save_dir;
         msg_.input = &in_data_;
         msg_.output = &out_data_;
+        return 0;
+    }
+    int bind_cv_server(void* cv_server)
+    {
+        cv_server_ = static_cast<CVServer*>(cv_server);
         return 0;
     }
     int send_msg(message* msg)
@@ -44,7 +51,7 @@ public:
         return 0;
     }
 
-    int process(std::string input_data_path, std::string visual_dir="./")
+    int process(std::string input_data_path, std::string visual_dir = "./")
     {
         std::vector<std::string> img_paths = load_file(input_data_path);
         std::vector<std::string> item;
@@ -56,7 +63,7 @@ public:
             int ret = split(img_paths[i], item, " ");
             if (ret != 0)
             {
-                LWarn("parser data_list split error. process: %s, ret=%d",img_paths[i],ret);
+                LWarn("parser data_list split error. process: %s, ret=%d", img_paths[i], ret);
                 continue;
             }
             img_path = item[0];
@@ -70,8 +77,13 @@ public:
                 return -1;
             }
             // 打印输出信息
-            std::cout << img_path << " output_info: " << out_data_.output_info
-                      << std::endl;
+            std::cout << img_path << " output_info: " << out_data_.output_info << std::endl;
+            if (save_)
+            {
+                std::string save_path = save_dir_ + "/" + getFileName(img_path);
+                render_img_with_json_str(out_data_.output_info, input_img);
+                cv::imwrite(save_path, input_img);
+            }
         }
         return 0;
     }
@@ -81,4 +93,7 @@ public:
     message msg_;
     InData in_data_;
     OutData out_data_;
+
+    bool save_ = false;
+    std::string save_dir_ = "./";
 };

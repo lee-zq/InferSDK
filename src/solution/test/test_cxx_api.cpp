@@ -29,7 +29,8 @@ int main(int argc, char** argv)
 
     // 2. 创建Client
     Client client;
-    client.init(cv_server);
+    client.init(true, "./visualization");
+    client.bind_cv_server(cv_server);
 
     // 3. 批量处理图片
     string input_data_path =
