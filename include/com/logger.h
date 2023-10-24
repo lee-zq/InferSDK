@@ -1,5 +1,5 @@
 #pragma once
-
+#include "../cv_server/error_code.h"
 //定义一个在日志后添加 文件名 函数名 行号 的宏定义
 #include "spdlog/common.h"
 #ifndef suffix
@@ -119,12 +119,14 @@ private:
         }                                                                      \
     } while (0);
 
-#define log_error_return(b, msg)                                               \
+#define log_error_return(b, msg, ret)                                          \
     do                                                                         \
     {                                                                          \
         if ((b))                                                               \
         {                                                                      \
             LoggerPtr->error(msg);                                             \
-            return b;                                                          \
+            return ret;                                                        \
         }                                                                      \
     } while (0);
+
+#define log_assert_ptr(ptr, msg) log_error_return((ptr) == nullptr, msg, ERR_INVALID_POINTER)

@@ -1,5 +1,6 @@
 #include "classifier.h"
 #include "arch/module_factory.hpp"
+#include "com/logger.h"
 #include "com/utils//base_func.h"
 #include "cv_server/message.h"
 #include "opencv2/opencv.hpp"
@@ -121,11 +122,11 @@ int Classifier::inference(std::vector<cv::Mat>& input_imgs, void* results)
         return ERR_UNINITIALIZED;
     }
     int ret = preproc(input_imgs);
-    log_error_return(ret, "Module Classifier preproc failed!");
+    log_error_return(ret, "Module Classifier preproc failed!", ret);
     ret = infer_inst_->forward(input_datas_, output_datas_);
-    log_error_return(ret, "Module Classifier forward failed!");
+    log_error_return(ret, "Module Classifier forward failed!", ret);
     ret = postproc(results);
-    log_error_return(ret, "Module Classifier postproc failed!");
+    log_error_return(ret, "Module Classifier postproc failed!", ret);
     return ERR_SUCCESS;
 }
 

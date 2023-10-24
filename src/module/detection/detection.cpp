@@ -52,7 +52,7 @@ int Detection::preproc(std::vector<cv::Mat>& input_imgs)
     int cur_in_w = input_imgs[0].cols;
     log_error_return(cur_in_b != 1 || cur_in_c != 3 || cur_in_h < 32 ||
                          cur_in_w < 32,
-                     "input image shape is invalid");
+                     "input image shape is invalid", ERR_INVALID_VALUE);
     cv::Mat resized_img;
     letterbox_image(input_imgs[0],
                     model_input_w_,
@@ -112,29 +112,13 @@ int Detection::postproc(void* results)
 
 int Detection::inference(std::vector<cv::Mat>& input_imgs, void* results)
 {
-    if (!is_init_)
-    {
-        std::cout << "Detection is not init!" << endl;
-        return -1;
-    }
+    log_error_return(is_init_!=true, "Detection is not init!", ERR_UNINITIALIZED);
     int ret = preproc(input_imgs);
-    if (ret != 0)
-    {
-        std::cout << "Detection preproc failed!" << endl;
-        return -1;
-    }
+    log_error_return(ret != ERR_SUCCESS, "Detection preproc failed!", ret);
     ret = infer_inst_->forward(input_datas_, output_datas_);
-    if (ret != 0)
-    {
-        std::cout << "Detection forward failed!" << endl;
-        return -1;
-    }
+    log_error_return(ret != ERR_SUCCESS, "Detection forward failed!", ret);
     ret = postproc(results);
-    if (ret != 0)
-    {
-        std::cout << "Detection postproc failed!" << endl;
-        return -1;
-    }
+    log_error_return(ret != ERR_SUCCESS, "Detection postproc failed!", ret);
     return 0;
 }
 

@@ -44,7 +44,7 @@ public:
         return 0;
     }
 
-    int process(std::string input_data_path)
+    int process(std::string input_data_path, std::string visual_dir="./")
     {
         std::vector<std::string> img_paths = load_file(input_data_path);
         std::vector<std::string> item;
@@ -56,9 +56,7 @@ public:
             int ret = split(img_paths[i], item, " ");
             if (ret != 0)
             {
-                LWarn("parser data_list split error. process: %s, ret=%d",
-                      img_paths[i],
-                      ret);
+                LWarn("parser data_list split error. process: %s, ret=%d",img_paths[i],ret);
                 continue;
             }
             img_path = item[0];

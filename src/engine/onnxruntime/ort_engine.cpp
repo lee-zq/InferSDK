@@ -1,4 +1,6 @@
 #include "ort_engine.h"
+#include "com/logger.h"
+#include "cv_server/error_code.h"
 #include "onnxruntime_c_api.h"
 #include "onnxruntime_cxx_api.h"
 #include <algorithm>
@@ -27,19 +29,10 @@ int ORTEngine::init(const InferEngineParam& param)
         session_option.AppendExecutionProvider_CUDA(cuda_options);
     }
     session_ = new Ort::Session(env, param_.onnx_path.c_str(), session_option);
-    if (session_ == nullptr)
-    {
-        printf("Ort::AllocatorWithDefaultOptions allocator is nullptr\n");
-        return -1;
-    }
+    log_assert_ptr(session_, "Ort::Session session is nullptr");
 
-    Ort::AllocatorWithDefaultOptions* allocator_ =
-        new Ort::AllocatorWithDefaultOptions();
-    if (allocator_ == nullptr)
-    {
-        printf("Ort::AllocatorWithDefaultOptions allocator is nullptr\n");
-        return -1;
-    }
+    Ort::AllocatorWithDefaultOptions* allocator_ = new Ort::AllocatorWithDefaultOptions();
+    log_assert_ptr(allocator_, "Ort::AllocatorWithDefaultOptions allocator is nullptr")
 
     input_num_ = session_->GetInputCount();
     output_num_ = session_->GetOutputCount();
@@ -73,11 +66,7 @@ int ORTEngine::init(const InferEngineParam& param)
 int ORTEngine::forward(const vector<Tensor>& input_data,
                        vector<Tensor>& output_data)
 {
-    if (input_data.size() != input_num_)
-    {
-        printf("input_data.size() != input_num_\n");
-        return -1;
-    }
+    log_error_return(input_data.size() != input_num_, "ORTEngine::forward() input_data.size() != input_num_", ERR_INVALID_VALUE);
     input_tensor_.clear();
     for (int i = 0; i < input_num_; i++)
     {
@@ -96,20 +85,17 @@ int ORTEngine::forward(const vector<Tensor>& input_data,
     }
     catch (const std::exception& ex)
     {
-        printf("exception in Ort::Session_->Run: %s\n", ex.what());
-        return -1;
+        LError("ORTEngine::forward() exception in Ort::Session_->Run: %s\n", ex.what());
+        return ERR_GENERAL;
     }
-    if (output_tensor_.size() != output_num_)
-    {
-        printf("output_tensor_.size() != output_num_\n");
-        return -1;
-    }
+    log_error_return(output_tensor_.size() != output_num_, "ORTEngine::forward() output_tensor_.size() != output_num_", ERR_INVALID_VALUE);
 
     for (int i = 0; i < output_num_; i++)
     {
         Ort::Value& cur_value = output_tensor_[i];
         Tensor& cur_output = output_data[i];
         int ret = CopyOrtValue2Tensor(cur_value, cur_output);
+        log_error_return(ret != 0, "ORTEngine::forward() CopyOrtValue2Tensor() failed", ret);
     }
 
     return 0;
@@ -150,8 +136,7 @@ Ort::Value ORTEngine::CreateOrtValueFromTensor(Tensor& tensor)
                                                  shape_data.size());
         break;
     default:
-        printf("Tensor2OrtValue: unsupported data type: %s\n",
-               DataTypeName(type).c_str());
+        LError("Tensor2OrtValue: unsupported data type: %s\n", DataTypeName(type).c_str());
         return Ort::Value::CreateTensor<float>(nullptr, nullptr, 0, nullptr, 0);
     }
 }
@@ -190,8 +175,8 @@ int ORTEngine::CopyOrtValue2Tensor(Ort::Value& value, Tensor& tensor)
                tensor.MemSize());
         break;
     default:
-        printf("OrtValue2Tensor: unsupported data type\n");
-        return -1;
+        LError("OrtValue2Tensor: unsupported data type\n");
+        return ERR_INVALID_VALUE;
     }
     return 0;
 }

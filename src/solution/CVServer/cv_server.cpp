@@ -10,7 +10,7 @@ int CVServer::init(std::string cfg_path)
     thread_pool_->init();
     // 2. 初始化实例管理器
     int ret = InstMgr->init(cfg_path);
-    log_error_return(ret, "CVServer Initialize failed.");
+    log_error_return(ret, "CVServer Initialize failed.", ret);
     initialized_ = true;
     LInfo("CVServer Initialize success.");
     return 0;
@@ -24,7 +24,7 @@ int CVServer::get_inst(TaskType task_type, Instance** inst_ptr)
         // 创建实例
         Instance* inst_ptr = nullptr;
         int ret = InstMgr->create_inst(task_type, &inst_ptr);
-        log_error_return(ret, "CVServer::process error");
+        log_error_return(ret, "CVServer::process error", ret);
         inst_map_.insert(std::make_pair(task_type, inst_ptr));
     }
     *inst_ptr = inst_map_[task_type];
@@ -39,7 +39,7 @@ int CVServer::process(message* msg)
     TaskType task_type = static_cast<TaskType>(msg->task_type);
     Instance* inst = nullptr;
     int ret = get_inst(task_type, &inst);
-    log_error_return(ret, "CVServer::process get_inst() failed");
+    log_error_return(ret, "CVServer::process get_inst() failed", ret);
     auto task = [&]() {
         return inst->compute(input_imgs, (void*)&out_data->output_info);
     };
