@@ -135,6 +135,13 @@ Ort::Value ORTEngine::CreateOrtValueFromTensor(Tensor& tensor)
                                                 shape_data.data(),
                                                 shape_data.size());
         break;
+    case Int32:
+        return Ort::Value::CreateTensor<int32_t>(memory_info_,
+                                                 (int32_t*)tensor.GetDataPtr(),
+                                                 tensor.Size(),
+                                                 shape_data.data(),
+                                                 shape_data.size());
+        break;
     case Int64:
         return Ort::Value::CreateTensor<int64_t>(memory_info_,
                                                  (int64_t*)tensor.GetDataPtr(),
@@ -170,13 +177,18 @@ int ORTEngine::CopyOrtValue2Tensor(Ort::Value& value, Tensor& tensor)
                tensor.MemSize());
         break;
 
+    case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32:
+        tensor.Reshape(value_shape, Int32);
+        memcpy(tensor.GetDataPtr(),
+               value.GetTensorMutableData<int32_t>(),
+               tensor.MemSize());
+        break;
     case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64:
         tensor.Reshape(value_shape, Int64);
         memcpy(tensor.GetDataPtr(),
                value.GetTensorMutableData<int64_t>(),
                tensor.MemSize());
         break;
-
     default:
         printf("OrtValue2Tensor: unsupported data type\n");
         return -1;

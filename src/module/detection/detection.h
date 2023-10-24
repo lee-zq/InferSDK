@@ -35,20 +35,23 @@ public:
         infer_inst_ = new ORTEngine();
         infer_inst_->init(param);
 
-        input_shapes_.resize(infer_inst_->get_input_num());
-        input_shapes_[0] = vector<int>{1, 3, 416, 416};
-        input_shapes_[1] = vector<int>{1, 2};
-        input_datas_.resize(infer_inst_->get_input_num());
-        for (int i = 0; i < input_datas_.size(); i++)
-        {
-            input_datas_[i].Reshape(input_shapes_[i]);
-        }
+        input_shapes_ = infer_inst_->get_input_shapes();
+        input_datas_.resize(input_shapes_.size());
         output_shapes_ = infer_inst_->get_output_shapes();
-        output_datas_.resize(infer_inst_->get_output_num());
-        for (int i = 0; i < output_datas_.size(); i++)
-        {
-            output_datas_[i].Reshape(output_shapes_[i]);
-        }
+        output_datas_.resize(output_shapes_.size());
+
+        // input_shapes_[0] = vector<int>{1, 3, 416, 416};
+        // input_shapes_[1] = vector<int>{1, 2};
+        // input_datas_.resize(infer_inst_->get_input_num());
+        // for (int i = 0; i < input_datas_.size(); i++)
+        // {
+        //     input_datas_[i].Reshape(input_shapes_[i]);
+        // }
+        // output_datas_.resize(infer_inst_->get_output_num());
+        // for (int i = 0; i < output_datas_.size(); i++)
+        // {
+        //     output_datas_[i].Reshape(output_shapes_[i]);
+        // }
         is_init_ = true;
         return 0;
     };
@@ -58,7 +61,8 @@ private:
     int postproc(void* results);
 
 private:
-
+    int model_input_w_ = 416;
+    int model_input_h_ = 416;
     std::vector<float> mean_{0.4914, 0.4822, 0.4465};
     std::vector<float> std_{0.2023, 0.1994, 0.2010};
 

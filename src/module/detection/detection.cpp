@@ -1,11 +1,16 @@
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
 #include <fstream>
 #include <time.h>
 #include <vector>
 
+#include "com/utils/base_func.h"
+#include "all_type.h"
 #include "arch/module_factory.hpp"
+#include "com/logger.h"
 #include "cv_server/error_code.h"
+#include "cv_server/message.h"
 #include "detection.h"
 
 static void letterbox_image(cv::Mat& img,
@@ -35,54 +40,73 @@ static void letterbox_image(cv::Mat& img,
 
 int Detection::preproc(std::vector<cv::Mat>& input_imgs)
 {
-    if (input_imgs[0].empty())
+    if (input_imgs.size() != 1 || input_imgs[0].empty())
     {
-        LError("input image is invalid");
+        LError("input image is empty");
         return ERR_INVALID_VALUE;
     }
-    if (input_imgs[0].channels()!=3)
-    {
-        LError("input image channels is not 3");
-        return ERR_INVALID_VALUE;
-    }
-    int input_channel = input_shapes_[0][1];
-    int input_height = input_shapes_[0][2];
-    int input_width = input_shapes_[0][3];
+
+    int cur_in_b = input_imgs.size();
+    int cur_in_c = input_imgs[0].channels();
+    int cur_in_h = input_imgs[0].rows;
+    int cur_in_w = input_imgs[0].cols;
+    log_error_return(cur_in_b != 1 || cur_in_c != 3 || cur_in_h < 32 ||
+                         cur_in_w < 32,
+                     "input image shape is invalid");
     cv::Mat resized_img;
     letterbox_image(input_imgs[0],
-                    input_width,
-                    input_height,
+                    model_input_w_,
+                    model_input_h_,
                     cv::Scalar(128, 128, 128),
                     resized_img);
     resized_img.convertTo(resized_img, CV_32FC3);
     resized_img = resized_img / 255.f;
     std::vector<cv::Mat> channels;
     cv::split(resized_img, channels);
-    float* input_datas_data_ptr = (float*)input_datas_[0].GetDataPtr();
 
-    for (int c = 0; c < input_channel; c++)
+    input_datas_[0].Reshape(
+        vector<int>{cur_in_b, cur_in_c, model_input_w_, model_input_w_}, Float32);
+    float* input_datas_data_ptr0 = (float*)input_datas_[0].GetDataPtr();
+    for (int c = 0; c < cur_in_c; c++)
     {
         float* src_ptr = (float*)channels[c].ptr<uchar>(0);
-        float* dst_ptr = input_datas_data_ptr + c * input_height * input_width;
-        memcpy(dst_ptr, src_ptr, input_height * input_width * sizeof(float));
+        float* dst_ptr = input_datas_data_ptr0 + c * model_input_w_ * model_input_h_;
+        memcpy(dst_ptr, src_ptr, model_input_w_ * model_input_h_ * sizeof(float));
     }
 
+    input_datas_[1].Reshape(vector<int>{1, 2}, Float32);
     float* input_datas_data_ptr1 = (float*)input_datas_[1].GetDataPtr();
-    input_datas_data_ptr1[0] = input_imgs[0].rows;
-    input_datas_data_ptr1[1] = input_imgs[0].cols;
+    input_datas_data_ptr1[0] = input_imgs[0].cols;
+    input_datas_data_ptr1[1] = input_imgs[0].rows;
 
     return 0;
 }
 
 int Detection::postproc(void* results)
 {
-    // static_cast<int*>(results)[0] = 0;
-    for (int n = 0; n < output_datas_.size(); n++)
+    Tensor& out_boxes = output_datas_[0];
+    Tensor& out_scores = output_datas_[1];
+    Tensor& out_classes = output_datas_[2];
+    std::vector<Bbox> detect_result;
+
+    std::vector<int32_t> idx_info = out_classes.dump_to_vector<int32_t>();
+    for (int n = 0; n < idx_info.size(); n=n+3)
     {
-        Tensor& item = output_datas_[n];
-        // int class_result = std::distance(output_datas_[n].begin(), std::max_element(output_data_[n].begin(), output_data_[n].end()));
-        // res = class_result;
+        int& b_idx = idx_info[n];
+        int& c_idx = idx_info[n + 1];
+        int& s_idx = idx_info[n + 2];
+        Bbox bbox;
+        bbox.class_id = idx_info[c_idx];
+        bbox.score = out_scores[b_idx][c_idx][s_idx].item<float>();
+        vector<float> ori_bbox = out_boxes[b_idx][s_idx].dump_to_vector<float>();
+        bbox.x1 = ori_bbox[0];
+        bbox.y1 = ori_bbox[1];
+        bbox.x2 = ori_bbox[2];
+        bbox.y2 = ori_bbox[3];
+        detect_result.push_back(bbox);
     }
+    std::string* out_str = static_cast<std::string*>(results);
+    Bbox2Json(detect_result, *out_str);
     return 0;
 }
 

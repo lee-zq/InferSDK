@@ -6,11 +6,57 @@
 
 #include "../all_type.h"
 
-int DataTypeSize(DataType type);
+inline int DataTypeSize(DataType type)
+{
+    switch (type)
+    {
+    case Int8:
+        return 1;
+    case Int32:
+        return 4;
+    case Int64:
+        return 8;
+    case Float32:
+        return 4;
+    default:
+        return -1;
+    }
+}
 
-std::string DataTypeName(DataType type);
+inline std::string DataTypeName(DataType type)
+{
+    switch (type)
+    {
+    case Int8:
+        return "Int8";
+    case Int32:
+        return "Int32";
+    case Int64:
+        return "Int64";
+    case Float32:
+        return "Float32";
+    default:
+        return "Unknown";
+    }
+}
 
-std::string DeviceTypeName(DeviceType type);
+inline std::string DeviceTypeName(DeviceType type)
+{
+    switch (type)
+    {
+    case CPU:
+        return "CPU";
+    case CUDA:
+        return "CUDA";
+    case NPU:
+        return "NPU";
+    case OTHER:
+        return "OTHER";
+    default:
+        return "Undefined";
+    }
+}
+
 
 class Shape
 {
@@ -53,7 +99,7 @@ public:
         shape_ = shape;
         return 0;
     }
-    std::vector<int> GetData()
+    const std::vector<int>& GetData()
     {
         return shape_;
     }
@@ -98,6 +144,20 @@ public:
         str += ")";
         return str;
     }
+    int stride(int index)
+    {
+        if (index < 0 || index >= shape_.size())
+        {
+            std::cout << "Shape index out of range" << std::endl;
+            return -1;
+        }
+        int stride = 1;
+        for (int i = index + 1; i < shape_.size(); i++)
+        {
+            stride *= shape_[i];
+        }
+        return stride;
+    }
 };
 
 
@@ -131,7 +191,30 @@ public:
         device_type_ = tensor.device_type_;
         return *this;
     }
-
+    Tensor operator[](int index)
+    {
+        // Create sub Tensor from first dim with deepcopy
+        if (index<0 || shape_.Dim()==0 || shape_.GetData().front()<index)
+        {
+            std::cout << "Tensor::operator[], Index out of range" << std::endl;
+            return Tensor();
+        }
+        Shape shape;
+        if (shape_.Dim() == 1)
+        {
+            shape = Shape(std::vector<int>{1});
+        }
+        else
+        {
+            shape = std::vector<int>(shape_.GetData().begin() + 1,
+                                     shape_.GetData().end());
+        }
+        Tensor tensor(data_.data() + index * shape_.stride(0) * DataTypeSize(data_type_),
+                        shape,
+                        data_type_,
+                        device_type_);
+        return tensor;
+    }
     Tensor(const std::vector<char>& data,
            const Shape& shape,
            DataType data_type = Float32,
@@ -191,6 +274,36 @@ public:
     const Shape& GetShape()
     {
         return shape_;
+    }
+    template<typename T>
+    T item()
+    {
+        if (shape_.Size() != 1)
+        {
+            std::cout << "Tensor shape is not 1" << std::endl;
+            return 0;
+        }
+        switch (data_type_)
+        {
+        case Float32:
+            return *(reinterpret_cast<float*>(data_.data()));
+        case Int32:
+            return *(reinterpret_cast<int*>(data_.data()));
+        case Int8:
+            return *(reinterpret_cast<int8_t*>(data_.data()));
+        case Int64:
+            return *(reinterpret_cast<int64_t*>(data_.data()));
+        default:
+            std::cout << "Tensor data type is not supported" << std::endl;
+            return 0;
+        }
+    }
+    template <typename T>
+    std::vector<T> dump_to_vector()
+    {
+        T* data_ptr = reinterpret_cast<T*>(data_.data());
+        std::vector<T> vec(data_ptr, data_ptr + shape_.Size());
+        return vec;
     }
     std::string info_to_string()
     {
