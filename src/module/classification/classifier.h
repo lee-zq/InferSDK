@@ -3,22 +3,21 @@
 #include <fstream>
 #include <time.h>
 
+#include "base_module.h"
 #include "com/tensor.h"
 #include "cv_server/error_code.h"
 #include "engine/infer_engine.h"
 #include "engine/onnxruntime/ort_engine.h"
-#include "module/base_module.h"
 #include "opencv2/opencv.hpp"
 
-class Classifier : public BaseModule
+class Classifier : public ModuleBase
 {
 public:
     Classifier(){};
     Classifier(const ModuleParam& module_param){
         // 此处添加Module构造函数传入的结构体参数, 解析并保存到成员变量中，在后续其他函数调用时使用
     };
-    virtual int inference(std::vector<cv::Mat>& input_imgs,
-                          void* results) override;
+    virtual int inference(std::vector<cv::Mat>& input_imgs, void* results) override;
     virtual int uninit() override;
 
     virtual int init(const InferEngineParam& param) override;

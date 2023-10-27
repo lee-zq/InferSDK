@@ -6,15 +6,15 @@
 #include <string>
 #include <vector>
 
-class BaseModule
+class ModuleBase
 {
 public:
-    BaseModule(){}; // Module默认构造函数
+    ModuleBase(){}; // Module默认构造函数
 
     virtual int init(const InferEngineParam& param) = 0;
     virtual int inference(std::vector<cv::Mat>& input_imgs, void* results) = 0;
     virtual int uninit() = 0;
-    virtual ~BaseModule(){};
+    virtual ~ModuleBase(){};
 
     virtual std::vector<Tensor>& GetInputData()
     {
