@@ -3,15 +3,15 @@
 //定义一个在日志后添加 文件名 函数名 行号 的宏定义
 #include "spdlog/common.h"
 #ifndef suffix
-#define suffix(msg)                                                            \
-    std::string(msg)                                                           \
-        .append("  <")                                                         \
-        .append(__FILENAME__)                                                  \
-        .append("> <")                                                         \
-        .append(__func__)                                                      \
-        .append("> <")                                                         \
-        .append(std::to_string(__LINE__))                                      \
-        .append(">")                                                           \
+#define suffix(msg)                                                                                                            \
+    std::string(msg)                                                                                                           \
+        .append("  <")                                                                                                         \
+        .append(__FILENAME__)                                                                                                  \
+        .append("> <")                                                                                                         \
+        .append(__func__)                                                                                                      \
+        .append("> <")                                                                                                         \
+        .append(std::to_string(__LINE__))                                                                                      \
+        .append(">")                                                                                                           \
         .c_str()
 //#define suffix(msg)  std::string().append(" File:")\
 //        .append(__FILENAME__).append("\", Func:\"").append(__func__)\
@@ -40,9 +40,9 @@ class Logger
 {
 
 public:
-    static Logger& GetInstance()
+    static Logger& GetInstance(const char* log_path = "log/InferSDK.log")
     {
-        static Logger m_instance;
+        static Logger m_instance(log_path);
         return m_instance;
     }
 
@@ -52,23 +52,19 @@ public:
     }
 
 private:
-    Logger()
+    Logger(const char* log_path)
     {
         std::vector<spdlog::sink_ptr> sinkList;
         // #ifdef _DEBUG
-        auto consoleSink =
-            std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+        auto consoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
         consoleSink->set_level(spdlog::level::debug);
         sinkList.push_back(consoleSink);
         // #endif
-        auto basicSink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(
-            "log/InferSDK.log");
+        auto basicSink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(log_path);
         basicSink->set_level(spdlog::level::debug);
         sinkList.push_back(basicSink);
 
-        global_logger = std::make_shared<spdlog::logger>("GlobalLog",
-                                                         begin(sinkList),
-                                                         end(sinkList));
+        global_logger = std::make_shared<spdlog::logger>("GlobalLog", begin(sinkList), end(sinkList));
 
         // 设置日志记录级别
 #ifdef _DEBUG
@@ -100,8 +96,10 @@ private:
 
 //Logger& operator<<(Logger& log, const char* s);
 //Logger& operator<<(Logger& log, const std::string& s);
+#define LInit(...) Logger::GetInstance(__VA_ARGS__);
 
 #define LoggerPtr Logger::GetInstance().GetLogger()
+
 #define LTrace(msg, ...) LoggerPtr->trace(suffix(msg), __VA_ARGS__);
 //#define LDebug(msg,...) 	LoggerPtr->debug(suffix(msg),__VA_ARGS__);
 #define LDebug(...) LoggerPtr->debug(__VA_ARGS__);
@@ -110,23 +108,23 @@ private:
 #define LError(...) LoggerPtr->error(__VA_ARGS__);
 #define LCritical(...) LoggerPtr->critical(__VA_ARGS__);
 
-#define criticalif(b, ...)                                                     \
-    do                                                                         \
-    {                                                                          \
-        if ((b))                                                               \
-        {                                                                      \
-            LoggerPtr->critical(__VA_ARGS__);                                  \
-        }                                                                      \
+#define criticalif(b, ...)                                                                                                     \
+    do                                                                                                                         \
+    {                                                                                                                          \
+        if ((b))                                                                                                               \
+        {                                                                                                                      \
+            LoggerPtr->critical(__VA_ARGS__);                                                                                  \
+        }                                                                                                                      \
     } while (0);
 
-#define log_error_return(b, msg, ret)                                          \
-    do                                                                         \
-    {                                                                          \
-        if ((b))                                                               \
-        {                                                                      \
-            LoggerPtr->error(msg);                                             \
-            return ret;                                                        \
-        }                                                                      \
+#define log_error_return(b, msg, ret)                                                                                          \
+    do                                                                                                                         \
+    {                                                                                                                          \
+        if ((b))                                                                                                               \
+        {                                                                                                                      \
+            LoggerPtr->error(msg);                                                                                             \
+            return ret;                                                                                                        \
+        }                                                                                                                      \
     } while (0);
 
 #define log_assert_ptr(ptr, msg) log_error_return((ptr) == nullptr, msg, ERR_INVALID_POINTER)

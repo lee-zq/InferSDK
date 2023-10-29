@@ -85,7 +85,7 @@ int ORTEngine::forward(const vector<Tensor>& input_data,
     }
     catch (const std::exception& ex)
     {
-        LError("ORTEngine::forward() exception in Ort::Session_->Run: %s\n", ex.what());
+        LError("ORTEngine::forward() exception in Ort::Session_->Run: {}\n", ex.what());
         return ERR_GENERAL;
     }
     log_error_return(output_tensor_.size() != output_num_, "ORTEngine::forward() output_tensor_.size() != output_num_", ERR_INVALID_VALUE);
@@ -136,7 +136,7 @@ Ort::Value ORTEngine::CreateOrtValueFromTensor(Tensor& tensor)
                                                  shape_data.size());
         break;
     default:
-        LError("Tensor2OrtValue: unsupported data type: %s\n", DataTypeName(type).c_str());
+        LError("Tensor2OrtValue: unsupported data type: {}\n", DataTypeName(type).c_str());
         return Ort::Value::CreateTensor<float>(nullptr, nullptr, 0, nullptr, 0);
     }
 }

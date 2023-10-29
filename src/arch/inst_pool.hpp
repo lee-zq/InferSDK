@@ -47,20 +47,20 @@ public:
     {
         if (busy_inst_map_.size() > 0)
         {
-            LError("InstPool fini failed, busy_inst_map_ size=%d", busy_inst_map_.size());
+            LError("InstPool fini failed, busy_inst_map_ size={}", busy_inst_map_.size());
             return ERR_INVALID_STATE;
         }
         for (auto& inst_ptr : idle_inst_map_)
         {
             int ret = inst_ptr->fini();
-            log_error_return(ret, "InstPool fini failed, inst fini failed. ret=%d", ret);
+            log_error_return(ret, "InstPool fini failed, inst fini failed. ret={}", ret);
             delete inst_ptr;
         }
         idle_inst_map_.clear();
         for (auto& inst_ptr : busy_inst_map_)
         {
             int ret = inst_ptr->fini();
-            log_error_return(ret, "InstPool fini failed, inst fini failed. ret=%d", ret);
+            log_error_return(ret, "InstPool fini failed, inst fini failed. ret={}", ret);
             delete inst_ptr;
         }
         busy_inst_map_.clear();

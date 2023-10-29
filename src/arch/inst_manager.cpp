@@ -6,6 +6,7 @@
 #include "cv_server/message.h"
 #include "instance/common_inst.h"
 #include <cstddef>
+#include <cstdio>
 #include <string>
 #include <utility>
 #include <vector>
@@ -27,7 +28,7 @@ static int inst_factory(TaskType type, InstParamType* param, InstanceBase** inst
         break;
     }
     default:
-        LError("InstManager::create_inst error, no supported such type. tyep=%d", type);
+        LError("InstManager::create_inst error, no supported such type. tyep={}", type);
         return ERR_INVALID_PARAM;
     }
     int ret = (*inst_ptr)->init(*param);
@@ -66,7 +67,7 @@ int InstManager::create_inst(TaskType type, InstParamType* param, int num)
     {
         if (inst_param_map_.find(type) == inst_param_map_.end())
         {
-            LError("InstManager::create_inst error, no such type. tyep=%d", type);
+            LError("InstManager::create_inst error, no such type. tyep={}", type);
             return ERR_INVALID_PARAM;
         }
         param = &inst_param_map_[type];
@@ -76,14 +77,12 @@ int InstManager::create_inst(TaskType type, InstParamType* param, int num)
         InstPool* inst_pool_ptr = new InstPool();
         int ret = inst_pool_ptr->init("info");
         task_inst_pool_.insert(std::make_pair(type, inst_pool_ptr));
-        task_inst_pool_[type]->init("info");
-        return ERR_INVALID_STATE;
     }
     for (int i = 0; i < num; ++i)
     {
         InstanceBase* inst_ptr = nullptr;
         int ret = inst_factory(type, param, &inst_ptr);
-        log_error_return(ret, "InstManager::create_inst error, inst_factory failed. ret=%d", ERR_CREATE_INSTANCE_FAILED);
+        log_error_return(ret, "InstManager::create_inst error, inst_factory failed. ret={}", ERR_CREATE_INSTANCE_FAILED);
         task_inst_pool_[type]->add_inst(inst_ptr);
     }
     return 0;
@@ -93,7 +92,7 @@ int InstManager::destroy_inst(TaskType task_type)
 {
     if (task_inst_pool_.find(task_type) == task_inst_pool_.end())
     {
-        LError("InstManager::destroy_inst error, no such type. tyep=%d", task_type);
+        LError("InstManager::destroy_inst error, no such type. tyep={}", task_type);
         return ERR_INVALID_PARAM;
     }
     task_inst_pool_[task_type]->fini();
@@ -105,15 +104,27 @@ int InstManager::run(TaskType task_type, std::vector<cv::Mat>& input_imgs, void*
 {
     if (task_inst_pool_.find(task_type) == task_inst_pool_.end())
     {
-        LError("InstManager::run error, no such type. tyep=%d", task_type);
+        LError("InstManager::run error, no such type. tyep= {} ", task_type);
         return ERR_INVALID_PARAM;
     }
     InstanceBase* inst_ptr = nullptr;
     int ret = task_inst_pool_[task_type]->pull_inst(&inst_ptr);
-    log_error_return(ret, "InstManager::run error, inst_pool pull_inst failed. ret=%d", ret);
-    ret = inst_ptr->compute(input_imgs, result);
-    log_error_return(ret, "InstManager::run error, inst compute failed. ret=%d", ret);
-    return 0;
+    log_error_return(ret, "InstManager::run error, inst_pool pull_inst failed. ret={}", ret);
+    do
+    {
+        ret = inst_ptr->compute(input_imgs, result);
+        if (ret != 0)
+        {
+            LError("InstManager::run error, compute failed. ret={}", ret);
+            break;
+        }
+    } while (0);
+    int ret_state = task_inst_pool_[task_type]->push_inst(inst_ptr);
+    if (ret_state)
+    {
+        LError("InstManager::run error, inst_pool push_inst failed. ret={}", ret_state);
+    }
+    return ret;
 }
 
 int InstManager::fini()
@@ -121,7 +132,7 @@ int InstManager::fini()
     for (auto& task_inst : task_inst_pool_)
     {
         int ret = task_inst.second->fini();
-        log_error_return(ret, "InstManager::fini error, inst_pool fini failed. ret=%d", ret);
+        log_error_return(ret, "InstManager::fini error, inst_pool fini failed. ret={}", ret);
         delete task_inst.second;
     }
     task_inst_pool_.clear();

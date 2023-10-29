@@ -26,7 +26,7 @@ int CommonInst::compute(std::vector<cv::Mat>& input_imgs, void* results)
         int ret = module.second->inference(input_imgs, results);
         if (ret != 0)
         {
-            LError("CommonInst::compute error, module inference failed. ret=%d", ret);
+            LError("CommonInst::compute error, module inference failed. ret={}", ret);
             return -1;
         }
     }

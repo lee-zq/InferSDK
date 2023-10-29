@@ -10,15 +10,38 @@ class Client
 public:
     int init(bool save, std::string save_dir = "./")
     {
+        supported_task_type_ = {COMMON, SCENE_ANALYSIS};
         save_ = save;
         save_dir_ = save_dir;
         msg_.input = &in_data_;
         msg_.output = &out_data_;
         return 0;
     }
-    int bind_cv_server(void* cv_server)
+    int start(void* cv_server)
     {
         cv_server_ = static_cast<CVServer*>(cv_server);
+        for (auto task_type : supported_task_type_)
+        {
+            int ret = cv_server_->create_inst(static_cast<TaskType>(task_type), 1);
+            if (ret != 0)
+            {
+                std::cout << "cv_server create_inst error" << std::endl;
+                return -1;
+            }
+        }
+        return 0;
+    }
+    int stop()
+    {
+        for (auto task_type : supported_task_type_)
+        {
+            int ret = cv_server_->destroy_inst(static_cast<TaskType>(task_type));
+            if (ret != 0)
+            {
+                std::cout << "cv_server create_inst error" << std::endl;
+                return -1;
+            }
+        }
         return 0;
     }
     int send_msg(message* msg)
@@ -63,7 +86,7 @@ public:
             int ret = split(img_paths[i], item, " ");
             if (ret != 0)
             {
-                LWarn("parser data_list split error. process: %s, ret=%d", img_paths[i], ret);
+                LWarn("parser data_list split error. process: {}, ret={}", img_paths[i], ret);
                 continue;
             }
             img_path = item[0];
@@ -73,8 +96,8 @@ public:
             ret = process(input_img, task_type, id);
             if (ret != 0)
             {
-                LError("Client process error. ret=%d", ret);
-                return -1;
+                LError("Client process error. ret={}", ret);
+                continue;
             }
             // 打印输出信息
             std::cout << img_path << " output_info: " << out_data_.output_info << std::endl;
@@ -89,6 +112,7 @@ public:
     }
 
 public:
+    std::vector<int> supported_task_type_;
     CVServer* cv_server_ = nullptr;
     message msg_;
     InData in_data_;

@@ -7,6 +7,8 @@
 
 int CVServer::init(std::string cfg_path)
 {
+    // 0. 初始化日志
+    LInit("log/sdk.log");
     LInfo("CVServer Initialize start.");
     // 1. 初始化线程池
     thread_pool_ = std::make_shared<ThreadPool>(1);

@@ -29,13 +29,16 @@ int main(int argc, char** argv)
 
     // 2. 创建Client
     Client client;
-    client.init(true, "./visualization");
-    client.bind_cv_server(cv_server);
-
-    // 3. 批量处理图片
-    string input_data_path =
-        "../data/voc.lst"; // 存储格式 /path/to/image task_type id
+    client.init(true, "./visual");
+    client.start(cv_server);
+    string input_data_path = "../data/voc.lst"; // 存储格式 /path/to/image task_type req_id
     ret = client.process(input_data_path);
+    if (ret != 0)
+    {
+        cout << "main() process error" << endl;
+        return -1;
+    }
+    client.stop();
     // 4. 销毁CVServer
     ret = cv_server->fini();
     delete cv_server;
@@ -44,5 +47,6 @@ int main(int argc, char** argv)
         cout << "fini cv_server error" << endl;
         return -1;
     }
+
     return 0;
 }
