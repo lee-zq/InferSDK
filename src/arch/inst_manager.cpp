@@ -41,7 +41,7 @@ int InstManager::init(const std::string& manager_param)
     task_inst_pool_.clear();
     // 分类任务参数
     InferEngineParam infer_param;
-    infer_param.onnx_path = "../res/mobilenetv2-12/mobilenetv2-12-int8.onnx";
+    infer_param.onnx_path = "../models/mobilenetv2-12/mobilenetv2-12-int8.onnx";
     infer_param.thread_num = 1;
     infer_param.dev_type = CPU;
     infer_param.dev_id = 0;
@@ -49,7 +49,7 @@ int InstManager::init(const std::string& manager_param)
     inst_param_map_.insert(std::make_pair(TaskType::COMMON, infer_param_map));
     // 检测任务参数
     InferEngineParam infer_param2;
-    infer_param2.onnx_path = "../res/yolov3_tiny/tiny-yolov3-11.onnx";
+    infer_param2.onnx_path = "../models/yolov3_tiny/tiny-yolov3-11.onnx";
     infer_param2.thread_num = 1;
     infer_param2.dev_type = CPU;
     infer_param2.dev_id = 0;

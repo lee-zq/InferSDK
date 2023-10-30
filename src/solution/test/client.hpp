@@ -2,19 +2,37 @@
 #include "com/utils//base_func.h"
 #include "cv_server/cv_server.h"
 #include "cv_server/message.h"
+#include <algorithm>
+#include <fstream>
+#include <ios>
 #include <string>
 #include "parser_json.hpp"
+#include "com/conf_reader.h"
 
 class Client
 {
 public:
-    int init(bool save, std::string save_dir = "./")
+    int init(std::string cfg_path = "../cfg/client.cfg")
     {
-        supported_task_type_ = {COMMON, SCENE_ANALYSIS};
-        save_ = save;
-        save_dir_ = save_dir;
+        
+        parser_cfg(cfg_path);
         msg_.input = &in_data_;
         msg_.output = &out_data_;
+        return 0;
+    }
+    int parser_cfg(const std::string& cfg_path)
+    {
+        cfg_path_ = cfg_path;
+        ConfReader conf(cfg_path);
+        conf.setSection("Client");
+        supported_task_type_ = conf.readIntArray("request_task_type", ",");
+
+        int thread_num = conf.readInt("thread_num", 1);
+        std::string data_lst = conf.readStr("data_lst", "");
+        save_result_ = conf.readBool("save_result", false);
+        save_dir_ = conf.readStr("save_dir", "./save");
+        visualize_result_ = conf.readBool("visualize_result", false);
+        visualize_dir_ = conf.readStr("visualize_dir", "./visualize");
         return 0;
     }
     int start(void* cv_server)
@@ -101,9 +119,17 @@ public:
             }
             // 打印输出信息
             std::cout << img_path << " output_info: " << out_data_.output_info << std::endl;
-            if (save_)
+            // 保存输出信息
+            if (save_result_)
             {
-                std::string save_path = save_dir_ + "/" + getFileName(img_path);
+                std::string save_path = save_dir_ + "/" + getFileNameNoExt(img_path) + ".json";
+                std::ofstream f(save_path, std::ios::out);
+                f << out_data_.output_info;
+            }
+            // 可视化输出信息
+            if (visualize_result_)
+            {
+                std::string save_path = visualize_dir_ + "/" + getFileName(img_path);
                 render_img_with_json_str(out_data_.output_info, input_img);
                 cv::imwrite(save_path, input_img);
             }
@@ -118,6 +144,10 @@ public:
     InData in_data_;
     OutData out_data_;
 
-    bool save_ = false;
-    std::string save_dir_ = "./";
+    std::string cfg_path_;
+
+    bool save_result_ = false;
+    std::string save_dir_;
+    bool visualize_result_ = false;
+    std::string visualize_dir_;
 };

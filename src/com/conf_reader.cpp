@@ -6,23 +6,26 @@
  *  @note     无
  */
 
-#include <string>
-#include <cstring>
-#include <fstream>
+#include <algorithm>
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
+#include <fstream>
 #include <sstream>
+#include <string>
+#include <vector>
 
 #include "com/conf_reader.h"
+#include "com/utils/base_func.h"
 
 
 #if defined(_MSC_VER)
-#pragma warning(disable:4996)
+#pragma warning(disable : 4996)
 #endif
 
 
-#define MAX_INI_FILE_SIZE 1024*10
+#define MAX_INI_FILE_SIZE 1024 * 10
 
 /**
  *@fn                ConfReader::ConfReader(const string & fileName)
@@ -38,7 +41,7 @@ ConfReader::~ConfReader(void)
 {
 }
 
-const string & ConfReader::getFileName() const
+const string& ConfReader::getFileName() const
 {
     return m_fileName;
 }
@@ -49,7 +52,7 @@ const string & ConfReader::getFileName() const
  *@param[in] section 配置段字符串\n
  *                   配置段指INI格式的配置文件中的[SECNAME]
  */
-void ConfReader::setSection(const string &section)
+void ConfReader::setSection(const string& section)
 {
     m_section = section;
 }
@@ -62,9 +65,9 @@ void ConfReader::setSection(const string &section)
  *@retval  false 写入失败
  *@attention     该方法未测试
  */
-bool ConfReader::write(const string &key, const string & value) const 
+bool ConfReader::write(const string& key, const string& value) const
 {
-    return write_profile_string(m_section.c_str(),key.c_str(),value.c_str(),m_fileName.c_str())==1? true:false;
+    return write_profile_string(m_section.c_str(), key.c_str(), value.c_str(), m_fileName.c_str()) == 1 ? true : false;
 }
 
 /**
@@ -75,7 +78,7 @@ bool ConfReader::write(const string &key, const string & value) const
  *@retval  false 写入失败
  *@attention     该方法未测试
  */
-bool ConfReader::write(const string &key, int value) const 
+bool ConfReader::write(const string& key, int value) const
 {
     ostringstream strStream;
     strStream << value;
@@ -93,16 +96,16 @@ bool ConfReader::write(const string &key, int value) const
  *@return            关键字对应的配置项字符串
  *@attention         配置项如跨行,或包括空格字符,则会被截断
  */
-string ConfReader::readStr(const string &key,const string &default_value) const
+string ConfReader::readStr(const string& key, const string& default_value) const
 {
     char buf[1024];
-    read_profile_string(m_section.c_str(),key.c_str(),buf,sizeof(buf),default_value.c_str(),m_fileName.c_str());
-    for(int i=0; i<1024; i++)
+    read_profile_string(m_section.c_str(), key.c_str(), buf, sizeof(buf), default_value.c_str(), m_fileName.c_str());
+    for (int i = 0; i < 1024; i++)
     {
-        if(buf[i] == '\t' || buf[i] == ' ')
+        if (buf[i] == '\t' || buf[i] == ' ')
             buf[i] = '\0';
 
-        if(buf[i] == '\0')
+        if (buf[i] == '\0')
             break;
     }
     return buf;
@@ -116,11 +119,58 @@ string ConfReader::readStr(const string &key,const string &default_value) const
  *
  *@return            关键字对应的配置项,返回十进制数字.
  */
-int ConfReader::readInt(const string &key, int default_value) const
+int ConfReader::readInt(const string& key, int default_value) const
 {
-    return read_profile_int(m_section.c_str(),key.c_str(),default_value,m_fileName.c_str());
+    char value[32] = {0};
+    int ret = read_profile_string(m_section.c_str(), key.c_str(), value, sizeof(value), NULL, m_fileName.c_str());
+    return ret ? atoi(value) : default_value;
 }
 
+float ConfReader::readFloat(const string& key, float default_value) const
+{
+    char value[32] = {0};
+    int ret = read_profile_string(m_section.c_str(), key.c_str(), value, sizeof(value), NULL, m_fileName.c_str());
+    return ret ? atof(value) : default_value;
+}
+
+bool ConfReader::readBool(const string& key, bool default_value) const
+{
+    char value[32] = {0};
+    int ret = read_profile_string(m_section.c_str(), key.c_str(), value, sizeof(value), NULL, m_fileName.c_str());
+    std::string val(value);
+    if (ret)
+    {
+        if (val == "True" || val == "true")
+        {
+            return true;
+        }
+        else if (val == "False" || val == "false")
+        {
+            return false;
+        }
+        printf("readBool failed, return default value.\n");
+    }
+    return default_value;
+}
+
+std::vector<std::string> ConfReader::readStrArray(const string& key, std::string sep) const
+{
+    std::vector<std::string> ret;
+    std::string str = readStr(key, "");
+    split(str, ret, sep);
+    return ret;
+}
+
+std::vector<int> ConfReader::readIntArray(const string& key, std::string sep) const
+{
+    std::vector<std::string> str_arr = readStrArray(key, sep);
+    std::vector<int> ret;
+    for (auto& it : str_arr)
+    {
+        ret.push_back(std::atoi(it.c_str()));
+    }
+    return ret;
+}
 
 /**
  *@fn           ConfReader::getSection() const
@@ -134,30 +184,32 @@ const string& ConfReader::getSection() const
     return m_section;
 }
 
-int ConfReader::load_ini_file(const char *file, char *buf,int *file_size)
+int ConfReader::load_ini_file(const char* file, char* buf, int* file_size)
 {
-    FILE *in = NULL;
-    int i=0;
-    *file_size =0;
+    FILE* in = NULL;
+    int i = 0;
+    *file_size = 0;
 
-    assert(file !=NULL);
-    assert(buf !=NULL);
+    assert(file != NULL);
+    assert(buf != NULL);
 
     in = fopen(file, "r");
-    if( NULL == in) {
+    if (NULL == in)
+    {
         return 0;
     }
 
-    buf[i]=fgetc(in);
+    buf[i] = fgetc(in);
 
     //load initialization file
-    while( buf[i]!= (char)EOF) {
+    while (buf[i] != (char)EOF)
+    {
         i++;
-        assert( i < MAX_INI_FILE_SIZE ); //file too big, you can redefine MAX_INI_FILE_SIZE to fit the big file 
-        buf[i]=fgetc(in);
+        assert(i < MAX_INI_FILE_SIZE); //file too big, you can redefine MAX_INI_FILE_SIZE to fit the big file
+        buf[i] = fgetc(in);
     }
 
-    buf[i]='\0';
+    buf[i] = '\0';
     *file_size = i;
 
     fclose(in);
@@ -166,29 +218,36 @@ int ConfReader::load_ini_file(const char *file, char *buf,int *file_size)
 
 int ConfReader::newline(char c)
 {
-    return ('\n' == c ||  '\r' == c )? 1 : 0;
+    return ('\n' == c || '\r' == c) ? 1 : 0;
 }
 int ConfReader::end_of_string(char c)
 {
-    return '\0'==c? 1 : 0;
+    return '\0' == c ? 1 : 0;
 }
 int ConfReader::left_barce(char c)
 {
-    return '[' == c? 1 : 0;
+    return '[' == c ? 1 : 0;
 }
-int ConfReader::right_brace(char c )
+int ConfReader::right_brace(char c)
 {
-    return ']' == c? 1 : 0;
+    return ']' == c ? 1 : 0;
 }
-int ConfReader::parse_file(const char *section, const char *key, const char *buf,int *sec_s,int *sec_e,
-                      int *key_s,int *key_e, int *value_s, int *value_e)
+int ConfReader::parse_file(const char* section,
+                           const char* key,
+                           const char* buf,
+                           int* sec_s,
+                           int* sec_e,
+                           int* key_s,
+                           int* key_e,
+                           int* value_s,
+                           int* value_e)
 {
-    const char *p = buf;
-    int i=0;
+    const char* p = buf;
+    int i = 0;
     int keyLen = 0;
     int sectionLen = 0;
 
-    assert(buf!=NULL);
+    assert(buf != NULL);
     assert(section != NULL && strlen(section));
     assert(key != NULL && strlen(key));
 
@@ -197,29 +256,32 @@ int ConfReader::parse_file(const char *section, const char *key, const char *buf
 
     *sec_e = *sec_s = *key_e = *key_s = *value_s = *value_e = -1;
 
-    while( !end_of_string(p[i]) ) {
+    while (!end_of_string(p[i]))
+    {
         //find the section
-        if( ( 0==i ||  newline(p[i-1]) ) && left_barce(p[i]) )
+        if ((0 == i || newline(p[i - 1])) && left_barce(p[i]))
         {
-            int section_start=i+1;
+            int section_start = i + 1;
 
             //find the ']'
-            do {
+            do
+            {
                 i++;
-            } while( !right_brace(p[i]) && !end_of_string(p[i]));
+            } while (!right_brace(p[i]) && !end_of_string(p[i]));
 
 #ifdef WIN32
-            if((sectionLen == i - section_start) && 0 == strnicmp(p+section_start,section, sectionLen))
+            if ((sectionLen == i - section_start) && 0 == strnicmp(p + section_start, section, sectionLen))
 #else
-            if((sectionLen == i - section_start) && 0 == strncasecmp(p+section_start,section, sectionLen))
+            if ((sectionLen == i - section_start) && 0 == strncasecmp(p + section_start, section, sectionLen))
 #endif
             {
-                int newline_start=0;
+                int newline_start = 0;
 
                 i++;
 
                 //Skip over space char after ']'
-                while(isspace(p[i])) {
+                while (isspace(p[i]))
+                {
                     i++;
                 }
 
@@ -227,14 +289,14 @@ int ConfReader::parse_file(const char *section, const char *key, const char *buf
                 *sec_s = section_start;
                 *sec_e = i;
 
-                while( ! (newline(p[i-1]) && left_barce(p[i])) 
-                    && !end_of_string(p[i]) )
+                while (!(newline(p[i - 1]) && left_barce(p[i])) && !end_of_string(p[i]))
                 {
-                    int j=0;
+                    int j = 0;
                     //get a new line
                     newline_start = i;
 
-                    while( !newline(p[i]) &&  !end_of_string(p[i]) ) {
+                    while (!newline(p[i]) && !end_of_string(p[i]))
+                    {
                         i++;
                     }
 
@@ -242,29 +304,29 @@ int ConfReader::parse_file(const char *section, const char *key, const char *buf
                     j = newline_start;
                     int valid = j;
 
-                    if('#' != p[j]) //skip over comment
-                    { 
-                        while(j < i && p[j]!='=')
+                    if ('#' != p[j]) //skip over comment
+                    {
+                        while (j < i && p[j] != '=')
                         {
                             j++;
 
-                            if(' ' != p[j] &&  '\t' != p[j] && '=' != p[j])
+                            if (' ' != p[j] && '\t' != p[j] && '=' != p[j])
                                 valid = j;
 
-                            if('=' == p[j])
+                            if ('=' == p[j])
                             {
 #ifdef WIN32
-                                if((keyLen == valid - newline_start + 1) && strnicmp(key,p+newline_start, keyLen)==0)
+                                if ((keyLen == valid - newline_start + 1) && strnicmp(key, p + newline_start, keyLen) == 0)
 #else
-                                if((keyLen == valid - newline_start + 1) && strncasecmp(key,p+newline_start, keyLen)==0)
+                                if ((keyLen == valid - newline_start + 1) && strncasecmp(key, p + newline_start, keyLen) == 0)
 #endif
                                 {
                                     //find the key ok
                                     *key_s = newline_start;
-                                    *key_e = j-1;
+                                    *key_e = j - 1;
 
-                                    valid = j+1;
-                                    while(' ' == p[valid] || '\t' == p[valid])
+                                    valid = j + 1;
+                                    while (' ' == p[valid] || '\t' == p[valid])
                                         valid++;
                                     *value_s = valid;
                                     *value_e = i;
@@ -298,48 +360,52 @@ int ConfReader::parse_file(const char *section, const char *key, const char *buf
  *@param[in] file        path of the initialization file
  *@return 1 : read success; \n 0 : read fail
 */
-int ConfReader::read_profile_string( const char *section, const char *key,char *value, 
-                        int size, const char *default_value, const char *file)
+int ConfReader::read_profile_string(const char* section,
+                                    const char* key,
+                                    char* value,
+                                    int size,
+                                    const char* default_value,
+                                    const char* file)
 {
-    char buf[MAX_INI_FILE_SIZE]={0};
+    char buf[MAX_INI_FILE_SIZE] = {0};
     int file_size;
-    int sec_s,sec_e,key_s,key_e, value_s, value_e;
+    int sec_s, sec_e, key_s, key_e, value_s, value_e;
 
     //check parameters
     assert(section != NULL && strlen(section));
     assert(key != NULL && strlen(key));
     assert(value != NULL);
     assert(size > 0);
-    assert(file !=NULL &&strlen(key));
+    assert(file != NULL && strlen(key));
 
-    if(!load_ini_file(file,buf,&file_size))
+    if (!load_ini_file(file, buf, &file_size))
     {
-        if(default_value!=NULL)
+        if (default_value != NULL)
         {
-            strncpy(value,default_value, size);
+            strncpy(value, default_value, size);
         }
         return 0;
     }
 
-    if(!parse_file(section,key,buf,&sec_s,&sec_e,&key_s,&key_e,&value_s,&value_e))
+    if (!parse_file(section, key, buf, &sec_s, &sec_e, &key_s, &key_e, &value_s, &value_e))
     {
-        if(default_value!=NULL)
+        if (default_value != NULL)
         {
-            strncpy(value,default_value, size);
+            strncpy(value, default_value, size);
         }
         return 0; //not find the key
     }
     else
     {
-        int cpcount = value_e -value_s;
+        int cpcount = value_e - value_s;
 
-        if( size-1 < cpcount)
+        if (size - 1 < cpcount)
         {
-            cpcount =  size-1;
+            cpcount = size - 1;
         }
 
         //memset(value, 0, size);
-        memcpy(value,buf+value_s, cpcount );
+        memcpy(value, buf + value_s, cpcount);
         value[cpcount] = '\0';
 
         return 1;
@@ -353,13 +419,12 @@ int ConfReader::read_profile_string( const char *section, const char *key,char *
  *@param[in] key     name of the key pairs to value 
  *@param[in] default_value default value of result
  *@param[in] file      path of the initialization file
- *@return profile int value,if read fail, return default value
+ *@return profile int value,if read fail, return default value, return 0 is failed 1 is success
 */
-int ConfReader::read_profile_int( const char *section, const char *key,int default_value, 
-                                            const char *file)
+int ConfReader::read_profile_int(const char* section, const char* key, int default_value, const char* file)
 {
     char value[32] = {0};
-    if(!read_profile_string(section,key,value, sizeof(value),NULL,file))
+    if (!read_profile_string(section, key, value, sizeof(value), NULL, file))
     {
         return default_value;
     }
@@ -377,66 +442,65 @@ int ConfReader::read_profile_int( const char *section, const char *key,int defau
  * @param[in] file         path of ini file
  * @return 1 : success\n 0 : failure
 */
-int ConfReader::write_profile_string(const char *section, const char *key,
-                         const char *value, const char *file)
+int ConfReader::write_profile_string(const char* section, const char* key, const char* value, const char* file)
 {
-    char buf[MAX_INI_FILE_SIZE]={0};
-    char w_buf[MAX_INI_FILE_SIZE]={0};
-    int sec_s,sec_e,key_s,key_e, value_s, value_e;
+    char buf[MAX_INI_FILE_SIZE] = {0};
+    char w_buf[MAX_INI_FILE_SIZE] = {0};
+    int sec_s, sec_e, key_s, key_e, value_s, value_e;
     int value_len = (int)strlen(value);
     int file_size;
-    FILE *out;
+    FILE* out;
 
     //check parameters
     assert(section != NULL && strlen(section));
     assert(key != NULL && strlen(key));
     assert(value != NULL);
-    assert(file !=NULL &&strlen(key));
+    assert(file != NULL && strlen(key));
 
-    if(!load_ini_file(file,buf,&file_size))
+    if (!load_ini_file(file, buf, &file_size))
     {
         sec_s = -1;
     }
     else
     {
-        parse_file(section,key,buf,&sec_s,&sec_e,&key_s,&key_e,&value_s,&value_e);
+        parse_file(section, key, buf, &sec_s, &sec_e, &key_s, &key_e, &value_s, &value_e);
     }
 
-    if( -1 == sec_s)
+    if (-1 == sec_s)
     {
-        if(0==file_size)
+        if (0 == file_size)
         {
-            sprintf(w_buf+file_size,"[%s]\n%s=%s\n",section,key,value);
+            sprintf(w_buf + file_size, "[%s]\n%s=%s\n", section, key, value);
         }
         else
         {
             //not find the section, then add the new section at end of the file
-            memcpy(w_buf,buf,file_size);
-            sprintf(w_buf+file_size,"\n[%s]\n%s=%s\n",section,key,value);
+            memcpy(w_buf, buf, file_size);
+            sprintf(w_buf + file_size, "\n[%s]\n%s=%s\n", section, key, value);
         }
     }
-    else if(-1 == key_s)
+    else if (-1 == key_s)
     {
         //not find the key, then add the new key=value at end of the section
-        memcpy(w_buf,buf,sec_e);
-        sprintf(w_buf+sec_e,"%s=%s\n",key,value);
-        sprintf(w_buf+sec_e+strlen(key)+strlen(value)+2,buf+sec_e, file_size - sec_e);
+        memcpy(w_buf, buf, sec_e);
+        sprintf(w_buf + sec_e, "%s=%s\n", key, value);
+        sprintf(w_buf + sec_e + strlen(key) + strlen(value) + 2, buf + sec_e, file_size - sec_e);
     }
     else
     {
         //update value with new value
-        memcpy(w_buf,buf,value_s);
-        memcpy(w_buf+value_s,value, value_len);
-        memcpy(w_buf+value_s+value_len, buf+value_e, file_size - value_e);
+        memcpy(w_buf, buf, value_s);
+        memcpy(w_buf + value_s, value, value_len);
+        memcpy(w_buf + value_s + value_len, buf + value_e, file_size - value_e);
     }
 
-    out = fopen(file,"w");
-    if(NULL == out)
+    out = fopen(file, "w");
+    if (NULL == out)
     {
         return 0;
     }
 
-    if(-1 == fputs(w_buf,out) )
+    if (-1 == fputs(w_buf, out))
     {
         fclose(out);
         return 0;

@@ -55,5 +55,12 @@ int render_img_with_json_str(std::string& json_string, cv::Mat& img)
 
 std::string getFileName(std::string filepath)
 {
-    return filepath.substr(filepath.find_last_of('/') + 1);;
+    return filepath.substr(filepath.find_last_of('/') + 1);
+}
+
+std::string getFileNameNoExt(std::string filepath)
+{
+    std::string file_name = getFileName(filepath);
+    std::string::size_type pos = file_name.rfind(".");
+    return file_name.substr(0, pos);
 }

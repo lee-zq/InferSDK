@@ -11,6 +11,7 @@
 */
 
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -35,7 +36,10 @@ public:
 
     string readStr(const string &key, const string &default_value) const;
     int readInt(const string &key, int default_value) const;
-
+    float readFloat(const string& key, float default_value)const;
+    bool readBool(const string& key, bool default_value)const;
+    std::vector<std::string> readStrArray(const string& key, std::string sep=",")const;
+    std::vector<int> readIntArray(const string& key, std::string sep=",")const;
 public:
     static int read_profile_string(const char *section, const char *key, char *value,
                                    int size, const char *default_value, const char *file);

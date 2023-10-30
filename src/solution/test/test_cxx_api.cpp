@@ -12,6 +12,14 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
+    if (argc < 3)
+    {
+        std::cout << "Error! \n Usage: ./test_cvserver client.cfg cv_server.cfg" << std::endl;
+        return -1;
+    }
+    // 0. 命令行参数解析
+    std::string client_cfg = argv[1];
+    std::string cv_server_cfg = argv[2];
     // 1. 初始化CVServer
     CVServer* cv_server = new CVServer();
     if (cv_server == nullptr)
@@ -19,7 +27,7 @@ int main(int argc, char** argv)
         cout << "create cv_server error" << endl;
         return -1;
     }
-    int ret = cv_server->init("../config/cv_server.cfg");
+    int ret = cv_server->init(cv_server_cfg);
     if (ret != 0)
     {
         cout << "init cv_server error" << endl;
@@ -29,7 +37,7 @@ int main(int argc, char** argv)
 
     // 2. 创建Client
     Client client;
-    client.init(true, "./visual");
+    client.init(client_cfg);
     client.start(cv_server);
     string input_data_path = "../data/voc.lst"; // 存储格式 /path/to/image task_type req_id
     ret = client.process(input_data_path);
