@@ -19,5 +19,5 @@ public:
 
 protected:
     TaskType task_type_;
-    std::vector<std::pair<ModuleType, ModuleBase*>> modules_;
+    std::vector<std::pair<ModuleType, std::shared_ptr<ModuleBase>>> modules_;
 };

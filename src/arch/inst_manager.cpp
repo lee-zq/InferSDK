@@ -20,16 +20,14 @@ static std::unordered_map<std::string, TaskType> task_type_map = {
 };
 
 static std::unordered_map<std::string, ModuleType> module_type_map = {
-    {"CLASSIFY", ModuleType::CLASSIFY},
-    {"DETECTION", ModuleType::DETECTION},
+    {"Classifier", ModuleType::Classifier},
+    {"Detection", ModuleType::Detection},
 };
 
-static std::unordered_map<std::string, DeviceType> dev_type_map = {
-    {"CPU", DeviceType::CPU},
-    {"CUDA", DeviceType::CUDA},
-    {"NPU", DeviceType::NPU},
-    {"OTHER", DeviceType::OTHER}
-};
+static std::unordered_map<std::string, DeviceType> dev_type_map = {{"CPU", DeviceType::CPU},
+                                                                   {"CUDA", DeviceType::CUDA},
+                                                                   {"NPU", DeviceType::NPU},
+                                                                   {"OTHER", DeviceType::OTHER}};
 
 InstManager* InstManager::inst_mgr_ = nullptr;
 
@@ -110,7 +108,7 @@ int InstManager::create_inst(TaskType type, int num)
     for (int i = 0; i < num; ++i)
     {
         InstanceBase* inst_ptr = nullptr;
-        int ret = inst_factory(type, inst_param_map_[type],&inst_ptr);
+        int ret = inst_factory(type, inst_param_map_[type], &inst_ptr);
         log_error_return(ret, "InstManager::create_inst error, inst_factory failed. ret={}", ERR_CREATE_INSTANCE_FAILED);
         task_inst_pool_[type]->add_inst(inst_ptr);
     }

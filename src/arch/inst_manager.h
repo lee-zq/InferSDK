@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+
 static std::mutex inst_mgr_mutex;
 
 class InstManager
@@ -42,6 +43,8 @@ private:
     static InstManager* inst_mgr_;
     std::map<TaskType, InstParamType> inst_param_map_;
     std::map<TaskType, InstPool*> task_inst_pool_;
+    
+
 };
 
 #define InstMgr InstManager::getInstManager()

@@ -14,9 +14,9 @@ file(GLOB_RECURSE COMMON_FILE   com/*.cpp)
 set(CoreLibName core)
 set(CORE_SRC ${ARCH_FILE} ${ENGINE_FILE} ${MODULE_FILE} ${INST_FILE} ${COMMON_FILE})
 message(STATUS "CORE SRC: ${CORE_SRC}")
-# add_library(${CoreLibName} SHARED ${CORE_SRC})
-add_library(${CoreLibName} STATIC ${CORE_SRC})
-target_link_libraries(${CoreLibName} ${ALL_LIBS})
+add_library(${CoreLibName} SHARED ${CORE_SRC})
+# add_library(${CoreLibName} STATIC ${CORE_SRC})
+target_link_libraries(${CoreLibName} PRIVATE ${ALL_LIBS})
 
 # 构建接口库
 set(CVServerLibName cvserver)

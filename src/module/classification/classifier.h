@@ -15,7 +15,7 @@ class Classifier : public ModuleBase
 public:
     Classifier(){};
     Classifier(const ModuleParamType& module_param){
-        // 此处添加Module构造函数传入的结构体参数, 解析并保存到成员变量中，在后续其他函数调用时使用
+        module_param_ = module_param;
     };
     virtual int inference(std::vector<cv::Mat>& input_imgs, void* results) override;
     virtual int uninit() override;
@@ -30,6 +30,7 @@ private:
     std::vector<float> mean_{0.485, 0.456, 0.406};
     std::vector<float> std_{0.229, 0.224, 0.225};
     InferEngine* infer_inst_ = nullptr;
+    ModuleParamType module_param_;
 };
 
 // SPACE_END

@@ -1,6 +1,7 @@
 #include "common_inst.h"
 
 #include "all_type.h"
+#include "arch/module_factory.hpp"
 #include "base_module.h"
 #include "com/logger.h"
 #include "com/utils/base_func.h"
@@ -9,36 +10,15 @@
 #include "module/classification/classifier.h"
 #include "module/detection/detection.h"
 #include "module/segmentation/seg.h"
-
-static int module_factory(ModuleType module_type, const ModuleParamType& param, ModuleBase** module_ptr)
-{
-    switch (module_type)
-    {
-    case ModuleType::CLASSIFY:
-        *module_ptr = new Classifier();
-        break;
-    case ModuleType::DETECTION:
-        *module_ptr = new Detection();
-        break;
-    default:
-        std::cout << "No supported task type : " << (int)module_type << std::endl;
-    }
-    int ret = (*module_ptr)->init(param);
-    if (ret != 0)
-    {
-        std::cout << "error" << std::endl;
-        return ret;
-    }
-    return 0;
-}
+#include <algorithm>
 
 int CommonInst::init(const InstParamType& param)
 {
 
     for (auto& module_param : param.module_params)
     {
-        ModuleBase* module_ptr = nullptr;
-        int ret = module_factory(module_param.first, module_param.second, &module_ptr);
+        auto module_ptr = ModuleRegistry::CreateModule(module_param.second);
+        int ret = module_ptr->init(module_param.second);
         log_error_return(ret, "create module failed.", ERR_CREATE_MODULE_FAILED);
         modules_.emplace_back(std::make_pair(module_param.first, module_ptr));
     }
@@ -61,11 +41,9 @@ int CommonInst::compute(std::vector<cv::Mat>& input_imgs, void* results)
 
 int CommonInst::fini()
 {
-    for (auto& module : modules_)
-    {
-        module.second->uninit();
-        delete module.second;
-    }
+    for_each(modules_.begin(), modules_.end(), [](const std::pair<ModuleType, std::shared_ptr<ModuleBase>>& it) {
+        it.second->uninit();
+    });
     modules_.clear();
     return 0;
 }
