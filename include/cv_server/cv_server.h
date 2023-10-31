@@ -7,6 +7,7 @@
 #include <mutex>
 #include <queue>
 #include <thread>
+#include <vector>
 
 #include "com/threadpool/threadpool.hpp"
 
@@ -14,6 +15,7 @@ class CVServer
 {
 public:
     int init(std::string cfg_path);
+    int parser_cfg(const std::string& cfg_path);
     int fini();
     // int start();
     // int stop();
@@ -26,5 +28,6 @@ private:
     // std::map<TaskType, InstanceBase*> inst_map_;
     // std::mutex inst_map_mutex_;
     // 执行线程池
+    int thread_pool_size_ = 1;
     std::shared_ptr<ThreadPool> thread_pool_;
 };

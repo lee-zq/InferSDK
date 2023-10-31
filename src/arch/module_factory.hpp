@@ -13,7 +13,7 @@
 class ModuleRegistry
 {
 public:
-    typedef std::shared_ptr<ModuleBase> (*Creator)(const ModuleParam&);
+    typedef std::shared_ptr<ModuleBase> (*Creator)(const ModuleParamType&);
     typedef std::map<std::string, Creator> CreatorRegistry;
 
     static CreatorRegistry& Registry()
@@ -32,12 +32,12 @@ public:
     }
 
     // Get a module using a InitParam.
-    static std::shared_ptr<ModuleBase> CreateModuleBase(const ModuleParam& param)
+    static std::shared_ptr<ModuleBase> CreateModuleBase(const ModuleParamType& param)
     {
         // if (Caffe::root_solver()) {
         //   LOG(INFO) << "Creating module " << param.name();
         // }
-        const std::string& type = param.type;
+        const std::string& type = param.name;
         CreatorRegistry& registry = Registry();
         // CHECK_EQ(registry.count(type), 1) << "Unknown module type: " << type
         //     << " (known types: " << ModuleBaseTypeListString() << ")";
@@ -81,7 +81,7 @@ private:
 class ModuleRegisterer
 {
 public:
-    ModuleRegisterer(const std::string& type, std::shared_ptr<ModuleBase> (*creator)(const ModuleParam&))
+    ModuleRegisterer(const std::string& type, std::shared_ptr<ModuleBase> (*creator)(const ModuleParamType&))
     {
         // LOG(INFO) << "Registering module type: " << type;
         ModuleRegistry::AddCreator(type, creator);
@@ -89,7 +89,7 @@ public:
 };
 
 #define REGISTER_MODULE_CLASS(name)                                                                                            \
-    shared_ptr<ModuleBase> Creator_##name##Module(const ModuleParam& param)                                                    \
+    shared_ptr<ModuleBase> Creator_##name##Module(const ModuleParamType& param)                                                \
     {                                                                                                                          \
         return shared_ptr<ModuleBase>(new name(param));                                                                        \
     }                                                                                                                          \

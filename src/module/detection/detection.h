@@ -15,7 +15,7 @@ class Detection : public ModuleBase
 {
 public:
     Detection(){};
-    Detection(const ModuleParam& module_param){
+    Detection(const ModuleParamType& module_param){
         // 此处添加Module构造函数传入的结构体参数, 解析并保存到成员变量中，在后续其他函数调用时使用
     };
     virtual int inference(std::vector<cv::Mat>& input_imgs, void* results) override;
@@ -29,10 +29,10 @@ public:
         }
         return 0;
     }
-    virtual int init(const InferEngineParam& param) override
+    virtual int init(const ModuleParamType& param) override
     {
         infer_inst_ = new ORTEngine();
-        infer_inst_->init(param);
+        infer_inst_->init(param.res_path, param.dev_type, param.dev_id, param.thread_num);
 
         input_shapes_ = infer_inst_->get_input_shapes();
         input_datas_.resize(input_shapes_.size());

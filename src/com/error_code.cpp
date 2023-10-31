@@ -34,7 +34,7 @@ std::map<ErrorCode, const char*> Error::ERROR_MSG = {
 std::string Error::getErrorMsg(ErrorCode errorCode, std::string fmt, ...)
 {
     std::stringstream ss;
-    ss << "Code: ", static_cast<long>(errorCode);
+    ss << "Code: " << static_cast<long>(errorCode);
     ss << " Msg: " << ERROR_MSG[errorCode];
     ss << " \"" << fmt << "\"";
     std::string errorCodeStr = ss.str();

@@ -1,20 +1,46 @@
 #include "common_inst.h"
 
+#include "all_type.h"
+#include "base_module.h"
+#include "com/logger.h"
 #include "com/utils/base_func.h"
+#include "cv_server/error_code.h"
+#include "cv_server/message.h"
 #include "module/classification/classifier.h"
 #include "module/detection/detection.h"
 #include "module/segmentation/seg.h"
 
-int CommonInst::init(const std::vector<std::pair<std::string, InferEngineParam>>& param)
+static int module_factory(ModuleType module_type, const ModuleParamType& param, ModuleBase** module_ptr)
 {
-    if (param.size() != 1)
+    switch (module_type)
     {
-        LError("inst_init_param.size() != 1 current supported one module");
-        return -1;
+    case ModuleType::CLASSIFY:
+        *module_ptr = new Classifier();
+        break;
+    case ModuleType::DETECTION:
+        *module_ptr = new Detection();
+        break;
+    default:
+        std::cout << "No supported task type : " << (int)module_type << std::endl;
     }
-    for (int i = 0; i < param.size(); i++)
+    int ret = (*module_ptr)->init(param);
+    if (ret != 0)
     {
-        append_module(param[i].first, param[i].second);
+        std::cout << "error" << std::endl;
+        return ret;
+    }
+    return 0;
+}
+
+int CommonInst::init(const InstParamType& param)
+{
+
+    for (auto& module_param : param.module_params)
+    {
+        ModuleBase* module_ptr = nullptr;
+        int ret = module_factory(module_param.first, module_param.second, &module_ptr);
+        log_error_return(ret, "create module failed.", ERR_CREATE_MODULE_FAILED);
+        modules_.emplace_back(std::make_pair(module_param.first, module_ptr));
     }
     return 0;
 }
@@ -41,36 +67,5 @@ int CommonInst::fini()
         delete module.second;
     }
     modules_.clear();
-    return 0;
-}
-
-int CommonInst::append_module(const std::string& module_type, const InferEngineParam& param)
-{
-    ModuleBase* module_ptr = nullptr;
-    if (module_type == "Classify")
-    {
-        module_ptr = new Classifier();
-        int ret = module_ptr->init(param);
-        if (ret != 0)
-        {
-            std::cout << "error" << std::endl;
-            return ret;
-        }
-    }
-    else if (module_type == "Detection")
-    {
-        module_ptr = new Detection();
-        int ret = module_ptr->init(param);
-        if (ret != 0)
-        {
-            std::cout << "error" << std::endl;
-            return ret;
-        }
-    }
-    else
-    {
-        std::cout << "No supported task type : " << module_type << std::endl;
-    }
-    modules_.emplace_back(std::make_pair(module_type, module_ptr));
     return 0;
 }

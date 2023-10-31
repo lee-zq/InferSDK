@@ -18,7 +18,7 @@ class ORTEngine : public InferEngine
 public:
     ORTEngine(){};
     ~ORTEngine(){};
-    virtual int init(const InferEngineParam& param) override;
+    virtual int init(const std::string& res_path, DeviceType dev_type, int dev_id, int thread_num) override;
     virtual int forward(const vector<Tensor>& input_data,
                         vector<Tensor>& output_data) override;
     virtual int async_forward(const vector<Tensor>& input_data,
@@ -43,7 +43,6 @@ public:
     };
 
 public:
-    InferEngineParam param_;
     Ort::MemoryInfo memory_info_{nullptr};
     Ort::AllocatorWithDefaultOptions* allocator_{nullptr};
     vector<Ort::Value> input_tensor_;

@@ -8,14 +8,11 @@
 #include <string>
 #include <vector>
 
-typedef std::vector<std::pair<std::string, InferEngineParam>> InstParamType;
-
 class CommonInst : public InstanceBase
 {
 public:
-    virtual int init(const std::vector<std::pair<std::string, InferEngineParam>>& param) override;
+    virtual int init(const InstParamType& param) override;
     virtual int compute(std::vector<cv::Mat>& input_imgs, void* results) override;
-    virtual int append_module(const std::string& task_type, const InferEngineParam& param) ;
     virtual int fini() override;
     virtual ~CommonInst(){};
 

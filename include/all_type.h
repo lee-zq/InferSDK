@@ -1,5 +1,7 @@
 #pragma once
 #include <string>
+#include <vector>
+#include "cv_server/message.h"
 
 typedef enum DeviceType
 {
@@ -18,20 +20,6 @@ typedef enum DataType
     Float32,
 } DataType;
 
-typedef struct InferEngineParam
-{
-    std::string onnx_path;
-    DeviceType dev_type;
-    int dev_id;
-    int thread_num;
-} InferEngineParam;
-
-typedef struct ModuleParam
-{
-    std::string type;
-    // 此处添加Module构造函数传入的结构体参数
-} ModuleParam;
-
 typedef struct Bbox
 {
     int x1;
@@ -41,3 +29,23 @@ typedef struct Bbox
     float score;
     int class_id;
 } Bbox;
+
+typedef struct _ModuleParamType
+{
+    ModuleType type;
+    std::string name;
+    std::string res_path;
+    DeviceType dev_type;
+    int dev_id;
+    int thread_num;
+} ModuleParamType;
+
+typedef struct _InstParamType
+{
+    TaskType type;
+    std::string name;
+    int thread_num;
+    int dev_type;
+    int dev_id;
+    std::vector<std::pair<ModuleType, ModuleParamType>> module_params;
+}InstParamType;

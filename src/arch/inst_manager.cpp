@@ -1,6 +1,8 @@
 #include "inst_manager.h"
+#include "all_type.h"
 #include "arch/inst_pool.hpp"
 #include "base_instance.h"
+#include "com/conf_reader.h"
 #include "com/logger.h"
 #include "cv_server/error_code.h"
 #include "cv_server/message.h"
@@ -8,12 +10,30 @@
 #include <cstddef>
 #include <cstdio>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
+static std::unordered_map<std::string, TaskType> task_type_map = {
+    {"COMMON", TaskType::COMMON},
+    {"SCENE_ANALYSIS", TaskType::SCENE_ANALYSIS},
+};
+
+static std::unordered_map<std::string, ModuleType> module_type_map = {
+    {"CLASSIFY", ModuleType::CLASSIFY},
+    {"DETECTION", ModuleType::DETECTION},
+};
+
+static std::unordered_map<std::string, DeviceType> dev_type_map = {
+    {"CPU", DeviceType::CPU},
+    {"CUDA", DeviceType::CUDA},
+    {"NPU", DeviceType::NPU},
+    {"OTHER", DeviceType::OTHER}
+};
+
 InstManager* InstManager::inst_mgr_ = nullptr;
 
-static int inst_factory(TaskType type, InstParamType* param, InstanceBase** inst_ptr)
+static int inst_factory(TaskType type, const InstParamType& param, InstanceBase** inst_ptr)
 {
     switch (type)
     {
@@ -31,47 +51,56 @@ static int inst_factory(TaskType type, InstParamType* param, InstanceBase** inst
         LError("InstManager::create_inst error, no supported such type. tyep={}", type);
         return ERR_INVALID_PARAM;
     }
-    int ret = (*inst_ptr)->init(*param);
+    int ret = (*inst_ptr)->init(param);
     return ret;
 }
 
-int InstManager::init(const std::string& manager_param)
+int InstManager::init(const std::string& inst_mgr_cfg)
 {
     LInfo("InstManager initialize start...");
     task_inst_pool_.clear();
-    // 分类任务参数
-    InferEngineParam infer_param;
-    infer_param.onnx_path = "../models/mobilenetv2-12/mobilenetv2-12-int8.onnx";
-    infer_param.thread_num = 1;
-    infer_param.dev_type = CPU;
-    infer_param.dev_id = 0;
-    InstParamType infer_param_map = {std::make_pair("Classify", infer_param)};
-    inst_param_map_.insert(std::make_pair(TaskType::COMMON, infer_param_map));
-    // 检测任务参数
-    InferEngineParam infer_param2;
-    infer_param2.onnx_path = "../models/yolov3_tiny/tiny-yolov3-11.onnx";
-    infer_param2.thread_num = 1;
-    infer_param2.dev_type = CPU;
-    infer_param2.dev_id = 0;
-    InstParamType infer_param_map2 = {std::make_pair("Detection", infer_param2)};
-    inst_param_map_.insert(std::make_pair(TaskType::SCENE_ANALYSIS, infer_param_map2));
     // 分割任务参数 TODO
-
+    parser_cfg(inst_mgr_cfg);
     LInfo("InstManager initialize success...");
     return 0;
 }
 
-int InstManager::create_inst(TaskType type, InstParamType* param, int num)
+int InstManager::parser_cfg(std::string cfg_path)
 {
-    if (param == nullptr)
+    ConfReader cfg(cfg_path);
+    cfg.setSection("Global");
+    std::vector<std::string> enabled_task_type_vec = cfg.readStrArray("enabled_task_type_names");
+    int default_dev_id = cfg.readInt("dev_id", 0);
+    std::string default_dev_type = cfg.readStr("dev_type", "CPU");
+    int default_thread_num = cfg.readInt("thread_num", 1);
+    for (auto& task_name : enabled_task_type_vec)
     {
-        if (inst_param_map_.find(type) == inst_param_map_.end())
+        cfg.setSection(task_name);
+        InstParamType inst_param;
+        inst_param.dev_id = cfg.readInt("dev_id", default_dev_id);
+        std::string inst_dev_type = cfg.readStr("dev_type", default_dev_type);
+        inst_param.dev_type = dev_type_map[inst_dev_type];
+        inst_param.thread_num = cfg.readInt("thread_num", default_thread_num);
+        std::vector<std::string> module_name_vec = cfg.readStrArray("module");
+        for (auto& module_name : module_name_vec)
         {
-            LError("InstManager::create_inst error, no such type. tyep={}", type);
-            return ERR_INVALID_PARAM;
+            cfg.setSection(module_name);
+            ModuleParamType module_param;
+            module_param.type = module_type_map[module_name];
+            module_param.name = module_name;
+            module_param.res_path = cfg.readStr("res_path", "");
+            module_param.thread_num = cfg.readInt("thread_num", inst_param.thread_num);
+            module_param.dev_id = cfg.readInt("dev_id", inst_param.dev_id);
+            module_param.dev_type = dev_type_map[cfg.readStr("dev_type", inst_dev_type)];
+            inst_param.module_params.push_back(std::make_pair(module_param.type, module_param));
         }
-        param = &inst_param_map_[type];
+        inst_param_map_.insert(std::make_pair(task_type_map[task_name], inst_param));
     }
+    return 0;
+}
+
+int InstManager::create_inst(TaskType type, int num)
+{
     if (task_inst_pool_.find(type) == task_inst_pool_.end())
     {
         InstPool* inst_pool_ptr = new InstPool();
@@ -81,7 +110,7 @@ int InstManager::create_inst(TaskType type, InstParamType* param, int num)
     for (int i = 0; i < num; ++i)
     {
         InstanceBase* inst_ptr = nullptr;
-        int ret = inst_factory(type, param, &inst_ptr);
+        int ret = inst_factory(type, inst_param_map_[type],&inst_ptr);
         log_error_return(ret, "InstManager::create_inst error, inst_factory failed. ret={}", ERR_CREATE_INSTANCE_FAILED);
         task_inst_pool_[type]->add_inst(inst_ptr);
     }

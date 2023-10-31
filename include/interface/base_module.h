@@ -11,7 +11,7 @@ class ModuleBase
 public:
     ModuleBase(){}; // Module默认构造函数
 
-    virtual int init(const InferEngineParam& param) = 0;
+    virtual int init(const ModuleParamType& param) = 0;
     virtual int inference(std::vector<cv::Mat>& input_imgs, void* results) = 0;
     virtual int uninit() = 0;
     virtual ~ModuleBase(){};

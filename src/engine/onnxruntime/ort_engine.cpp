@@ -1,4 +1,5 @@
 #include "ort_engine.h"
+#include "all_type.h"
 #include "com/logger.h"
 #include "cv_server/error_code.h"
 #include "onnxruntime_c_api.h"
@@ -13,28 +14,25 @@
 
 using namespace std;
 
-int ORTEngine::init(const InferEngineParam& param)
+int ORTEngine::init(const std::string& res_path, DeviceType dev_type, int dev_id, int thread_num)
 {
-    param_ = param;
-    memory_info_ =
-        Ort::MemoryInfo::CreateCpu(OrtDeviceAllocator, OrtMemTypeCPU);
+    memory_info_ = Ort::MemoryInfo::CreateCpu(OrtDeviceAllocator, OrtMemTypeCPU);
 
-    session_option.SetGraphOptimizationLevel(
-        GraphOptimizationLevel::ORT_ENABLE_ALL);
+    session_option.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL);
     session_option.SetExecutionMode(ExecutionMode::ORT_PARALLEL);
-    session_option.SetIntraOpNumThreads(param_.thread_num);
-    if (param_.dev_type == CUDA)
+    session_option.SetIntraOpNumThreads(thread_num);
+    if (dev_type == CUDA)
     {
         OrtCUDAProviderOptions cuda_options;
         session_option.AppendExecutionProvider_CUDA(cuda_options);
     }
-    session_ = new Ort::Session(env, param_.onnx_path.c_str(), session_option);
+    session_ = new Ort::Session(env, res_path.c_str(), session_option);
     log_assert_ptr(session_, "Ort::Session session is nullptr");
 
     Ort::AllocatorWithDefaultOptions* allocator_ = new Ort::AllocatorWithDefaultOptions();
     log_assert_ptr(allocator_, "Ort::AllocatorWithDefaultOptions allocator is nullptr")
 
-    input_num_ = session_->GetInputCount();
+        input_num_ = session_->GetInputCount();
     output_num_ = session_->GetOutputCount();
     for (int i = 0; i < input_num_; i++)
     {
@@ -47,15 +45,11 @@ int ORTEngine::init(const InferEngineParam& param)
     }
     for (int i = 0; i < input_num_; i++)
     {
-        input_shapes_.push_back(session_->GetInputTypeInfo(i)
-                                    .GetTensorTypeAndShapeInfo()
-                                    .GetShape());
+        input_shapes_.push_back(session_->GetInputTypeInfo(i).GetTensorTypeAndShapeInfo().GetShape());
     }
     for (int i = 0; i < output_num_; i++)
     {
-        output_shapes_.push_back(session_->GetOutputTypeInfo(i)
-                                     .GetTensorTypeAndShapeInfo()
-                                     .GetShape());
+        output_shapes_.push_back(session_->GetOutputTypeInfo(i).GetTensorTypeAndShapeInfo().GetShape());
     }
 
     input_tensor_.clear();
@@ -63,10 +57,11 @@ int ORTEngine::init(const InferEngineParam& param)
     return 0;
 }
 
-int ORTEngine::forward(const vector<Tensor>& input_data,
-                       vector<Tensor>& output_data)
+int ORTEngine::forward(const vector<Tensor>& input_data, vector<Tensor>& output_data)
 {
-    log_error_return(input_data.size() != input_num_, "ORTEngine::forward() input_data.size() != input_num_", ERR_INVALID_VALUE);
+    log_error_return(input_data.size() != input_num_,
+                     "ORTEngine::forward() input_data.size() != input_num_",
+                     ERR_INVALID_VALUE);
     input_tensor_.clear();
     for (int i = 0; i < input_num_; i++)
     {
@@ -88,7 +83,9 @@ int ORTEngine::forward(const vector<Tensor>& input_data,
         LError("ORTEngine::forward() exception in Ort::Session_->Run: {}\n", ex.what());
         return ERR_GENERAL;
     }
-    log_error_return(output_tensor_.size() != output_num_, "ORTEngine::forward() output_tensor_.size() != output_num_", ERR_INVALID_VALUE);
+    log_error_return(output_tensor_.size() != output_num_,
+                     "ORTEngine::forward() output_tensor_.size() != output_num_",
+                     ERR_INVALID_VALUE);
 
     for (int i = 0; i < output_num_; i++)
     {
@@ -150,29 +147,21 @@ int ORTEngine::CopyOrtValue2Tensor(Ort::Value& value, Tensor& tensor)
     {
     case ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT:
         tensor.Reshape(value_shape, Float32);
-        memcpy(tensor.GetDataPtr(),
-               value.GetTensorMutableData<float>(),
-               tensor.MemSize());
+        memcpy(tensor.GetDataPtr(), value.GetTensorMutableData<float>(), tensor.MemSize());
         break;
 
     case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8:
         tensor.Reshape(value_shape, Int8);
-        memcpy(tensor.GetDataPtr(),
-               value.GetTensorMutableData<int8_t>(),
-               tensor.MemSize());
+        memcpy(tensor.GetDataPtr(), value.GetTensorMutableData<int8_t>(), tensor.MemSize());
         break;
 
     case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32:
         tensor.Reshape(value_shape, Int32);
-        memcpy(tensor.GetDataPtr(),
-               value.GetTensorMutableData<int32_t>(),
-               tensor.MemSize());
+        memcpy(tensor.GetDataPtr(), value.GetTensorMutableData<int32_t>(), tensor.MemSize());
         break;
     case ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64:
         tensor.Reshape(value_shape, Int64);
-        memcpy(tensor.GetDataPtr(),
-               value.GetTensorMutableData<int64_t>(),
-               tensor.MemSize());
+        memcpy(tensor.GetDataPtr(), value.GetTensorMutableData<int64_t>(), tensor.MemSize());
         break;
     default:
         LError("OrtValue2Tensor: unsupported data type\n");

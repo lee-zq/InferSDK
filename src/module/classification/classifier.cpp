@@ -10,10 +10,10 @@
 #include <opencv2/core/types.hpp>
 #include <time.h>
 
-int Classifier::init(const InferEngineParam& param)
+int Classifier::init(const ModuleParamType& param)
 {
     infer_inst_ = new ORTEngine();
-    infer_inst_->init(param);
+    infer_inst_->init(param.res_path, param.dev_type, param.dev_id, param.thread_num);
 
     input_shapes_ = infer_inst_->get_input_shapes();
     for (auto& shape : input_shapes_)
@@ -78,8 +78,7 @@ int Classifier::preproc(std::vector<cv::Mat>& input_imgs)
     }
     resized_img.convertTo(resized_img, CV_32FC3);
     resized_img = resized_img / cv::Scalar(255, 255, 255);
-    resized_img = (resized_img - cv::Scalar(mean_[0], mean_[1], mean_[2])) /
-                  cv::Scalar(std_[0], std_[1], std_[2]);
+    resized_img = (resized_img - cv::Scalar(mean_[0], mean_[1], mean_[2])) / cv::Scalar(std_[0], std_[1], std_[2]);
     std::vector<cv::Mat> channels;
     cv::split(resized_img, channels);
     float* input_datas_data_ptr = (float*)input_datas_[0].GetDataPtr();
@@ -100,16 +99,11 @@ int Classifier::postproc(void* results)
     {
         Tensor& item = output_datas_[n];
         vector<float> output_data;
-        output_data.assign((float*)item.GetDataPtr(),
-                           (float*)item.GetDataPtr() + item.Size());
+        output_data.assign((float*)item.GetDataPtr(), (float*)item.GetDataPtr() + item.Size());
         softmax(output_data);
-        int class_result = std::distance(
-            output_data.begin(),
-            std::max_element(output_data.begin(), output_data.end()));
+        int class_result = std::distance(output_data.begin(), std::max_element(output_data.begin(), output_data.end()));
         OutData* out_data = static_cast<OutData*>(results);
-        out_data->output_info =
-            "id:" + std::to_string(class_result) +
-            " score:" + std::to_string(output_data[class_result]);
+        out_data->output_info = "id:" + std::to_string(class_result) + " score:" + std::to_string(output_data[class_result]);
     }
     return 0;
 }

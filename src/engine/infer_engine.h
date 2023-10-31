@@ -11,7 +11,7 @@ class InferEngine
 {
 public:
     InferEngine(){};
-    virtual int init(const InferEngineParam& param) = 0;
+    virtual int init(const std::string& res_path, DeviceType dev_type, int dev_id, int thread_num) = 0;
     virtual int forward(const vector<Tensor>& input_data,
                         vector<Tensor>& output_data) = 0;
     virtual int async_forward(const vector<Tensor>& input_data,
@@ -46,7 +46,6 @@ public:
     virtual ~InferEngine(){};
 
 protected:
-    InferEngineParam param_;
     int input_num_;
     int output_num_;
     vector<string> input_names_;
