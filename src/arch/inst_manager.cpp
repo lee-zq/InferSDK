@@ -20,7 +20,7 @@ static std::unordered_map<std::string, TaskType> task_type_map = {
 };
 
 static std::unordered_map<std::string, ModuleType> module_type_map = {
-    {"Classifier", ModuleType::Classifier},
+    {"Classification", ModuleType::Classification},
     {"Detection", ModuleType::Detection},
 };
 
@@ -127,7 +127,7 @@ int InstManager::destroy_inst(TaskType task_type)
     return 0;
 }
 
-int InstManager::run(TaskType task_type, std::vector<cv::Mat>& input_imgs, void* result)
+int InstManager::run(TaskType task_type, cv::Mat* input_data, void* output_data)
 {
     if (task_inst_pool_.find(task_type) == task_inst_pool_.end())
     {
@@ -139,7 +139,7 @@ int InstManager::run(TaskType task_type, std::vector<cv::Mat>& input_imgs, void*
     log_error_return(ret, "InstManager::run error, inst_pool pull_inst failed. ret={}", ret);
     do
     {
-        ret = inst_ptr->compute(input_imgs, result);
+        ret = inst_ptr->compute(input_data, output_data);
         if (ret != 0)
         {
             LError("InstManager::run error, compute failed. ret={}", ret);

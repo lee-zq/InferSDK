@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include "base_type.h"
 #include "cv_server/message.h"
 
 typedef enum DeviceType
@@ -19,16 +20,6 @@ typedef enum DataType
     Int64,
     Float32,
 } DataType;
-
-typedef struct Bbox
-{
-    int x1;
-    int y1;
-    int x2;
-    int y2;
-    float score;
-    int class_id;
-} Bbox;
 
 typedef struct _ModuleParamType
 {

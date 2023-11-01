@@ -6,20 +6,30 @@
 #include "arch/module_factory.hpp"
 #include "seg.h"
 
-int Seg::preproc(std::vector<cv::Mat>& input_imgs)
+int Segmentation::init(const ModuleParamType& param)
 {
-    if (input_imgs.size() != 1)
-    {
-        std::cout << "input_img.size() != 1 no supported | "
-                  << input_imgs.size() << " != 1" << endl;
-        return -1;
-    }
-    int batchsize = input_imgs.size();
-    if (batchsize != 1)
-    {
-        std::cout << "暂时不考虑多batch" << endl;
-    }
-    if (input_imgs[0].empty())
+    infer_inst_ = new ORTEngine();
+    infer_inst_->init(param.res_path, param.dev_type, param.dev_id, param.thread_num);
+
+    input_shapes_ = infer_inst_->get_input_shapes();
+    input_datas_.resize(infer_inst_->get_input_num());
+    // for (int i = 0; i < input_datas_.size(); i++)
+    // {
+    //     input_datas_[i].Reshape(input_shapes_[i]);
+    // }
+    output_shapes_ = infer_inst_->get_output_shapes();
+    output_datas_.resize(infer_inst_->get_output_num());
+    // for (int i = 0; i < output_datas_.size(); i++)
+    // {
+    //     output_datas_[i].Reshape(output_shapes_[i]);
+    // }
+    is_init_ = true;
+    return 0;
+};
+
+int Segmentation::preproc(const cv::Mat& input_img)
+{
+    if (input_img.empty())
     {
         std::cout << "img is empty! | " << endl;
         return -1;
@@ -32,9 +42,8 @@ int Seg::preproc(std::vector<cv::Mat>& input_imgs)
         {
             for (int j = 0; j < input_width; j++)
             {
-                float tmp = input_imgs[0].ptr<uchar>(i)[j * 3 + c];
-                input_datas_data_ptr[c * input_height * input_width +
-                                     i * input_width + j] =
+                float tmp = input_img.ptr<uchar>(i)[j * 3 + c];
+                input_datas_data_ptr[c * input_height * input_width + i * input_width + j] =
                     ((tmp) / 255.0 - mean_[c]) / std_[c];
             }
         }
@@ -42,7 +51,7 @@ int Seg::preproc(std::vector<cv::Mat>& input_imgs)
     return 0;
 }
 
-int Seg::postproc(void* results)
+int Segmentation::postproc(void* result)
 {
     // static_cast<int*>(results)[0] = 0;
     for (int n = 0; n < output_datas_.size(); n++)
@@ -54,32 +63,32 @@ int Seg::postproc(void* results)
     return 0;
 }
 
-int Seg::inference(std::vector<cv::Mat>& input_imgs, void* results)
+int Segmentation::inference(const cv::Mat& input_img, void* result)
 {
     if (!is_init_)
     {
-        std::cout << "Seg is not init!" << endl;
+        std::cout << "Segmentation is not init!" << endl;
         return -1;
     }
-    int ret = preproc(input_imgs);
+    int ret = preproc(input_img);
     if (ret != 0)
     {
-        std::cout << "Seg preproc failed!" << endl;
+        std::cout << "Segmentation preproc failed!" << endl;
         return -1;
     }
     ret = infer_inst_->forward(input_datas_, output_datas_);
     if (ret != 0)
     {
-        std::cout << "Seg forward failed!" << endl;
+        std::cout << "Segmentation forward failed!" << endl;
         return -1;
     }
-    ret = postproc(results);
+    ret = postproc(result);
     if (ret != 0)
     {
-        std::cout << "Seg postproc failed!" << endl;
+        std::cout << "Segmentation postproc failed!" << endl;
         return -1;
     }
     return 0;
 }
 
-REGISTER_MODULE_CLASS(Seg)
+REGISTER_MODULE_CLASS(Segmentation)

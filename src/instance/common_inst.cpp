@@ -14,7 +14,6 @@
 
 int CommonInst::init(const InstParamType& param)
 {
-
     for (auto& module_param : param.module_params)
     {
         auto module_ptr = ModuleRegistry::CreateModule(module_param.second);
@@ -25,18 +24,50 @@ int CommonInst::init(const InstParamType& param)
     return 0;
 }
 
-int CommonInst::compute(std::vector<cv::Mat>& input_imgs, void* results)
+void CommonInst::set_input(const cv::Mat& input_data)
 {
+    data_mgr_.input_mat = input_data;
+    data_mgr_.class_info.id = -1;
+    data_mgr_.class_info.score = 0.f;
+    data_mgr_.detect_info.clear();
+    data_mgr_.seg_info.clear();
+}
+
+void CommonInst::set_output(void* output_data)
+{
+    auto result = static_cast<OutData*>(output_data);
+}
+
+int CommonInst::compute(cv::Mat* input_data, void* output_data)
+{
+    int ret = ERR_SUCCESS;
+    set_input(*input_data);
     for (auto& module : modules_)
     {
-        int ret = module.second->inference(input_imgs, results);
+        switch (module.first)
+        {
+        case ModuleType::Classification:
+            ret = module.second->inference(data_mgr_.input_mat, &data_mgr_.class_info);
+            break;
+        case ModuleType::Detection:
+            ret = module.second->inference(data_mgr_.input_mat, &data_mgr_.detect_info);
+            break;
+        case ModuleType::Segmentation:
+            ret = module.second->inference(data_mgr_.input_mat, &data_mgr_.seg_info);
+            break;
+        default:
+            LError("CommonInst::compute error, invalid module type. type={}", (int)module.first);
+            ret = ERR_INVALID_MODULE;
+        }
         if (ret != 0)
         {
-            LError("CommonInst::compute error, module inference failed. ret={}", ret);
-            return -1;
+            LError("CommonInst::compute error, module inference failed.type={} ret={} ", (int)module.first, ret);
+            ret = ERR_COMPUTE_ERROR;
+            break;
         }
     }
-    return 0;
+    set_output(output_data);
+    return ret;
 }
 
 int CommonInst::fini()

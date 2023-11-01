@@ -41,9 +41,9 @@ enum TaskType
 // task_type 类型枚举
 enum class ModuleType
 {
-    Classifier,
+    Classification,
     Detection,
-    SEG,
+    Segmentation,
     LANE_DETECT,
     PERSON_DETECT,
     PERSON_POSE

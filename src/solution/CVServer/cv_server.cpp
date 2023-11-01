@@ -54,11 +54,11 @@ int CVServer::process(message* msg)
 {
     InData* in_data = (InData*)msg->input;
     OutData* out_data = (OutData*)msg->output;
-    std::vector<cv::Mat> input_imgs = {in_data->img};
+    cv::Mat input_img = in_data->img;
     TaskType task_type = static_cast<TaskType>(msg->task_type);
 
     auto task = [&]() {
-        int ret = InstMgr->run(task_type, input_imgs, (void*)&out_data->output_info);
+        int ret = InstMgr->run(task_type, &input_img, &out_data);
         return ret;
     };
     std::future<int> result = thread_pool_->submit(task);

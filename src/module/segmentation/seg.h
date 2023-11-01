@@ -11,14 +11,15 @@
 #include "engine/infer_engine.h"
 #include "engine/onnxruntime/ort_engine.h"
 
-class Seg : public ModuleBase
+class Segmentation : public ModuleBase
 {
 public:
-    Seg(){};
-    Seg(const ModuleParamType& module_param){
-        // 此处添加Module构造函数传入的结构体参数, 解析并保存到成员变量中，在后续其他函数调用时使用
+    Segmentation(){};
+    Segmentation(const ModuleParamType& module_param)
+    {
+        module_param_ = module_param;
     };
-    virtual int inference(std::vector<cv::Mat>& input_imgs, void* results) override;
+    virtual int inference(const cv::Mat& input_img, void* result) override;
     virtual int uninit() override
     {
         if (infer_inst_ != nullptr)
@@ -29,29 +30,10 @@ public:
         }
         return 0;
     }
-    virtual int init(const ModuleParamType& param) override
-    {
-        infer_inst_ = new ORTEngine();
-        infer_inst_->init(param.res_path, param.dev_type, param.dev_id, param.thread_num);
-
-        input_shapes_ = infer_inst_->get_input_shapes();
-        input_datas_.resize(infer_inst_->get_input_num());
-        for (int i = 0; i < input_datas_.size(); i++)
-        {
-            input_datas_[i].Reshape(input_shapes_[i]);
-        }
-        output_shapes_ = infer_inst_->get_output_shapes();
-        output_datas_.resize(infer_inst_->get_output_num());
-        for (int i = 0; i < output_datas_.size(); i++)
-        {
-            output_datas_[i].Reshape(output_shapes_[i]);
-        }
-        is_init_ = true;
-        return 0;
-    };
+    virtual int init(const ModuleParamType& param) override;
 
 private:
-    int preproc(std::vector<cv::Mat>& input_img);
+    int preproc(const cv::Mat& input_img);
     int postproc(void* results);
 
 private:

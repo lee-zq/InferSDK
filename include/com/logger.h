@@ -78,9 +78,8 @@ private:
         global_logger->flush_on(spdlog::level::err);
 
         // 写入日志头部信息
-        global_logger->info("\n\n");
-        global_logger->info("=============== InferSDK =================");
-        global_logger->info("InferSDK Logger start.");
+        global_logger->info("\n ============================== InferSDK Log Start ================================");
+        global_logger->info("InferSDK Logger start. BuildTime(Version): {} {}", __DATE__, __TIME__);
     }
 
     ~Logger()

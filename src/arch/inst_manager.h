@@ -17,7 +17,7 @@ public:
     int init(const std::string& inst_mgr_cfg);
     int create_inst(TaskType task_type, int num = 1);
     int destroy_inst(TaskType task_type);
-    int run(TaskType task_type, std::vector<cv::Mat>& input_imgs, void* result);
+    int run(TaskType task_type, cv::Mat* input_data, void* output_data);
     int fini();
     ~InstManager()
     {

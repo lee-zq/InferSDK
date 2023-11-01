@@ -32,6 +32,8 @@ typedef enum ErrorCodeType
     ERR_DESTROY_MODULE_FAILED,
     ERR_INVALID_MODULE,
 
+    ERR_COMPUTE_ERROR,
+
     // 有效性检查错误码
     ERR_INVALID_GENERAL = 2000,
     ERR_INVALID_PARAM,

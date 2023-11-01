@@ -65,7 +65,7 @@ public:
         }
         busy_inst_map_.clear();
         initialized_ = false;
-        LInfo("InstPool finalize success...");
+        LInfo("InstPool finalize success.");
         return 0;
     }
 
@@ -78,7 +78,6 @@ public:
         }
         std::lock_guard<std::mutex> lock(inst_pool_mutex_);
         idle_inst_map_.insert(inst_ptr);
-        LInfo("InstPool add inst success");
         return 0;
     }
 
@@ -90,10 +89,11 @@ public:
             idle_inst_map_.erase(inst_ptr);
             inst_ptr->fini();
             inst_pool_cond_.notify_one();
-            LInfo("InstPool delete_inst success");
             return ERR_SUCCESS;
+        }else{
+            LError("InstPool delete_inst failed");
+            return ERR_INVALID_PARAM;
         }
-        return 0;
     }
 
     int pull_inst(InstanceBase** inst_ptr)
@@ -117,7 +117,6 @@ public:
             busy_inst_map_.erase(inst_ptr);
             idle_inst_map_.insert(inst_ptr);
             inst_pool_cond_.notify_one();
-            LInfo("InstPool push_inst success");
             return ERR_SUCCESS;
         }
         else

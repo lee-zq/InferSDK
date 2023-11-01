@@ -13,7 +13,7 @@ class InstanceBase
 {
 public:
     virtual int init(const InstParamType& param) = 0;
-    virtual int compute(std::vector<cv::Mat>& input_imgs, void* results) = 0;
+    virtual int compute(cv::Mat* input_data, void* output_data) = 0;
     virtual int fini() = 0;
     virtual ~InstanceBase(){};
 

@@ -93,7 +93,7 @@ int Bbox2Json(std::vector<Bbox>& bbox_vec, std::string& json_str)
         obj.AddMember("y1", bbox.y1, allocator);
         obj.AddMember("x2", bbox.x2, allocator);
         obj.AddMember("y2", bbox.y2, allocator);
-        obj.AddMember("class_id", bbox.class_id, allocator);
+        obj.AddMember("id", bbox.id, allocator);
         obj.AddMember("score", bbox.score, allocator);
         array.PushBack(obj, allocator);
     }

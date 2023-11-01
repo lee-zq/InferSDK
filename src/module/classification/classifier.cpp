@@ -1,5 +1,6 @@
 #include "classifier.h"
 #include "arch/module_factory.hpp"
+#include "base_type.h"
 #include "com/logger.h"
 #include "com/utils//base_func.h"
 #include "cv_server/message.h"
@@ -10,7 +11,7 @@
 #include <opencv2/core/types.hpp>
 #include <time.h>
 
-int Classifier::init(const ModuleParamType& param)
+int Classification::init(const ModuleParamType& param)
 {
     infer_inst_ = new ORTEngine();
     infer_inst_->init(param.res_path, param.dev_type, param.dev_id, param.thread_num);
@@ -48,7 +49,7 @@ int Classifier::init(const ModuleParamType& param)
     return 0;
 }
 
-int Classifier::uninit()
+int Classification::uninit()
 {
     if (infer_inst_ != nullptr)
     {
@@ -59,19 +60,13 @@ int Classifier::uninit()
     return 0;
 }
 
-int Classifier::preproc(std::vector<cv::Mat>& input_imgs)
+int Classification::preproc(const cv::Mat& input_img)
 {
-    if (input_imgs[0].empty())
-    {
-        LError("input image is empty!");
-        return ERR_INVALID_VALUE;
-    }
-
     int input_channel = input_shapes_[0][1];
     int input_height = input_shapes_[0][2];
     int input_width = input_shapes_[0][3];
     cv::Mat resized_img;
-    cv::resize(input_imgs[0], resized_img, cv::Size(input_width, input_height));
+    cv::resize(input_img, resized_img, cv::Size(input_width, input_height));
     if (resized_img.channels() != input_channel)
     {
         return ERR_INVALID_VALUE;
@@ -93,7 +88,7 @@ int Classifier::preproc(std::vector<cv::Mat>& input_imgs)
     return 0;
 }
 
-int Classifier::postproc(void* results)
+int Classification::postproc(void* result)
 {
     for (int n = 0; n < output_datas_.size(); n++)
     {
@@ -102,26 +97,27 @@ int Classifier::postproc(void* results)
         output_data.assign((float*)item.GetDataPtr(), (float*)item.GetDataPtr() + item.Size());
         softmax(output_data);
         int class_result = std::distance(output_data.begin(), std::max_element(output_data.begin(), output_data.end()));
-        OutData* out_data = static_cast<OutData*>(results);
-        out_data->output_info = "id:" + std::to_string(class_result) + " score:" + std::to_string(output_data[class_result]);
+        auto out_data = static_cast<ClassInfo*>(result);
+        out_data->id = class_result;
+        out_data->score =output_data[class_result];
     }
     return 0;
 }
 
-int Classifier::inference(std::vector<cv::Mat>& input_imgs, void* results)
+int Classification::inference(const cv::Mat& input_img, void* result)
 {
     if (!is_init_)
     {
-        LError("Module Classifier is not initialized!");
+        LError("Module Classification is not initialized!");
         return ERR_UNINITIALIZED;
     }
-    int ret = preproc(input_imgs);
-    log_error_return(ret, "Module Classifier preproc failed!", ret);
+    int ret = preproc(input_img);
+    log_error_return(ret, "Module Classification preproc failed!", ret);
     ret = infer_inst_->forward(input_datas_, output_datas_);
-    log_error_return(ret, "Module Classifier forward failed!", ret);
-    ret = postproc(results);
-    log_error_return(ret, "Module Classifier postproc failed!", ret);
+    log_error_return(ret, "Module Classification forward failed!", ret);
+    ret = postproc(result);
+    log_error_return(ret, "Module Classification postproc failed!", ret);
     return ERR_SUCCESS;
 }
 
-REGISTER_MODULE_CLASS(Classifier)
+REGISTER_MODULE_CLASS(Classification)

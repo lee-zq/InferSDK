@@ -12,7 +12,7 @@ public:
     ModuleBase(){}; // Module默认构造函数
 
     virtual int init(const ModuleParamType& param) = 0;
-    virtual int inference(std::vector<cv::Mat>& input_imgs, void* results) = 0;
+    virtual int inference(const cv::Mat& input_img, void* result) = 0;
     virtual int uninit() = 0;
     virtual ~ModuleBase(){};
 
@@ -39,4 +39,6 @@ protected:
     std::vector<Tensor> output_datas_;
     std::vector<Shape> input_shapes_;
     std::vector<Shape> output_shapes_;
+
+    ModuleParamType module_param_;
 };
