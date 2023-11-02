@@ -16,8 +16,8 @@
 #include <string>
 #include <vector>
 
-#include "com/conf_reader.h"
 #include "com/utils/base_func.h"
+#include "com/utils/conf_reader.h"
 
 
 #if defined(_MSC_VER)

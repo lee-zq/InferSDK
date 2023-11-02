@@ -10,6 +10,8 @@
 #include "engine/onnxruntime/ort_engine.h"
 #include "opencv2/opencv.hpp"
 
+SPACE_BEGIN
+
 class Classification : public ModuleBase
 {
 public:
@@ -33,4 +35,4 @@ private:
     InferEngine* infer_inst_ = nullptr;
 };
 
-// SPACE_END
+SPACE_END

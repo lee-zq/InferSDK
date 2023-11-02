@@ -7,7 +7,7 @@ int CreateCVServer(void** inst);
 
 int DestroyCVServer(void* CVServer);
 
-int ProcessCVServer(void* CVServer, message* msg);
+int ProcessCVServer(void* CVServer, void* msg);
 
 int StartCVServer(void* CVServer);
 

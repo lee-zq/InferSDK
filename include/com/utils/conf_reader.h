@@ -1,6 +1,4 @@
-#ifndef CONFREADER_HPP_
-#define CONFREADER_HPP_
-
+#pragma once
 /*
   Usage:
 
@@ -61,5 +59,3 @@ private:
     string m_fileName;
     string m_section;
 };
-
-#endif

@@ -1,5 +1,6 @@
 #include "ort_engine.h"
 #include "all_type.h"
+#include "com/define.h"
 #include "com/logger.h"
 #include "cv_server/error_code.h"
 #include "onnxruntime_c_api.h"
@@ -11,6 +12,8 @@
 #include <time.h>
 #include <typeindex>
 #include <vector>
+
+SPACE_BEGIN
 
 using namespace std;
 
@@ -169,3 +172,5 @@ int ORTEngine::CopyOrtValue2Tensor(Ort::Value& value, Tensor& tensor)
     }
     return 0;
 }
+
+SPACE_END

@@ -5,7 +5,6 @@
 #include "rapidjson/pointer.h"
 #include "rapidjson/prettywriter.h" //文件格式化输出
 
-#include "dataset_class_id_map.hpp"
 #include "opencv2/opencv.hpp"
 #include <fstream>
 #include <iostream>
@@ -32,7 +31,7 @@ void render_img_with_class_result(rapidjson::Value& class_result, cv::Mat& img)
     float score = class_result["score"].GetFloat();
     std::string name = class_result["name"].GetString();
     std::string textline = name + "|" + std::to_string(class_id) + "|" + std::to_string(score).substr(0,6);
-    cv::putText(img, textline, cv::Point(0, img.rows), cv::FONT_HERSHEY_SCRIPT_SIMPLEX, 0.6, color_map["red"], 1);
+    cv::putText(img, textline, cv::Point(0, img.rows), cv::FONT_HERSHEY_SIMPLEX, 0.8, color_map["red"], 1);
 }
 
 void render_img_with_detect_result(rapidjson::Value& detect_result, cv::Mat& img)
@@ -50,7 +49,7 @@ void render_img_with_detect_result(rapidjson::Value& detect_result, cv::Mat& img
         int y2 = bbox["y2"].GetInt();
         std::string textline = name + "" + std::to_string(class_id) + "|" + std::to_string(score).substr(0,6);
         cv::rectangle(img, cv::Point(x1, y1), cv::Point(x2, y2), color_map["green"], 2);
-        cv::putText(img, textline, cv::Point(x1, y1), cv::FONT_HERSHEY_SCRIPT_SIMPLEX, 0.6, color_map["red"], 1);
+        cv::putText(img, textline, cv::Point(x1, y1), cv::FONT_HERSHEY_SIMPLEX, 0.8, color_map["red"], 1);
     }
 }
 
@@ -74,7 +73,7 @@ void render_img_with_seg_result(rapidjson::Value& seg_result, cv::Mat& img)
         {
             cv::line(img, points[j], points[(j + 1)/points.size()], color_map["green"], 2);
         }
-        cv::putText(img, textline, points[0], cv::FONT_HERSHEY_SCRIPT_SIMPLEX, 0.6, color_map["red"], 1);
+        cv::putText(img, textline, points[0], cv::FONT_HERSHEY_SIMPLEX, 0.8, color_map["red"], 1);
     }
 }
 

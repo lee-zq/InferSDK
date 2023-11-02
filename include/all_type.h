@@ -1,9 +1,11 @@
 #pragma once
+#include "base_type.h"
+#include "com/define.h"
+#include "cv_server/message.h"
 #include <string>
 #include <vector>
-#include "base_type.h"
-#include "cv_server/message.h"
 
+SPACE_BEGIN
 typedef enum DeviceType
 {
     CPU,
@@ -39,4 +41,6 @@ typedef struct _InstParamType
     int dev_type;
     int dev_id;
     std::vector<std::pair<ModuleType, ModuleParamType>> module_params;
-}InstParamType;
+} InstParamType;
+
+SPACE_END

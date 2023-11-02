@@ -4,6 +4,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include "com/utils/dataset_class_id_map.h"
 
 // COCO dataset class id map
 std::unordered_map<int, std::string> coco_class_id_map = {{0, "person"},         {1, "bicycle"},       {2, "car"},
@@ -34,7 +35,7 @@ std::unordered_map<int, std::string> coco_class_id_map = {{0, "person"},        
                                                           {75, "vase"},          {76, "scissors"},     {77, "teddy bear"},
                                                           {78, "hair drier"},    {79, "toothbrush"}};
 // VOC dataset class id map
-std::unordered_map<int, std::string> voc_class_id_map = {
+std::unordered_map<int, std::string> static voc_class_id_map = {
     {0, "aeroplane"},    {1, "bicycle"}, {2, "bird"},   {3, "boat"},       {4, "bottle"},
     {5, "bus"},          {6, "car"},     {7, "cat"},    {8, "chair"},      {9, "cow"},
     {10, "diningtable"}, {11, "dog"},    {12, "horse"}, {13, "motorbike"}, {14, "person"},
@@ -49,7 +50,7 @@ std::string get_coco_class_name(int class_id)
             return iter->second;
         }
     }
-    return "";
+    return "Unknown";
 }
 
 std::string get_voc_class_name(int class_id)
@@ -61,5 +62,5 @@ std::string get_voc_class_name(int class_id)
             return iter->second;
         }
     }
-    return "";
+    return "Unknown";
 }

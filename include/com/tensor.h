@@ -5,6 +5,9 @@
 #include <vector>
 
 #include "../all_type.h"
+#include "com/define.h"
+
+SPACE_BEGIN
 
 inline int DataTypeSize(DataType type)
 {
@@ -194,7 +197,7 @@ public:
     Tensor operator[](int index)
     {
         // Create sub Tensor from first dim with deepcopy
-        if (index<0 || shape_.Dim()==0 || shape_.GetData().front()<index)
+        if (index < 0 || shape_.Dim() == 0 || shape_.GetData().front() < index)
         {
             std::cout << "Tensor::operator[], Index out of range" << std::endl;
             return Tensor();
@@ -206,38 +209,26 @@ public:
         }
         else
         {
-            shape = std::vector<int>(shape_.GetData().begin() + 1,
-                                     shape_.GetData().end());
+            shape = std::vector<int>(shape_.GetData().begin() + 1, shape_.GetData().end());
         }
-        Tensor tensor(data_.data() + index * shape_.stride(0) * DataTypeSize(data_type_),
-                        shape,
-                        data_type_,
-                        device_type_);
+        Tensor tensor(data_.data() + index * shape_.stride(0) * DataTypeSize(data_type_), shape, data_type_, device_type_);
         return tensor;
     }
-    Tensor(const std::vector<char>& data,
-           const Shape& shape,
-           DataType data_type = Float32,
-           DeviceType device_type = CPU)
+    Tensor(const std::vector<char>& data, const Shape& shape, DataType data_type = Float32, DeviceType device_type = CPU)
     {
         data_ = data;
         shape_ = shape;
         data_type_ = data_type;
         device_type_ = device_type;
     }
-    Tensor(void* data_ptr,
-           const Shape& shape,
-           DataType data_type,
-           DeviceType device_type = CPU)
+    Tensor(void* data_ptr, const Shape& shape, DataType data_type, DeviceType device_type = CPU)
     {
         shape_ = shape;
         data_type_ = data_type;
         device_type_ = device_type;
         data_.resize(shape_.Size() * DataTypeSize(data_type));
         if (data_ptr)
-            memcpy(data_.data(),
-                   data_ptr,
-                   shape_.Size() * DataTypeSize(data_type));
+            memcpy(data_.data(), data_ptr, shape_.Size() * DataTypeSize(data_type));
     }
     int Reshape(const Shape& shape, DataType data_type = Float32)
     {
@@ -275,7 +266,7 @@ public:
     {
         return shape_;
     }
-    template<typename T>
+    template <typename T>
     T item()
     {
         if (shape_.Size() != 1)
@@ -351,3 +342,5 @@ public:
         return 0;
     }
 };
+
+SPACE_END

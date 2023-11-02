@@ -9,7 +9,10 @@
 
 #include "all_type.h"
 #include "base_module.h"
+#include "com/define.h"
 #include "com/logger.h"
+
+SPACE_BEGIN
 
 class ModuleRegistry
 {
@@ -87,7 +90,7 @@ public:
     }
 };
 
-#define ModuleFactory  ModuleRegistry::CreateModule
+#define ModuleFactory ModuleRegistry::CreateModule
 
 #define REGISTER_MODULE_CLASS(name)                                                                                            \
     shared_ptr<ModuleBase> Creator_##name##Module(const ModuleParamType& param)                                                \
@@ -97,3 +100,5 @@ public:
     static ModuleRegisterer g_creator_##name(#name, Creator_##name##Module);
 
 #endif // INFERSDK_MODULE_FACTORY_H_
+
+SPACE_END

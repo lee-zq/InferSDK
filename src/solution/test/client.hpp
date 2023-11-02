@@ -1,20 +1,22 @@
 #pragma once
 #include "com/utils//base_func.h"
+#include "com/utils/conf_reader.h"
 #include "cv_server/cv_server.h"
 #include "cv_server/message.h"
+#include "visual_func.hpp"
 #include <algorithm>
 #include <fstream>
 #include <ios>
 #include <string>
-#include "visual_func.hpp"
-#include "com/conf_reader.h"
+
+using namespace iSDK;
 
 class Client
 {
 public:
     int init(std::string cfg_path = "../cfg/client.cfg")
     {
-        
+
         parser_cfg(cfg_path);
         msg_.input = &in_data_;
         msg_.output = &out_data_;

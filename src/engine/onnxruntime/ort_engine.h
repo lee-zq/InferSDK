@@ -5,11 +5,14 @@
 #include <time.h>
 #include <vector>
 
+#include "com/define.h"
 #include "com/tensor.h"
 #include "onnxruntime_cxx_api.h"
 #include "opencv2/opencv.hpp"
 
 #include "engine/infer_engine.h"
+
+SPACE_BEGIN
 
 using namespace std;
 
@@ -19,10 +22,8 @@ public:
     ORTEngine(){};
     ~ORTEngine(){};
     virtual int init(const std::string& res_path, DeviceType dev_type, int dev_id, int thread_num) override;
-    virtual int forward(const vector<Tensor>& input_data,
-                        vector<Tensor>& output_data) override;
-    virtual int async_forward(const vector<Tensor>& input_data,
-                              vector<Tensor>& output_data) override
+    virtual int forward(const vector<Tensor>& input_data, vector<Tensor>& output_data) override;
+    virtual int async_forward(const vector<Tensor>& input_data, vector<Tensor>& output_data) override
     {
         return 0;
     }
@@ -55,3 +56,5 @@ private:
     Ort::Env env{ORT_LOGGING_LEVEL_WARNING, "onnxruntime"};
     Ort::Session* session_{nullptr};
 };
+
+SPACE_END

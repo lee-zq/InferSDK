@@ -1,6 +1,6 @@
 
 #include "cv_server/cv_server.h"
-
+using namespace iSDK;
 extern "C"
 {
     int CreateCVServer(void** inst)
@@ -15,10 +15,10 @@ extern "C"
         delete server_ptr;
         return 0;
     }
-    int ProcessCVServer(void* cv_server, message* msg)
+    int ProcessCVServer(void* cv_server, void* msg)
     {
         CVServer* server_ptr = (CVServer*)cv_server;
-        return server_ptr->process(msg);
+        return server_ptr->process((message*)msg);
     }
     int InitCVServer(void* cv_server, const char* cfg)
     {

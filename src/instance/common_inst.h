@@ -1,13 +1,16 @@
 #pragma once
 
 #include "base_instance.h"
-#include "cv_server/message.h"
 #include "base_type.h"
+#include "com/define.h"
+#include "cv_server/message.h"
 
 #include <map>
 #include <mutex>
 #include <string>
 #include <vector>
+
+SPACE_BEGIN
 
 typedef struct _CommonInstDataTree
 {
@@ -30,3 +33,5 @@ private:
     void set_output(void* output_data);
     CommonInstDataTree data_mgr_;
 };
+
+SPACE_END

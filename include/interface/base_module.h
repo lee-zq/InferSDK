@@ -1,10 +1,14 @@
 #pragma once
 #include "all_type.h"
-#include "com/logger.h"
+#include "com/define.h"
 #include "com/tensor.h"
+#include "com/utils/dataset_class_id_map.h"
+#include "com/logger.h"
 #include "opencv2/opencv.hpp"
 #include <string>
 #include <vector>
+
+SPACE_BEGIN
 
 class ModuleBase
 {
@@ -42,3 +46,5 @@ protected:
 
     ModuleParamType module_param_;
 };
+
+SPACE_END

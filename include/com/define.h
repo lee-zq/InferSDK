@@ -9,8 +9,10 @@
     {
 #define NAMESPACE_END(name) }
 
-#define SPACE_BEGIN NAMESPACE_BEGIN(gyq)
-#define SPACE_END NAMESPACE_END(gyq)
+#define SPACE_NAME iSDK
+
+#define SPACE_BEGIN NAMESPACE_BEGIN(SPACE_NAME)
+#define SPACE_END NAMESPACE_END(SPACE_NAME)
 
 // 宏，用于打印未实现的日志
 #define NOT_IMPLEMENTED()                                                      \

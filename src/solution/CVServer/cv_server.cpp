@@ -1,10 +1,12 @@
 #include "cv_server/cv_server.h"
 #include "arch/inst_manager.h"
-#include "interface/base_instance.h"
 #include "com/logger.h"
+#include "com/utils/conf_reader.h"
+#include "interface/base_instance.h"
 #include <cstddef>
 #include <thread>
-#include "com/conf_reader.h"
+
+SPACE_BEGIN
 
 int CVServer::init(std::string cfg_path)
 {
@@ -76,3 +78,5 @@ int CVServer::fini()
     InstMgr->fini();
     return 0;
 }
+
+SPACE_END

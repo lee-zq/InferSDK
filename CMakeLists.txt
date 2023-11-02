@@ -37,6 +37,7 @@ message(STATUS "ALL_LIBS: ${ALL_LIBS}")
 #添加本项目头文件
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include)
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include/interface)
+INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include/com)
 
 add_subdirectory(src) 
 

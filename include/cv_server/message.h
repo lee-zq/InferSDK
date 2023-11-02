@@ -1,5 +1,6 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
+#include "com/define.h"
 #include <algorithm>
 #include <cstdio>
 #include <iostream>
@@ -10,6 +11,8 @@
 #include <set>
 #include <string>
 #include <vector>
+
+SPACE_BEGIN
 
 typedef struct _message
 {
@@ -48,4 +51,7 @@ enum class ModuleType
     PERSON_DETECT,
     PERSON_POSE
 };
+
+SPACE_END
+
 #endif

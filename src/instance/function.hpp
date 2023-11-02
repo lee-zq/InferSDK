@@ -7,11 +7,14 @@
 #include <string>
 #include <vector>
 
+#include "com/define.h"
 #include "rapidjson/document.h"
 #include "rapidjson/filereadstream.h"  //文件输入流
 #include "rapidjson/filewritestream.h" //文件输出流
 #include "rapidjson/pointer.h"
 #include "rapidjson/prettywriter.h" //文件格式化输出
+
+SPACE_BEGIN
 
 inline rapidjson::Value ClassInfo2JsonValue(ClassInfo& data, rapidjson::Document::AllocatorType& allocator)
 {
@@ -34,7 +37,7 @@ inline rapidjson::Value DetectInfo2JsonValue(DetectInfo& data, rapidjson::Docume
     bbox.AddMember("y1", data.bbox.y1, allocator);
     bbox.AddMember("x2", data.bbox.x2, allocator);
     bbox.AddMember("y2", data.bbox.y2, allocator);
-    
+
     obj.AddMember("bbox", bbox, allocator);
     return obj;
 }
@@ -57,3 +60,5 @@ inline rapidjson::Value SegInfo2JsonValue(SegInfo& data, rapidjson::Document::Al
     obj.AddMember("contour", point_array, allocator);
     return obj;
 }
+
+SPACE_END

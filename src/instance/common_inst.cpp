@@ -3,15 +3,18 @@
 #include "all_type.h"
 #include "arch/module_factory.hpp"
 #include "base_module.h"
+#include "com/define.h"
 #include "com/logger.h"
 #include "com/utils/base_func.h"
 #include "cv_server/error_code.h"
 #include "cv_server/message.h"
+#include "function.hpp"
 #include "module/classification/classifier.h"
 #include "module/detection/detection.h"
 #include "module/segmentation/seg.h"
 #include <algorithm>
-#include "function.hpp"
+
+SPACE_BEGIN
 
 int CommonInst::init(const InstParamType& param)
 {
@@ -112,3 +115,5 @@ int CommonInst::fini()
     modules_.clear();
     return 0;
 }
+
+SPACE_END

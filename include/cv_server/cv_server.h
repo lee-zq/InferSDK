@@ -1,6 +1,6 @@
 #pragma once
 #include "arch/inst_manager.h"
-#include "com/utils/define.hpp"
+#include "com/define.h"
 #include "cv_server/message.h"
 #include "error_code.h"
 #include <condition_variable>
@@ -10,6 +10,8 @@
 #include <vector>
 
 #include "com/threadpool/threadpool.hpp"
+
+SPACE_BEGIN
 
 class CVServer
 {
@@ -31,3 +33,5 @@ private:
     int thread_pool_size_ = 1;
     std::shared_ptr<ThreadPool> thread_pool_;
 };
+
+SPACE_END

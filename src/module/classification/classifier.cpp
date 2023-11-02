@@ -11,6 +11,8 @@
 #include <opencv2/core/types.hpp>
 #include <time.h>
 
+SPACE_BEGIN
+
 int Classification::init(const ModuleParamType& param)
 {
     infer_inst_ = new ORTEngine();
@@ -99,7 +101,8 @@ int Classification::postproc(void* result)
         int class_result = std::distance(output_data.begin(), std::max_element(output_data.begin(), output_data.end()));
         auto out_data = static_cast<ClassInfo*>(result);
         out_data->id = class_result;
-        out_data->score =output_data[class_result];
+        out_data->score = output_data[class_result];
+        out_data->name = get_coco_class_name(class_result);
     }
     return 0;
 }
@@ -121,3 +124,5 @@ int Classification::inference(const cv::Mat& input_img, void* result)
 }
 
 REGISTER_MODULE_CLASS(Classification)
+
+SPACE_END

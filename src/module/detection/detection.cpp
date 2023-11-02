@@ -8,11 +8,14 @@
 #include "all_type.h"
 #include "arch/module_factory.hpp"
 #include "base_type.h"
+#include "com/define.h"
 #include "com/logger.h"
 #include "com/utils/base_func.h"
 #include "cv_server/error_code.h"
 #include "cv_server/message.h"
 #include "detection.h"
+
+SPACE_BEGIN
 
 static void letterbox_image(const cv::Mat& img, int w, int h, cv::Scalar out_bg_color, cv::Mat& out)
 {
@@ -113,6 +116,7 @@ int Detection::postproc(void* result)
         DetectInfo detect_info;
         detect_info.id = c_idx;
         detect_info.score = out_scores[b_idx][c_idx][s_idx].item<float>();
+        detect_info.name = get_coco_class_name(c_idx);
         detect_info.bbox.y1 = ori_bbox[0];
         detect_info.bbox.x1 = ori_bbox[1];
         detect_info.bbox.y2 = ori_bbox[2];
@@ -135,3 +139,5 @@ int Detection::inference(const cv::Mat& input_img, void* result)
 }
 
 REGISTER_MODULE_CLASS(Detection)
+
+SPACE_END

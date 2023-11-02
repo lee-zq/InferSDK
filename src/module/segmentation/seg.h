@@ -4,12 +4,15 @@
 #include <time.h>
 
 #include "all_type.h"
+#include "com/define.h"
 #include "opencv2/opencv.hpp"
 
 #include "base_module.h"
 #include "com/tensor.h"
 #include "engine/infer_engine.h"
 #include "engine/onnxruntime/ort_engine.h"
+
+SPACE_BEGIN
 
 class Segmentation : public ModuleBase
 {
@@ -48,4 +51,4 @@ private:
     InferEngine* infer_inst_ = nullptr;
 };
 
-// SPACE_END
+SPACE_END

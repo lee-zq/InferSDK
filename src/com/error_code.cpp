@@ -1,4 +1,7 @@
 #include "cv_server/error_code.h"
+#include "com/define.h"
+
+SPACE_BEGIN
 
 std::map<ErrorCode, const char*> Error::ERROR_MSG = {
     {ERR_SUCCESS, "success"},
@@ -40,3 +43,5 @@ std::string Error::getErrorMsg(ErrorCode errorCode, std::string fmt, ...)
     std::string errorCodeStr = ss.str();
     return errorCodeStr;
 }
+
+SPACE_END

@@ -1,13 +1,16 @@
 #pragma once
 
 #include "all_type.h"
-#include "cv_server/message.h"
 #include "base_module.h"
+#include "cv_server/message.h"
 
+#include "com/define.h"
 #include <map>
 #include <mutex>
 #include <string>
 #include <vector>
+
+SPACE_BEGIN
 
 class InstanceBase
 {
@@ -21,3 +24,5 @@ protected:
     TaskType task_type_;
     std::vector<std::pair<ModuleType, std::shared_ptr<ModuleBase>>> modules_;
 };
+
+SPACE_END

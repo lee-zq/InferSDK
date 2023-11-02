@@ -4,7 +4,10 @@
 #include <time.h>
 
 #include "arch/module_factory.hpp"
+#include "com/define.h"
 #include "seg.h"
+
+SPACE_BEGIN
 
 int Segmentation::init(const ModuleParamType& param)
 {
@@ -92,3 +95,5 @@ int Segmentation::inference(const cv::Mat& input_img, void* result)
 }
 
 REGISTER_MODULE_CLASS(Segmentation)
+
+SPACE_END

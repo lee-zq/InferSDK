@@ -1,9 +1,12 @@
 #pragma once
+#include "com/define.h"
 #include "com/tensor.h"
 #include <map>
 #include <string>
 #include <vector>
 // 推理引擎接口类
+
+SPACE_BEGIN
 
 using namespace std;
 
@@ -12,10 +15,8 @@ class InferEngine
 public:
     InferEngine(){};
     virtual int init(const std::string& res_path, DeviceType dev_type, int dev_id, int thread_num) = 0;
-    virtual int forward(const vector<Tensor>& input_data,
-                        vector<Tensor>& output_data) = 0;
-    virtual int async_forward(const vector<Tensor>& input_data,
-                              vector<Tensor>& output_data) = 0;
+    virtual int forward(const vector<Tensor>& input_data, vector<Tensor>& output_data) = 0;
+    virtual int async_forward(const vector<Tensor>& input_data, vector<Tensor>& output_data) = 0;
     virtual int uninit() = 0;
 
     virtual const vector<string>& get_input_names()
@@ -53,3 +54,5 @@ protected:
     vector<Shape> input_shapes_;
     vector<Shape> output_shapes_;
 };
+
+SPACE_END

@@ -1,6 +1,7 @@
 #pragma once
 #include "base_instance.h"
 #include "base_module.h"
+#include "com/define.h"
 #include "cv_server/message.h"
 #include "inst_pool.hpp"
 #include <map>
@@ -8,6 +9,7 @@
 #include <string>
 #include <vector>
 
+SPACE_BEGIN
 
 static std::mutex inst_mgr_mutex;
 
@@ -43,8 +45,8 @@ private:
     static InstManager* inst_mgr_;
     std::map<TaskType, InstParamType> inst_param_map_;
     std::map<TaskType, InstPool*> task_inst_pool_;
-    
-
 };
 
 #define InstMgr InstManager::getInstManager()
+
+SPACE_END

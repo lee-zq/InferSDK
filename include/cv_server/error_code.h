@@ -1,9 +1,11 @@
 #pragma once
 // 全局错误码列表
+#include "com/define.h"
 #include <map>
 #include <sstream>
 #include <string>
 
+SPACE_BEGIN
 /**
  * Error.h
  * @brief define error code.
@@ -56,3 +58,5 @@ public:
 private:
     static std::map<ErrorCode, const char*> ERROR_MSG;
 };
+
+SPACE_END

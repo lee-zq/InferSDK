@@ -1,4 +1,5 @@
 #pragma once
+#include "com/define.h"
 #include "interface/base_instance.h"
 #include <algorithm>
 #include <atomic>
@@ -18,6 +19,8 @@
 #include "com/logger.h"
 #include "cv_server/error_code.h"
 #include "cv_server/message.h"
+
+SPACE_BEGIN
 
 class InstPool
 {
@@ -90,7 +93,9 @@ public:
             inst_ptr->fini();
             inst_pool_cond_.notify_one();
             return ERR_SUCCESS;
-        }else{
+        }
+        else
+        {
             LError("InstPool delete_inst failed");
             return ERR_INVALID_PARAM;
         }
@@ -133,3 +138,5 @@ private:
     std::unordered_set<InstanceBase*> idle_inst_map_;
     std::unordered_set<InstanceBase*> busy_inst_map_;
 };
+
+SPACE_END

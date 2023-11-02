@@ -2,8 +2,9 @@
 #include "all_type.h"
 #include "arch/inst_pool.hpp"
 #include "base_instance.h"
-#include "com/conf_reader.h"
+#include "com/define.h"
 #include "com/logger.h"
+#include "com/utils/conf_reader.h"
 #include "cv_server/error_code.h"
 #include "cv_server/message.h"
 #include "instance/common_inst.h"
@@ -13,6 +14,8 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+
+SPACE_BEGIN
 
 static std::unordered_map<std::string, TaskType> task_type_map = {
     {"COMMON", TaskType::COMMON},
@@ -165,3 +168,5 @@ int InstManager::fini()
     task_inst_pool_.clear();
     return 0;
 }
+
+SPACE_END
