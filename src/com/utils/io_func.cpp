@@ -79,29 +79,3 @@ int split(const std::string& str,
     }
     return 0;
 }
-
-int Bbox2Json(std::vector<Bbox>& bbox_vec, std::string& json_str)
-{
-    rapidjson::Document doc;
-    doc.SetObject();
-    rapidjson::Document::AllocatorType& allocator = doc.GetAllocator();
-    rapidjson::Value array(rapidjson::kArrayType);
-    for (auto& bbox : bbox_vec)
-    {
-        rapidjson::Value obj(rapidjson::kObjectType);
-        obj.AddMember("x1", bbox.x1, allocator);
-        obj.AddMember("y1", bbox.y1, allocator);
-        obj.AddMember("x2", bbox.x2, allocator);
-        obj.AddMember("y2", bbox.y2, allocator);
-        obj.AddMember("id", bbox.id, allocator);
-        obj.AddMember("score", bbox.score, allocator);
-        array.PushBack(obj, allocator);
-    }
-    doc.AddMember("bbox", array, allocator);
-    rapidjson::StringBuffer buffer;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-    doc.Accept(writer);
-    json_str = buffer.GetString();
-    // std::cout << json_str << std::endl;
-    return 0;
-}

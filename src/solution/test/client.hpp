@@ -6,7 +6,7 @@
 #include <fstream>
 #include <ios>
 #include <string>
-#include "parser_json.hpp"
+#include "visual_func.hpp"
 #include "com/conf_reader.h"
 
 class Client

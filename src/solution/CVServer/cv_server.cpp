@@ -58,7 +58,7 @@ int CVServer::process(message* msg)
     TaskType task_type = static_cast<TaskType>(msg->task_type);
 
     auto task = [&]() {
-        int ret = InstMgr->run(task_type, &input_img, &out_data);
+        int ret = InstMgr->run(task_type, &input_img, out_data);
         return ret;
     };
     std::future<int> result = thread_pool_->submit(task);

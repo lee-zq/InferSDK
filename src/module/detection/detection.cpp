@@ -119,8 +119,6 @@ int Detection::postproc(void* result)
         detect_info.bbox.x2 = ori_bbox[3];
         detect_result->push_back(detect_info);
     }
-    // std::string* out_str = static_cast<std::string*>(results);
-    // Bbox2Json(detect_result, *out_str);
     return 0;
 }
 

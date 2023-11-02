@@ -11,6 +11,7 @@
 #include "module/detection/detection.h"
 #include "module/segmentation/seg.h"
 #include <algorithm>
+#include "function.hpp"
 
 int CommonInst::init(const InstParamType& param)
 {
@@ -36,6 +37,39 @@ void CommonInst::set_input(const cv::Mat& input_data)
 void CommonInst::set_output(void* output_data)
 {
     auto result = static_cast<OutData*>(output_data);
+    rapidjson::Document doc;
+    doc.SetObject();
+    rapidjson::Document::AllocatorType& allocator = doc.GetAllocator();
+    if (data_mgr_.class_info.id >= 0)
+    {
+        rapidjson::Value class_info = ClassInfo2JsonValue(data_mgr_.class_info, allocator);
+        doc.AddMember("class_info", class_info, allocator);
+    }
+    if (!data_mgr_.detect_info.empty())
+    {
+        rapidjson::Value detect_info(rapidjson::kArrayType);
+        for (auto& info : data_mgr_.detect_info)
+        {
+            rapidjson::Value obj = DetectInfo2JsonValue(info, allocator);
+            detect_info.PushBack(obj, allocator);
+        }
+        doc.AddMember("detect_info", detect_info, allocator);
+    }
+    if (!data_mgr_.seg_info.empty())
+    {
+        rapidjson::Value seg_info(rapidjson::kArrayType);
+        for (auto& info : data_mgr_.seg_info)
+        {
+            rapidjson::Value obj = SegInfo2JsonValue(info, allocator);
+            seg_info.PushBack(obj, allocator);
+        }
+        doc.AddMember("seg_info", seg_info, allocator);
+    }
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    writer.SetMaxDecimalPlaces(4);
+    doc.Accept(writer);
+    result->output_info = buffer.GetString();
 }
 
 int CommonInst::compute(cv::Mat* input_data, void* output_data)
