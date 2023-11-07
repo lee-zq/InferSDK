@@ -41,7 +41,7 @@ int CVServer::parser_cfg(const std::string& cfg_path)
 int CVServer::create_inst(TaskType task_type, int num)
 {
     int ret = InstMgr->create_inst(task_type, num);
-    log_error_return(ret, "CVServer::process error", ret);
+    log_error_return(ret, "CVServer::create_inst error", ret);
     return 0;
 }
 
@@ -54,9 +54,20 @@ int CVServer::destroy_inst(TaskType task_type)
 
 int CVServer::process(message* msg)
 {
+    std::future<int> result = process_async(msg);
+    if (result.get() != 0)// 阻塞等待
+    { 
+        LError("CVServer::process error");
+        return ERR_GENERAL;
+    }
+    return ERR_SUCCESS;
+}
+
+std::future<int> CVServer::process_async(message* msg)
+{
     InData* in_data = (InData*)msg->input;
     OutData* out_data = (OutData*)msg->output;
-    cv::Mat input_img = in_data->img;
+    cv::Mat& input_img = in_data->img;
     TaskType task_type = static_cast<TaskType>(msg->task_type);
 
     auto task = [&]() {
@@ -64,12 +75,7 @@ int CVServer::process(message* msg)
         return ret;
     };
     std::future<int> result = thread_pool_->submit(task);
-    if (result.get() != 0)
-    { // 阻塞等待
-        LError("CVServer::process error");
-        return ERR_GENERAL;
-    }
-    return ERR_SUCCESS;
+    return result;
 }
 
 int CVServer::fini()

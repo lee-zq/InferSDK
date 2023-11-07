@@ -37,8 +37,18 @@ int main(int argc, char** argv)
 
     // 2. 创建Client
     Client client;
-    client.init(client_cfg);
-    client.start(cv_server);
+    ret = client.init(client_cfg);
+    if (ret != 0)
+    {
+        cout << "init client error" << endl;
+        return -1;
+    }
+    ret = client.start(cv_server);
+    if (ret != 0)
+    {
+        cout << "start client error" << endl;
+        return -1;
+    }
     string input_data_path = "../data/voc.lst"; // 存储格式 /path/to/image task_type req_id
     ret = client.process(input_data_path);
     if (ret != 0)

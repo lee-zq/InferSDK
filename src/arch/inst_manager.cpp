@@ -16,23 +16,50 @@
 #include <vector>
 
 SPACE_BEGIN
-
-static std::unordered_map<std::string, TaskType> task_type_map = {
-    {"COMMON", TaskType::COMMON},
-    {"SCENE_ANALYSIS", TaskType::SCENE_ANALYSIS},
-};
-
-static std::unordered_map<std::string, ModuleType> module_type_map = {
-    {"Classification", ModuleType::Classification},
-    {"Detection", ModuleType::Detection},
-};
-
-static std::unordered_map<std::string, DeviceType> dev_type_map = {{"CPU", DeviceType::CPU},
-                                                                   {"CUDA", DeviceType::CUDA},
-                                                                   {"NPU", DeviceType::NPU},
-                                                                   {"OTHER", DeviceType::OTHER}};
-
 InstManager* InstManager::inst_mgr_ = nullptr;
+
+static TaskType task_type_map(std::string task_type)
+{
+    static std::unordered_map<std::string, TaskType> task_type_map = {{"COMMON", TaskType::COMMON},
+                                                                      {"SCENE_ANALYSIS", TaskType::SCENE_ANALYSIS}};
+    auto iter = task_type_map.find(task_type);
+    if (iter == task_type_map.end())
+    {
+        LError("InstManager::task_type_map error, no supported such type. tyep={}", task_type);
+        return TaskType::INVALID_TYPE;
+    }
+    return iter->second;
+}
+
+static ModuleType module_type_map(std::string module_type)
+{
+    static std::unordered_map<std::string, ModuleType> module_type_map = {{"Classification", ModuleType::Classification},
+                                                                          {"Detection", ModuleType::Detection},
+                                                                          {"Segmentation", ModuleType::Segmentation}};
+    auto iter = module_type_map.find(module_type);
+    if (iter == module_type_map.end())
+    {
+        LError("InstManager::module_type_map error, no supported such type. tyep={}", module_type);
+        return ModuleType::InvalidType;
+    }
+    return iter->second;
+}
+
+static DeviceType dev_type_map(std::string dev_type)
+{
+    static std::unordered_map<std::string, DeviceType> dev_type_map = {{"CPU", DeviceType::CPU},
+                                                                       {"CUDA", DeviceType::CUDA},
+                                                                       {"NPU", DeviceType::NPU},
+                                                                       {"OTHER", DeviceType::OTHER}};
+    auto iter = dev_type_map.find(dev_type);
+    if (iter == dev_type_map.end())
+    {
+        LError("InstManager::dev_type_map error, no supported such type. tyep={}", dev_type);
+        return DeviceType::OTHER;
+    }
+    return iter->second;
+}
+
 
 static int inst_factory(TaskType type, const InstParamType& param, InstanceBase** inst_ptr)
 {
@@ -49,7 +76,7 @@ static int inst_factory(TaskType type, const InstParamType& param, InstanceBase*
         break;
     }
     default:
-        LError("InstManager::create_inst error, no supported such type. tyep={}", type);
+        LError("InstManager::create_inst error, no supported such type. tyep={}", (int)type);
         return ERR_INVALID_PARAM;
     }
     int ret = (*inst_ptr)->init(param);
@@ -78,24 +105,24 @@ int InstManager::parser_cfg(std::string cfg_path)
     {
         cfg.setSection(task_name);
         InstParamType inst_param;
+        inst_param.type = task_name;
         inst_param.dev_id = cfg.readInt("dev_id", default_dev_id);
         std::string inst_dev_type = cfg.readStr("dev_type", default_dev_type);
-        inst_param.dev_type = dev_type_map[inst_dev_type];
+        inst_param.dev_type = dev_type_map(inst_dev_type);
         inst_param.thread_num = cfg.readInt("thread_num", default_thread_num);
         std::vector<std::string> module_name_vec = cfg.readStrArray("module");
         for (auto& module_name : module_name_vec)
         {
             cfg.setSection(module_name);
             ModuleParamType module_param;
-            module_param.type = module_type_map[module_name];
-            module_param.name = module_name;
+            module_param.type = module_name;
             module_param.res_path = cfg.readStr("res_path", "");
             module_param.thread_num = cfg.readInt("thread_num", inst_param.thread_num);
             module_param.dev_id = cfg.readInt("dev_id", inst_param.dev_id);
-            module_param.dev_type = dev_type_map[cfg.readStr("dev_type", inst_dev_type)];
-            inst_param.module_params.push_back(std::make_pair(module_param.type, module_param));
+            module_param.dev_type = dev_type_map(cfg.readStr("dev_type", inst_dev_type));
+            inst_param.module_params.push_back(std::make_pair(module_type_map(module_param.type), module_param));
         }
-        inst_param_map_.insert(std::make_pair(task_type_map[task_name], inst_param));
+        inst_param_map_.insert(std::make_pair(task_type_map(task_name), inst_param));
     }
     return 0;
 }
@@ -122,7 +149,7 @@ int InstManager::destroy_inst(TaskType task_type)
 {
     if (task_inst_pool_.find(task_type) == task_inst_pool_.end())
     {
-        LError("InstManager::destroy_inst error, no such type. tyep={}", task_type);
+        LError("InstManager::destroy_inst error, no such type. tyep={}", (int)task_type);
         return ERR_INVALID_PARAM;
     }
     task_inst_pool_[task_type]->fini();
@@ -134,7 +161,7 @@ int InstManager::run(TaskType task_type, cv::Mat* input_data, void* output_data)
 {
     if (task_inst_pool_.find(task_type) == task_inst_pool_.end())
     {
-        LError("InstManager::run error, no such type. tyep= {} ", task_type);
+        LError("InstManager::run error, no such type. tyep= {} ", (int)task_type);
         return ERR_INVALID_PARAM;
     }
     InstanceBase* inst_ptr = nullptr;

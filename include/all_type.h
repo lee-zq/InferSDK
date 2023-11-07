@@ -25,8 +25,7 @@ typedef enum DataType
 
 typedef struct _ModuleParamType
 {
-    ModuleType type;
-    std::string name;
+    std::string type;
     std::string res_path;
     DeviceType dev_type;
     int dev_id;
@@ -35,8 +34,7 @@ typedef struct _ModuleParamType
 
 typedef struct _InstParamType
 {
-    TaskType type;
-    std::string name;
+    std::string type;
     int thread_num;
     int dev_type;
     int dev_id;

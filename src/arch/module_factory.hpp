@@ -38,7 +38,7 @@ public:
     // Get a module using a ModuleParamType.
     static std::shared_ptr<ModuleBase> CreateModule(const ModuleParamType& param)
     {
-        const std::string& module_type = param.name;
+        const std::string& module_type = param.type;
         LInfo("Creating module: {}", module_type);
         CreatorRegistry& registry = Registry();
         if (registry.count(module_type) != 1)

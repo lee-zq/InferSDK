@@ -1,6 +1,6 @@
 
 #include "cv_server/cv_server.h"
-using namespace iSDK;
+using namespace cs;
 extern "C"
 {
     int CreateCVServer(void** inst)

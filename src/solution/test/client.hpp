@@ -9,7 +9,7 @@
 #include <ios>
 #include <string>
 
-using namespace iSDK;
+using namespace cs;
 
 class Client
 {

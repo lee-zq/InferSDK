@@ -35,8 +35,9 @@ typedef struct _OutData
     void* output_context;
 } OutData;
 
-enum TaskType
+enum class TaskType
 {
+    INVALID_TYPE,
     COMMON,
     SCENE_ANALYSIS,
 };
@@ -44,12 +45,10 @@ enum TaskType
 // task_type 类型枚举
 enum class ModuleType
 {
+    InvalidType,
     Classification,
     Detection,
-    Segmentation,
-    LANE_DETECT,
-    PERSON_DETECT,
-    PERSON_POSE
+    Segmentation
 };
 
 SPACE_END

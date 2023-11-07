@@ -5,13 +5,12 @@
 #include "cv_server/message.h"
 #include "inst_pool.hpp"
 #include <map>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <vector>
 
 SPACE_BEGIN
-
-static std::mutex inst_mgr_mutex;
 
 class InstManager
 {
@@ -21,17 +20,17 @@ public:
     int destroy_inst(TaskType task_type);
     int run(TaskType task_type, cv::Mat* input_data, void* output_data);
     int fini();
-    ~InstManager()
-    {
-        delete inst_mgr_;
-    }
 
     static InstManager* getInstManager()
     {
-        std::lock_guard<std::mutex> lock(inst_mgr_mutex);
-        if (!inst_mgr_)
+        static std::mutex inst_mgr_mutex;
+        if (inst_mgr_ == nullptr)
         {
-            inst_mgr_ = new InstManager();
+            std::lock_guard<std::mutex> lock(inst_mgr_mutex);
+            if (inst_mgr_ == nullptr)
+            {
+                inst_mgr_ = new InstManager();
+            }
         }
         return inst_mgr_;
     }

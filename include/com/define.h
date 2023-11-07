@@ -9,7 +9,7 @@
     {
 #define NAMESPACE_END(name) }
 
-#define SPACE_NAME iSDK
+#define SPACE_NAME cs
 
 #define SPACE_BEGIN NAMESPACE_BEGIN(SPACE_NAME)
 #define SPACE_END NAMESPACE_END(SPACE_NAME)
