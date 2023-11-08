@@ -71,7 +71,7 @@ void render_img_with_seg_result(rapidjson::Value& seg_result, cv::Mat& img)
         }
         for (int j = 0; j < points.size(); j++)
         {
-            cv::line(img, points[j], points[(j + 1)/points.size()], color_map["green"], 2);
+            cv::line(img, points[j], points[(j + 1)%points.size()], color_map["green"], 2);
         }
         cv::putText(img, textline, points[0], cv::FONT_HERSHEY_SIMPLEX, 0.8, color_map["red"], 1);
     }

@@ -4,12 +4,14 @@
 #include <opencv2/core/mat.hpp>
 #include <opencv2/core/types.hpp>
 #include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc/types_c.h>
 #include <time.h>
 
 #include "arch/module_factory.hpp"
 #include "com/define.h"
 #include "seg.h"
 #include "tensor.h"
+#include "utils/dataset_class_id_map.h"
 
 SPACE_BEGIN
 
@@ -65,11 +67,13 @@ int Segmentation::preproc(const cv::Mat& input_img)
 
 int Segmentation::postproc(void* result)
 {
+    auto seg_result = (std::vector<SegInfo>*)result;
+    seg_result->clear();
     Tensor& prob = output_datas_[0];
     auto shape_vec = prob.GetShape();
     cv::Mat prob_mat(shape_vec[2], shape_vec[3], CV_32FC1, prob.GetDataPtr());
-    cv::Mat label_mat(shape_vec[2], shape_vec[3], CV_8UC1);
-    label_mat.setTo(0);
+    cv::Mat all_label_mat(shape_vec[2], shape_vec[3], CV_8UC1);
+    all_label_mat.setTo(0);
 
     for (int c = 0; c < shape_vec[1]; c++)
     {
@@ -82,12 +86,68 @@ int Segmentation::postproc(void* result)
                 if (*prob > prob_mat.at<float>(h, w))
                 {
                     prob_mat.at<float>(h, w) = *prob;
-                    label_mat.at<uchar>(h, w) = c;
+                    all_label_mat.at<uchar>(h, w) = c;
                 }
             }
         }
     }
-    cv::imwrite("label.png", label_mat * 10);
+    // cv::imwrite("label.png", all_label_mat * 10);
+    cv::Mat log_img = all_label_mat * 10;
+    cv::cvtColor(log_img, log_img, CV_GRAY2BGR);
+    int min_area_thres = shape_vec[2] * shape_vec[3] / 100;
+    int StructuringElementSize = shape_vec[2] * shape_vec[3] / 10000;
+    for (int class_id = 1; class_id < shape_vec[1]; class_id++)
+    {
+        cv::Mat cur_class_mat;
+        cv::compare(all_label_mat, class_id, cur_class_mat, cv::CMP_EQ);
+        // //统计图像中连通域的个数
+        cv::Mat labels;
+        int numComponents = cv::connectedComponents(cur_class_mat, labels);
+        for (int i = 1; i < numComponents; ++i)
+        {
+            cv::Mat mask = (labels == i);
+            // 闭合操作
+            cv::morphologyEx(
+                mask,
+                mask,
+                cv::MORPH_CLOSE,
+                cv::getStructuringElement(cv::MORPH_RECT, cv::Size(StructuringElementSize, StructuringElementSize)));
+            std::vector<std::vector<cv::Point>> contours;
+            cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+            auto contour = contours[0];
+
+            // 计算边界框面积
+            cv::Rect boundingRect = cv::boundingRect(contour);
+            int area = boundingRect.width * boundingRect.height;
+            if (area < min_area_thres) // 面积小于200舍弃
+                continue;
+
+            // 计算轮廓凸包
+            std::vector<cv::Point> hull;
+            cv::convexHull(contour, hull);
+            // 绘制边界框
+            cv::rectangle(log_img, boundingRect, cv::Scalar(0, 255, 0), 2);
+            // 绘制凸包
+            cv::polylines(log_img, hull, true, cv::Scalar(0, 0, 255), 2);
+            // 绘制轮廓
+            cv::drawContours(log_img, contours, -1, cv::Scalar(255, 0, 0), 2);
+            // 保存结果
+            SegInfo seg_info;
+            seg_info.id = class_id;
+            seg_info.score = 1.f;
+            seg_info.name = get_voc_class_name(class_id);
+            seg_info.bbox.x1 = boundingRect.x;
+            seg_info.bbox.y1 = boundingRect.y;
+            seg_info.bbox.x2 = boundingRect.x + boundingRect.width;
+            seg_info.bbox.y2 = boundingRect.y + boundingRect.height;
+            for (auto point : hull)
+            {
+                seg_info.contour.push_back(Point{point.x,point.y,1.f});
+            }
+            seg_result->push_back(seg_info);
+        }
+    }
+    cv::imwrite("./visual/seg_log_img.png", log_img);
     return 0;
 }
 

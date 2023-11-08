@@ -39,5 +39,6 @@ typedef struct SegInfo
     int id;
     float score;
     std::string name;
+    Bbox bbox;
     std::vector<Point> contour;
 }SegInfo;
