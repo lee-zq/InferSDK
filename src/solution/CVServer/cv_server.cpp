@@ -67,11 +67,10 @@ std::future<int> CVServer::process_async(message* msg)
 {
     InData* in_data = (InData*)msg->input;
     OutData* out_data = (OutData*)msg->output;
-    cv::Mat& input_img = in_data->img;
     TaskType task_type = static_cast<TaskType>(msg->task_type);
 
-    auto task = [&]() {
-        int ret = InstMgr->run(task_type, &input_img, out_data);
+    auto task = [=]() {
+        int ret = InstMgr->run(task_type, &in_data->img, out_data);
         return ret;
     };
     std::future<int> result = thread_pool_->submit(task);

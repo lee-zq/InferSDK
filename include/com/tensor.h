@@ -1,6 +1,7 @@
 #pragma once
 #include <cstring>
 #include <iostream>
+#include <opencv2/core/types.hpp>
 #include <string>
 #include <vector>
 
@@ -163,7 +164,6 @@ public:
     }
 };
 
-
 class Tensor
 {
 private:
@@ -174,10 +174,12 @@ private:
 
 public:
     ~Tensor(){};
-    Tensor()
+    Tensor(Shape shape={}, DataType data_type=Float32, DeviceType dev_type=CPU, int dev_id = 0)
     {
-        data_type_ = Float32;
-        device_type_ = CPU;
+        shape_ = shape;
+        data_type_ = data_type;
+        device_type_ = dev_type;
+        data_ = std::vector<char>(shape.Size() * DataTypeSize(data_type_));
     }
     Tensor(const Tensor& tensor)
     {
@@ -241,6 +243,11 @@ public:
     {
         return Size() * DataTypeSize(data_type_);
     }
+    int MemSetZero()
+    {
+        memset(data_.data(), 0, MemSize());
+        return 0;
+    }
     int Size()
     {
         return shape_.Size();
@@ -258,9 +265,9 @@ public:
     {
         return device_type_;
     }
-    void* GetDataPtr()
+    void* GetDataPtr(int offset=0)
     {
-        return data_.data();
+        return data_.data() + offset * DataTypeSize(data_type_);
     }
     const Shape& GetShape()
     {
@@ -289,12 +296,61 @@ public:
             return 0;
         }
     }
+
     template <typename T>
     std::vector<T> dump_to_vector()
     {
         T* data_ptr = reinterpret_cast<T*>(data_.data());
         std::vector<T> vec(data_ptr, data_ptr + shape_.Size());
         return vec;
+    }
+
+    // create input tensor with layout NCHW , float data type
+    int FromImages(std::vector<cv::Mat> imgs, std::vector<float> mean_vec, std::vector<float> std_vec)
+    {
+        if (imgs.empty()) {
+            std::cout << "input imgs is empty" << std::endl;
+            return -1;
+        }
+        int batch_size = imgs.size();
+        int channel = imgs[0].channels();
+        int height = imgs[0].rows;
+        int width = imgs[0].cols;
+        if (mean_vec.size()!=channel || std_vec.size()!=channel)
+        {
+            std::cout << "Mean or std vector size is not equal to image channel" << std::endl;
+            return -1;
+        }
+        int img_size = height * width * channel;
+        shape_ = Shape(std::vector<int>{batch_size, channel, height, width});
+        data_.resize(shape_.Size() * sizeof(float));
+        float* data_ptr = reinterpret_cast<float*>(data_.data());
+        for (int b = 0; b < batch_size; b++)
+        {
+            cv::Mat img = imgs[b];
+            if (img.channels() != channel)
+            {
+                std::cout << "Image channel is not equal to " << channel << std::endl;
+                return -1;
+            }
+            if (img.rows != height || img.cols != width)
+            {
+                std::cout << "Image size is not equal to " << height << "x" << width << std::endl;
+                return -1;
+            }
+            for (int c = 0; c < channel; c++)
+            {
+                for (int h = 0; h < height; h++)
+                {
+                    for (int w = 0; w < width; w++)
+                    {
+                        data_ptr[b * img_size + c * img_size / channel + h * width + w] =
+                            (img.at<cv::Vec3f>(h, w)[c] - mean_vec[c]) / std_vec[c];
+                    }
+                }
+            }
+        }
+        return 0;
     }
     std::string info_to_string()
     {

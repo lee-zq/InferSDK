@@ -1,11 +1,15 @@
 #include <algorithm>
 #include <cmath>
 #include <fstream>
+#include <opencv2/core/mat.hpp>
+#include <opencv2/core/types.hpp>
+#include <opencv2/imgcodecs.hpp>
 #include <time.h>
 
 #include "arch/module_factory.hpp"
 #include "com/define.h"
 #include "seg.h"
+#include "tensor.h"
 
 SPACE_BEGIN
 
@@ -37,32 +41,53 @@ int Segmentation::preproc(const cv::Mat& input_img)
         std::cout << "img is empty! | " << endl;
         return -1;
     }
+    cv::Mat data_img;
+    cv::cvtColor(input_img, data_img, CV_BGR2RGB);
+    data_img.convertTo(data_img, CV_32FC3);
+    data_img = data_img / 255.f;
+    // std::vector<cv::Mat> channels;
+    // cv::split(data_img, channels);
 
-    float* input_datas_data_ptr = (float*)input_datas_[0].GetDataPtr();
-    for (int c = 0; c < 3; c++)
-    {
-        for (int i = 0; i < input_height; i++)
-        {
-            for (int j = 0; j < input_width; j++)
-            {
-                float tmp = input_img.ptr<uchar>(i)[j * 3 + c];
-                input_datas_data_ptr[c * input_height * input_width + i * input_width + j] =
-                    ((tmp) / 255.0 - mean_[c]) / std_[c];
-            }
-        }
-    }
+    // input_datas_[0].Reshape(vector<int>{1, data_img.channels(), data_img.rows, data_img.cols}, Float32);
+    // float* input_datas_data_ptr0 = (float*)input_datas_[0].GetDataPtr();
+    // for (int c = 0; c < channels.size(); c++)
+    // {
+    //     cv::Mat& channel = channels[c];
+    //     channel = (channel - mean_[c]) / std_[c];
+    //     float* src_ptr = (float*)channel.data;
+    //     float* dst_ptr = input_datas_data_ptr0 + c * data_img.cols * data_img.rows;
+    //     memcpy(dst_ptr, src_ptr, data_img.cols * data_img.rows * sizeof(float));
+    // }
+    input_datas_[0].FromImages(std::vector<cv::Mat>{data_img}, mean_, std_);
+    // auto debug_data = input_datas_[0].dump_to_vector<float>();
     return 0;
 }
 
 int Segmentation::postproc(void* result)
 {
-    // static_cast<int*>(results)[0] = 0;
-    for (int n = 0; n < output_datas_.size(); n++)
+    Tensor& prob = output_datas_[0];
+    auto shape_vec = prob.GetShape();
+    cv::Mat prob_mat(shape_vec[2], shape_vec[3], CV_32FC1, prob.GetDataPtr());
+    cv::Mat label_mat(shape_vec[2], shape_vec[3], CV_8UC1);
+    label_mat.setTo(0);
+
+    for (int c = 0; c < shape_vec[1]; c++)
     {
-        Tensor& item = output_datas_[n];
-        // int class_result = std::distance(output_datas_[n].begin(), std::max_element(output_data_[n].begin(), output_data_[n].end()));
-        // res = class_result;
+        Tensor channel = prob[0][c];
+        for (int h = 0; h < shape_vec[2]; h++)
+        {
+            for (int w = 0; w < shape_vec[3]; w++)
+            {
+                float* prob = (float*)channel.GetDataPtr(h * shape_vec[3] + w);
+                if (*prob > prob_mat.at<float>(h, w))
+                {
+                    prob_mat.at<float>(h, w) = *prob;
+                    label_mat.at<uchar>(h, w) = c;
+                }
+            }
+        }
     }
+    cv::imwrite("label.png", label_mat * 10);
     return 0;
 }
 

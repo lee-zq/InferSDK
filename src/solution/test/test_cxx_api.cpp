@@ -49,6 +49,14 @@ int main(int argc, char** argv)
         cout << "start client error" << endl;
         return -1;
     }
+    // 推理配置文件client.cfg中的data_lst指定的数据
+    ret = client.process();
+    if (ret != 0)
+    {
+        cout << "main() process error" << endl;
+        return -1;
+    }
+    // 推理外部指定的数据
     string input_data_path = "../data/voc.lst"; // 存储格式 /path/to/image task_type req_id
     ret = client.process(input_data_path);
     if (ret != 0)

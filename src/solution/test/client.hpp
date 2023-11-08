@@ -30,7 +30,7 @@ public:
         supported_task_type_ = conf.readIntArray("request_task_type", ",");
 
         int thread_num = conf.readInt("thread_num", 1);
-        std::string data_lst = conf.readStr("data_lst", "");
+        default_img_data_lst_ = conf.readStr("data_lst", "");
         save_result_ = conf.readBool("save_result", false);
         save_dir_ = conf.readStr("save_dir", "./save");
         visualize_result_ = conf.readBool("visualize_result", false);
@@ -93,8 +93,11 @@ public:
         }
         return 0;
     }
+    int process(){
+        return process(default_img_data_lst_);
+    }
 
-    int process(std::string input_data_path, std::string visual_dir = "./")
+    int process(std::string input_data_path)
     {
         std::vector<std::string> img_paths = load_file(input_data_path);
         std::vector<std::string> item;
@@ -103,6 +106,7 @@ public:
         int id;
         for (int i = 0; i < img_paths.size(); i++)
         {
+            std::cout << "process: " << img_paths[i] << std::endl;
             int ret = split(img_paths[i], item, " ");
             if (ret != 0)
             {
@@ -148,6 +152,7 @@ public:
 
     std::string cfg_path_;
 
+    std::string default_img_data_lst_;
     bool save_result_ = false;
     std::string save_dir_;
     bool visualize_result_ = false;
