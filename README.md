@@ -7,7 +7,7 @@ InferSDK(Deep Learning Inference SDK)是一个基于多种后端深度学习推�
 ```
 
 TODO List:  
-- [x] 检测模块集成+可视化结果
+- [x] 检测模块集成+可视化结果 
 - [x] 分类模块一致性对齐
 - [ ] 多线程安全检查
 - [ ] NCNN、MNN、TNN后端支持
